@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXCheckBox?>
+<?import com.jfoenix.controls.JFXComboBox?>
+<?import com.jfoenix.controls.JFXRadioButton?>
+<?import com.jfoenix.controls.JFXTabPane?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="456.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+   <children>
+      <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="700.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <HBox alignment="CENTER_LEFT" minHeight="50.0">
+               <children>
+                  <Label text="Local:">
+                     <HBox.margin>
+                        <Insets right="10.0" />
+                     </HBox.margin>
+                  </Label>
+                  <JFXTextField fx:id="txLocalizacao" editable="false" prefHeight="50.0" prefWidth="606.0">
+                     <HBox.margin>
+                        <Insets right="10.0" />
+                     </HBox.margin>
+                     <font>
+                        <Font size="12.0" />
+                     </font>
+                  </JFXTextField>
+               </children>
+               <VBox.margin>
+                  <Insets bottom="20.0" left="20.0" right="10.0" top="30.0" />
+               </VBox.margin>
+            </HBox>
+            <JFXTabPane minHeight="350.0" prefWidth="660.0">
+               <tabs>
+                  <Tab text="Consulta de Cliente">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <children>
+                                    <HBox alignment="CENTER_LEFT" prefHeight="42.0" prefWidth="660.0">
+                                       <children>
+                                          <Label text="Buscar:">
+                                             <HBox.margin>
+                                                <Insets right="10.0" />
+                                             </HBox.margin>
+                                          </Label>
+                                          <JFXTextField fx:id="txPesquisaRapida" prefHeight="200.0" prefWidth="200.0" promptText="(ID, Status, Nome ou CNPJ)" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="20.0" top="10.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                    <TableView fx:id="tbClientes" prefHeight="241.0" prefWidth="660.0" />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                    </content>
+                  </Tab>
+                  <Tab text="Organizar">
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <children>
+                                    <HBox alignment="CENTER_LEFT">
+                                       <children>
+                                          <Label text="Diretorio Padrao:">
+                                             <HBox.margin>
+                                                <Insets right="10.0" />
+                                             </HBox.margin>
+                                          </Label>
+                                          <JFXComboBox fx:id="cbRaiz" prefHeight="25.0" prefWidth="160.0" promptText="Raiz">
+                                             <HBox.margin>
+                                                <Insets right="10.0" />
+                                             </HBox.margin>
+                                          </JFXComboBox>
+                                          <JFXComboBox fx:id="cbDocumento" layoutX="185.0" layoutY="10.0" promptText="Documento">
+                                             <HBox.margin>
+                                                <Insets right="10.0" />
+                                             </HBox.margin>
+                                          </JFXComboBox>
+                                          <JFXComboBox fx:id="cbAno" layoutX="111.0" layoutY="10.0" promptText="Ano">
+                                             <HBox.margin>
+                                                <Insets right="10.0" />
+                                             </HBox.margin>
+                                          </JFXComboBox>
+                                          <JFXComboBox fx:id="cbMes" layoutX="167.0" layoutY="10.0" promptText="Mes">
+                                             <HBox.margin>
+                                                <Insets right="10.0" />
+                                             </HBox.margin>
+                                          </JFXComboBox>
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" right="20.0" top="20.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                    <HBox>
+                                       <children>
+                                          <JFXRadioButton fx:id="rbIdNome" text="ID no Nome" />
+                                          <JFXRadioButton fx:id="rbCNPJNome" text="CNPJ no Nome">
+                                             <HBox.margin>
+                                                <Insets right="10.0" />
+                                             </HBox.margin>
+                                          </JFXRadioButton>
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="20.0" top="20.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                    <VBox fx:id="pnIDNome">
+                                       <children>
+                                          <JFXCheckBox fx:id="ckDelimitador" mnemonicParsing="false" text="O nome do arquivo começa pelo ID no padrao 4 digitos (0000)" />
+                                          <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
+                                             <children>
+                                                <Label text="Delimitador:">
+                                                   <HBox.margin>
+                                                      <Insets right="10.0" />
+                                                   </HBox.margin>
+                                                </Label>
+                                                <JFXTextField fx:id="txDelimitadorNome" prefColumnCount="2" />
+                                             </children>
+                                          </HBox>
+                                          <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
+                                             <children>
+                                                <Label layoutX="10.0" layoutY="10.0" text="Indice de Busca:">
+                                                   <HBox.margin>
+                                                      <Insets right="10.0" />
+                                                   </HBox.margin>
+                                                </Label>
+                                                <JFXComboBox fx:id="cbIndiceNome" />
+                                             </children>
+                                          </HBox>
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="20.0" />
+                                       </VBox.margin>
+                                    </VBox>
+                                    <HBox alignment="CENTER_RIGHT">
+                                       <children>
+                                          <JFXButton fx:id="btVazias" text="Removar Pastas Vazias" />
+                                          <JFXButton fx:id="btMover" layoutX="603.0" layoutY="10.0" text="Processar" />
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                     </content>
+                  </Tab>
+                  <Tab text="Renomear">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <VBox layoutX="14.0" layoutY="4.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <children>
+                                    <HBox>
+                                       <children>
+                                          <JFXRadioButton fx:id="rbSubstituirCaracteres" text="Substituir Caracteres">
+                                             <HBox.margin>
+                                                <Insets right="10.0" />
+                                             </HBox.margin>
+                                          </JFXRadioButton>
+                                          <JFXRadioButton fx:id="rbInserir0" text="Inserir &quot;0&quot; antes do nome do arquivo" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="30.0" top="20.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                    <VBox fx:id="pnSubstituirCaracteres">
+                                       <children>
+                                          <HBox prefHeight="40.0" prefWidth="660.0">
+                                             <children>
+                                                <Label text="Nome que contenha:">
+                                                   <HBox.margin>
+                                                      <Insets right="10.0" />
+                                                   </HBox.margin>
+                                                </Label>
+                                                <JFXTextField fx:id="txSVOld" />
+                                             </children>
+                                          </HBox>
+                                          <HBox layoutX="10.0" layoutY="10.0" prefHeight="100.0" prefWidth="200.0">
+                                             <children>
+                                                <Label layoutX="10.0" layoutY="10.0" text="Substituir por:">
+                                                   <HBox.margin>
+                                                      <Insets right="10.0" />
+                                                   </HBox.margin>
+                                                </Label>
+                                                <JFXTextField fx:id="txSPNew" layoutX="10.0" layoutY="10.0" />
+                                             </children>
+                                          </HBox>
+                                       </children>
+                                    </VBox>
+                                    <HBox alignment="CENTER_RIGHT" layoutX="10.0" layoutY="165.0">
+                                       <children>
+                                          <JFXButton fx:id="btRenomear" text="Processar" />
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                    </content>
+                  </Tab>
+               </tabs>
+               <VBox.margin>
+                  <Insets left="20.0" right="20.0" />
+               </VBox.margin>
+            </JFXTabPane>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>
