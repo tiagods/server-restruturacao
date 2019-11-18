@@ -13,30 +13,45 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public abstract class BasePath {
+
     private static Path base = Paths.get("\\\\plkserver\\Clientes");
     //private static Path base = Paths.get("clientes");
     private static Path desligados = base.resolve("_desligados_extintas");
     private static Path modelo = Paths.get(base.toString(),"_base");
     private static Map<Cliente, Path> cliMap = new HashMap<>();
+    private static Map<Cliente, Path> pathMapEncontrados = new HashMap<>();
+
     public BasePath(){
         try {
             if (Files.notExists(desligados)) Files.createDirectories(desligados);
             ClienteData clienteData = ClienteData.getInstance();
             Set<Cliente> clienteSet = clienteData.getClientes();
-            final String numberApelido = "[0-9]{4}";
+            String regex = "[0-9]{4}+[^0-9]?";
             //listando todos os arquivos e corrigir nomes se necessarios
-            Set<Path> files = Files.list(base).filter(f->f.getFileName().toString().contains("-") &&
-                    Pattern.compile(numberApelido).matcher(f.getFileName().toString().substring(0,4)).find()).collect(Collectors.toSet());
-            Set<Path> des = Files.list(desligados).filter(f->f.getFileName().toString().contains("-") &&
-                    Pattern.compile(numberApelido).matcher(f.getFileName().toString().substring(0,4)).find()).collect(Collectors.toSet());
+            Set<Path> files = Files.list(base)
+                    .filter(f->Files.isDirectory(f) && f.getFileName().toString()
+                            .matches(regex))
+                    .collect(Collectors.toSet());
+            Set<Path> des = Files.list(desligados)
+                    .filter(f->Files.isDirectory(f) && f.getFileName().toString()
+                            .matches(regex))
+                    .collect(Collectors.toSet());
             files.addAll(des);
+
             for(Path p : files){
                 String nome = p.getFileName().toString();
-                Optional<Cliente> cliente = clienteSet.stream().filter(c->c.getIdFormatado().equals(nome.substring(0,4))).findFirst();
+                Optional<Cliente> cliente = clienteSet
+                        .stream()
+                        .filter(c->c.getIdFormatado().equals(nome.substring(0,4)))
+                        .findFirst();
+
                 if(cliente.isPresent()){
                     Cliente cli = cliente.get();
-                    Path novoCaminho = cli.getStatus().equalsIgnoreCase("Desligada")?desligados.resolve(cli.toString()):base.resolve(cli.toString());
-                    if(!nome.equals(cli.toString())) Files.move(p,novoCaminho,StandardCopyOption.REPLACE_EXISTING);
+                    Path novoCaminho = cli.getStatus().equalsIgnoreCase("Desligada")?
+                            desligados.resolve(cli.toString()):base.resolve(cli.toString());
+                    if(!nome.equals(cli.toString())){
+                        Files.move(p,novoCaminho,StandardCopyOption.REPLACE_EXISTING);
+                    }
                 }
             }
         }catch (IOException e){
@@ -54,6 +69,7 @@ public abstract class BasePath {
     public static Path getModelo() {
         return modelo;
     }
+
     public boolean cnpjIsValid(String cnpj){
         String cnpjFormat = "(^\\d{2}\\d{3}\\d{3}\\d{4}\\d{2}$)";
         Matcher matcher = Pattern.compile(cnpjFormat).matcher(cnpj);
@@ -67,6 +83,7 @@ public abstract class BasePath {
             Path file2 = desligados.resolve(c.toString());
             try {
                 if (Files.exists(file1)) Files.move(file1, file2, StandardCopyOption.REPLACE_EXISTING);
+
                 else if (Files.notExists(file2)) {
                     Files.createDirectory(file2);
                 }
