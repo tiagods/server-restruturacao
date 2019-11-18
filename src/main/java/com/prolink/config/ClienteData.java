@@ -44,7 +44,7 @@ public class ClienteData {
             properties.load(stream);
             for (Object key : properties.keySet()) {
                 Cliente cliente = new Cliente();
-                cliente.getFile(key.toString(), properties.getProperty(key.toString()));
+                cliente.getFileProperties(key.toString(), properties.getProperty(key.toString()));
                 cliente.setNomeFormatado(novoNome(cliente.getNome()));
                 cliente.setIdFormatado(novoId(cliente.getId()));
                 clientes.add(cliente);
