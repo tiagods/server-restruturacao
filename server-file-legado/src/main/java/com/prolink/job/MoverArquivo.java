@@ -102,7 +102,7 @@ public class MoverArquivo extends BasePath {
         fw.flush();
         fw.close();
     }
-
+\
     private Path buscarPorCnpj(Path arquivo, Set<Cliente> clienteSet, Ordem ordem){
         if(arquivo.getFileName().toString().trim().length()<14) return null;
         if(ordem.equals(Ordem.INICIO)) {
