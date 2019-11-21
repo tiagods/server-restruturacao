@@ -1,3 +1,9 @@
+# Folders
+.idea
+*/out
+*/database.properties
+*/application.properties
+
 # Compiled class file
 *.class
 
@@ -9,6 +15,7 @@
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
+*/target
 
 # Package Files #
 *.jar
