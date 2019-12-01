@@ -1,4 +1,4 @@
-package com.tiagods.prolink;
+package com.tiagods.prolink.repository;
 
 import com.tiagods.prolink.model.Arquivo;
 import org.springframework.data.mongodb.repository.MongoRepository;
