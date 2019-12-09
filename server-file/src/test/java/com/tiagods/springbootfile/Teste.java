@@ -1,5 +1,6 @@
-package com.prolink.config;
+package com.tiagods.springbootfile;
 
+import com.prolink.config.ClienteData;
 import com.prolink.model.Cliente;
 
 import java.io.IOException;
@@ -8,20 +9,20 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public abstract class BasePath {
+public class Teste {
 
-   //private static Path base = Paths.get("\\\\plkserver\\Clientes");
+    //private static Path base = Paths.get("\\\\plkserver\\Clientes");
     private static Path base = Paths.get("c:\\clientes");
     private static Path desligados = base.resolve("_desligados_extintas");
     private static Path modelo = base.resolve("_base");
+    //private static Path modelo = Paths.get(base.toString(),"_base");
     private static Map<Cliente, Path> cliMap = new HashMap<>();
     private static String regex = "[0-9]{4}+[^0-9]*$";
 
-    public BasePath(){
+
+    public static void main(String[] args) {
         try {
             Map<Cliente, Path> cliMap = new HashMap<>();
 
@@ -44,6 +45,16 @@ public abstract class BasePath {
             files.addAll(actives);
             files.addAll(desl);
 
+            Map<String, Path> collect = files
+                    .stream()
+                    .collect(
+                            Collectors.groupingBy(c ->
+                                            c.getFileName().toString().substring(0, 4),
+                                    Collectors.toSet()));
+            if(collect.values().stream().anyMatch(c -> c > 1)) {
+                chaveDuplicada()
+            }
+
             organizarCliente(clienteSet,files);
 
         }catch (IOException e){
@@ -51,7 +62,7 @@ public abstract class BasePath {
         }
     }
 
-    private void organizarCliente(Set<Cliente> list,Set<Path> arquivos){
+    private static void organizarCliente(Set<Cliente> list,Set<Path> arquivos){
         list.forEach(c->{
             Optional<Path> arquivo = arquivos
                     .stream()
@@ -66,7 +77,7 @@ public abstract class BasePath {
                     //caminho do diretorio
                     boolean localCorreto = arquivo.get().getParent().equals(desligados);
                     if(localCorreto && !nomeCorreto) {
-                         try{
+                        try{
                             Path destino = desligados.resolve(c.toString());
                             Files.move(arquivo.get(), desligados.resolve(c.toString()), StandardCopyOption.REPLACE_EXISTING);
                             cliMap.put(c, destino);
@@ -140,44 +151,4 @@ public abstract class BasePath {
             }
         });
     }
-
-    public Path buscarCliente(Cliente c) {
-        return cliMap.get(c);
-        /*
-        Path file1 = base.resolve(c.toString());
-        if (c.getStatus().equalsIgnoreCase("Desligada")) {
-            Path file2 = desligados.resolve(c.toString());
-            return Files.notExists(file2) ? null : file2;
-        } else
-            return Files.notExists(file1) ? null : file1;
-        */
-    }
-    public void verificarEstrutura(Path estrutura) {
-        try {
-            Path path = modelo.resolve(estrutura);
-            if (Files.notExists(path)) Files.createDirectories(path);
-        }catch (IOException e){
-            System.out.print("Falha ao criar estrutura : "+e.getMessage());
-        }
-    }
-
-    public static Path getBase() {
-        return base;
-    }
-
-    public static Path getDesligados() {
-        return desligados;
-    }
-
-    public static Path getModelo() {
-        return modelo;
-    }
-
-    public boolean cnpjIsValid(String cnpj){
-        String cnpjFormat = "(^\\d{2}\\d{3}\\d{3}\\d{4}\\d{2}$)";
-        Matcher matcher = Pattern.compile(cnpjFormat).matcher(cnpj);
-        return matcher.find();
-    }
-
-
 }

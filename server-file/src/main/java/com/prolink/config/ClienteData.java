@@ -29,7 +29,7 @@ public class ClienteData {
         properties = new Properties();
         try{
             if(Files.notExists(path)) Files.createFile(path);
-            refreshDatabase();
+            //refreshDatabase();
             load();
         }catch (IOException e){
             e.printStackTrace();
@@ -44,6 +44,7 @@ public class ClienteData {
     private void load(){
         try {
             InputStream stream = new FileInputStream(path.toFile());
+            properties = new Properties();
             properties.load(stream);
             for (Object key : properties.keySet()) {
                 Cliente cliente = new Cliente();
@@ -86,15 +87,13 @@ public class ClienteData {
         int limite = 20;
         for(int i=0; i<valor.length;i++){
             int size = v1.length();
-            if(size+valor[i].length()>=20) break;
+            if(size+valor[i].length()>=limite) break;
             if(contains(valor[i]) && valor[i+1]!=null){
                 if(!contains(valor[i+1]))
                     v1 += size+valor[i].length()+valor[i+1].length()<limite? valor[i]+" "+valor[i+1]+" ": "";
             }
             else v1 += size+valor[i].length()<limite? valor[i]+" ": "";
         }
-        //String old = v1;
-        //System.out.println("nomeanterior"+nome+"\t\tnome>"+novoNome+"\t\told >"  + old+"\t\t new >"+replace(v1));
         return v1.trim();
     }
     private String replace(String valor){

@@ -3,14 +3,8 @@ package com.prolink.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Properties;
 
 public abstract class DBConfig {
@@ -25,7 +19,11 @@ public abstract class DBConfig {
     public DBConfig(){
         properties = new Properties();
         try{
-            InputStream stream = getClass().getClassLoader().getResource ("database.properties").openStream();
+            InputStream stream = getClass()
+                    .getClassLoader()
+                    .getResource ("database.properties")
+                    .openStream();
+
             load(stream);
             URL = properties.getProperty("url");
             USER = properties.getProperty("user");
