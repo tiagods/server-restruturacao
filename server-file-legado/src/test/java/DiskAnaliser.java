@@ -1,8 +1,7 @@
-import org.apache.commons.io.FileSystemUtils;
-
 import java.io.IOException;
-import java.nio.file.*;
-import java.nio.file.attribute.FileStoreAttributeView;
+import java.nio.file.FileStore;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class DiskAnaliser{
     public static void main(String[] args) throws IOException {

@@ -19,9 +19,7 @@ public class Conexao extends DBConfig {
         try {
             Class.forName(getDBDRIVER());
             return DriverManager.getConnection(getURL(),getUSER(),getPASSWORD());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         }
         return null;

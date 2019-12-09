@@ -10,7 +10,7 @@
         <relativePath /> <!-- lookup parent from repository -->
     </parent>
 
-    <groupId>com.prolink</groupId>
+    <groupId>com.com.tiagods.prolink</groupId>
     <artifactId>server-file-legado</artifactId>
     <version>1.0</version>
     <properties>

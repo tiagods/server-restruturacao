@@ -113,6 +113,7 @@ public class Controller extends Operacao implements Initializable{
         clientesData = data.getClientes();
         txPesquisaRapida.textProperty().addListener((observable, oldValue, newValue) -> {
             tbClientes.getItems().clear();
+
             if(newValue.trim().length()>0){
                 int id = 0;
                 try{
@@ -153,7 +154,8 @@ public class Controller extends Operacao implements Initializable{
             ckDelimitador.setText(valor);
         }
         );
-        ChangeListener change2 = (observable, oldValue, newValue) -> pnSubstituirCaracteres.setVisible(rbSubstituirCaracteres.isSelected());
+        ChangeListener change2 = (observable, oldValue, newValue) ->
+                pnSubstituirCaracteres.setVisible(rbSubstituirCaracteres.isSelected());
 
         ChangeListener change3 = ((observable, oldValue, newValue) -> {
             txDelimitadorNome.setDisable(ckDelimitador.isSelected());
@@ -227,7 +229,7 @@ public class Controller extends Operacao implements Initializable{
         LocalDate localDate = LocalDate.now();
         int inicial = 2000;
         String ano = "Ano";
-        int fim = localDate.getYear()+1;
+        int fim = localDate.getYear()+2;
         cbAno.getItems().add(ano);
         while(inicial<=fim){
             cbAno.getItems().add(String.valueOf(inicial));
@@ -249,8 +251,7 @@ public class Controller extends Operacao implements Initializable{
         alert.setTitle("Confirmação");
         alert.setHeaderText("Deseja cancelar o processamento?");
         Optional<ButtonType> result = alert.showAndWait();
-        if(result.get()==ButtonType.OK)
-            stage.close();
+        if(result.get()==ButtonType.OK) stage.close();
     }
     private void genericMessage(Alert.AlertType type, String title, String header, String message){
         Alert alert = new Alert(type);
@@ -315,8 +316,7 @@ public class Controller extends Operacao implements Initializable{
 
     @FXML
     void renomear(ActionEvent event){
-            if (validarPasta("Caminho não informado ou não existe",
-                    Paths.get(txLocalizacao.getText()))) {
+            if (validarPasta("Caminho não informado ou não existe", Paths.get(txLocalizacao.getText()))) {
                if (rbSubstituirCaracteres.isSelected()) {
                     if (txSVOld.getText().length() == 0) {
                         genericMessage(Alert.AlertType.ERROR,"Erro","Novo valor invalido", "Informe um valor que deseja substituir");
@@ -381,7 +381,6 @@ public class Controller extends Operacao implements Initializable{
     }
     @FXML
     void dragOver(DragEvent event) {
-        //System.out.println("over");
         Dragboard dragboard = event.getDragboard();
         if(dragboard.hasFiles()){
             Optional<File> file = dragboard.getFiles().stream().findFirst();

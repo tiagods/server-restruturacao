@@ -20,14 +20,5 @@ public class DiretoriosClientes extends BasePath {
     public void organizar(){
         ClienteData data = ClienteData.getInstance();
         Path base = getBase();
-
-        Set<Cliente> clientes = data.getClientes();
-        clientes.forEach(c -> {
-            try{
-                organizarCliente(c);
-            }catch (IOException e){
-                e.printStackTrace();
-            }
-        });
     }
 }

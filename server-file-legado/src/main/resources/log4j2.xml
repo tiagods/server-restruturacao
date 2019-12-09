@@ -7,8 +7,8 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="com.prolink" level="debug"/>
-        <Logger name="com.prolink.factory" level="debug"/>
+        <Logger name="com.com.tiagods.prolink" level="debug"/>
+        <Logger name="com.com.tiagods.prolink.factory" level="debug"/>
         <Root level="error">
             <AppenderRef ref="Console" />
         </Root>
