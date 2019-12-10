@@ -45,15 +45,17 @@ public class Teste {
             files.addAll(actives);
             files.addAll(desl);
 
-            Map<String, Path> collect = files
+            Map<String, Long> collect = files
                     .stream()
                     .collect(
                             Collectors.groupingBy(c ->
                                             c.getFileName().toString().substring(0, 4),
-                                    Collectors.toSet()));
+                                    Collectors.counting()));
+
             if(collect.values().stream().anyMatch(c -> c > 1)) {
-                chaveDuplicada()
+                //chaveDuplicada()
             }
+            collect.clear();
 
             organizarCliente(clienteSet,files);
 

@@ -19,18 +19,21 @@ public class SpringbootfileApplicationTests {
 	static String regex = "[0-9]{4}+[^0-9]*$";
 
 	@Test
-	public void teste1() throws IOException {
-		Stream<Path> list = Files.list(base);
-		Assert.assertFalse(list.collect(Collectors.toList()).isEmpty());
+	public void folderNotEmpty() throws IOException {
+		Stream<Path> ativos = Files.list(base);
+		Stream<Path> inativos = Files.list(desligados);
+		Assert.assertFalse(ativos.collect(Collectors.toList()).isEmpty());
+		Assert.assertFalse(inativos.collect(Collectors.toList()).isEmpty());
 	}
 	@Test
-	public void testeNome(){
-		String nome = "0192-HILLER STUDIOS";
+	public void validNameFolder(){
+		String nome = "0192-STUDIO HILUX";
 		Assert.assertTrue(nome.matches(regex));
 	}
 
+	//buscando pastas de clientes, com id duplicados
 	@Test
-	public void teste2() throws IOException {
+	public void searchDuplicateClientFolder() throws IOException {
 		Set<Path> actives = Files.list(base)
 				.filter(f->Files.isDirectory(f) && f.getFileName().toString()
 						.matches(regex))
