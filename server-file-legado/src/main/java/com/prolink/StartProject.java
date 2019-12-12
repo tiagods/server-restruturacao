@@ -1,8 +1,8 @@
 package com.prolink;
 
-import com.prolink.config.ClienteData;
-import com.prolink.dao.ClienteDAO;
-import com.prolink.model.Cliente;
+import com.prolink.olders.config.ClienteData;
+import com.prolink.olders.dao.ClienteDAO;
+import com.prolink.olders.model.Cliente;
 import org.springframework.stereotype.Component;
 
 import java.io.File;

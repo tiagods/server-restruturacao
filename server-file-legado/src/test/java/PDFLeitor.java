@@ -1,5 +1,5 @@
-import com.prolink.config.ClienteData;
-import com.prolink.model.Cliente;
+import com.prolink.olders.config.ClienteData;
+import com.prolink.olders.model.Cliente;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageTree;

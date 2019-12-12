@@ -1,8 +1,8 @@
 package sample;
 
 import com.jfoenix.controls.*;
-import com.prolink.config.ClienteData;
-import com.prolink.model.*;
+import com.prolink.olders.config.ClienteData;
+import com.prolink.olders.model.*;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
