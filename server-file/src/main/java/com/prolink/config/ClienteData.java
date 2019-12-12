@@ -29,7 +29,7 @@ public class ClienteData {
         properties = new Properties();
         try{
             if(Files.notExists(path)) Files.createFile(path);
-            //refreshDatabase();
+            refreshDatabase();
             load();
         }catch (IOException e){
             e.printStackTrace();
@@ -37,8 +37,9 @@ public class ClienteData {
     }
 
     private void refreshDatabase(){
-        ClienteDAO dao = new ClienteDAO();
-        save(dao.refreshClientes());
+            ClienteDAO dao = new ClienteDAO();
+            List<Cliente> clientes = dao.refreshClientes();
+            save(clientes);
     }
 
     private void load(){
@@ -58,7 +59,8 @@ public class ClienteData {
             e.printStackTrace();
         }
     }
-    public void save(List<Cliente> list){
+    private void save(List<Cliente> list){
+        if(list==null) return;
         try {
             Properties properties = new Properties();
             OutputStream outputStream = new FileOutputStream(path.toFile());

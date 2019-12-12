@@ -2,7 +2,8 @@ HELP.md
 target/
 */out/
 */.mvn/
-
+application.properties
+application.yml
 ### STS ###
 .apt_generated
 .classpath

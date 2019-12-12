@@ -21,7 +21,7 @@ public abstract class BasePath {
     private static Map<Cliente, Path> cliMap = new HashMap<>();
     private static String regex = "[0-9]{4}+[^0-9]*$";
 
-    public BasePath(){
+    private BasePath(){
         try {
             Map<Cliente, Path> cliMap = new HashMap<>();
 
