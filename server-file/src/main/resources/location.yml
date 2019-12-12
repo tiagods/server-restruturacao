@@ -1,0 +1,4 @@
+fileserver:
+  base: c:/clientes
+  desligado: c:/clientes/_desligado
+  modelo: c:/clientes/_base
