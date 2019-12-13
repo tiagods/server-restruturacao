@@ -65,9 +65,10 @@ public class Cliente implements Serializable {
         return this.idFormatado+"-"+this.nomeFormatado;
     }
 
-    public String toFile(){
+    public String toFileProperties(){
         return status+";"+nome+";"+cnpj;
     }
+
     public void getFileProperties(String key, String value){
         setId(Integer.parseInt(key));
         String[] v = value.split(";");

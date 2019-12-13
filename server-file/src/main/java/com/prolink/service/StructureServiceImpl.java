@@ -1,7 +1,6 @@
 package com.prolink.service;
 
 import com.prolink.exception.StructureNotFoundException;
-import com.prolink.olders.model.Cliente;
 import com.prolink.utils.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,12 +8,10 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class StructureServiceImpl implements StructureService{
@@ -26,6 +23,9 @@ public class StructureServiceImpl implements StructureService{
 
     @Autowired
     private IOUtils ioUtils;
+
+    @Autowired
+    private ClientIOService clientIOService;
 
     private Path base;
     private Path shutdown;
@@ -40,28 +40,23 @@ public class StructureServiceImpl implements StructureService{
         ioUtils.createDirectory(shutdown);
         ioUtils.createDirectory(model);
 
-        listAllInBaseAndShutdown();
-
+        Set<Path> clientsFolders = listAllInBaseAndShutdown();
+        clientIOService.mapClient(clientsFolders);
     }
     //listar todos os clientes ativos e inativos, e suas pastas
-    private void listAllInBaseAndShutdown(){
-        Set<Cliente> clientSet = new HashSet<>();
-
+    public Set<Path> listAllInBaseAndShutdown(){
         try {
             //listando todos os arquivos e corrigir nomes se necessarios
             Set<Path> actives = ioUtils.listByDirectoryAndRegex(base, regex);
-            Set<Path> desl = ioUtils.listByDirectoryAndRegex(shutdown, regex);
-
+            Set<Path> shutdowns = ioUtils.listByDirectoryAndRegex(shutdown, regex);
             Set<Path> files = new HashSet<>();
             files.addAll(actives);
-            files.addAll(desl);
-
-            organizarCliente(clienteSet,files);
+            files.addAll(shutdowns);
+            return files;
         }catch (IOException e){
             throw new StructureNotFoundException("Nao foi possivel listar os arquivos dos clientes",e.getCause());
         }
     }
-
 
     @Override
     public Path getBase() {

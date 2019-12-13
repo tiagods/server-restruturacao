@@ -1,31 +1,69 @@
 package com.prolink.service;
 
-import com.prolink.exception.StructureNotFoundException;
+import com.prolink.model.Pair;
 import com.prolink.olders.model.Cliente;
 import com.prolink.utils.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.nio.file.Files;
+import javax.annotation.PostConstruct;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 public class ClientIOService {
-    @Autowired
-    private StructureService structureService;
 
     @Autowired
     private IOUtils ioUtils;
 
+    @Autowired
+    private StructureService structureService;
+
     private Map<Cliente, Path> cliMap = new HashMap<>();
 
+    Set<Cliente> clientSet = new HashSet<>();
 
+    static{
+        //Cliente cli = new Cliente(1,)
+    }
+    @PostConstruct
+    public void onInit(){
+        mapClient();
+    }
+    public void mapClient(Set<Path> files){
+        clientSet.forEach(c->{
+            Optional<Path> file = ioUtils.searchFolderById(c,files);
+
+            Pair<Cliente,Path> pair = null;
+
+            Path desligados = structureService.getShutdown();
+            Path base = structureService.getBase();
+
+            Path destinoDesligada = structureService.getShutdown().resolve(c.toString());
+            Path destinoAtiva = structureService.getBase().resolve(c.toString());
+
+            if(file.isPresent()) {
+                //verificar nome do arquivo se esta de acordo com a norma
+                boolean nomeCorreto = file.get().getFileName().toString().equals(c.toString());
+                //caminho do diretorio
+                if (c.getStatus().equalsIgnoreCase("Desligada")) {
+                    boolean localCorreto = file.get().getParent().equals(desligados);
+                    if(!localCorreto || !nomeCorreto) pair = ioUtils.move(c, file.get(), destinoDesligada);
+                }
+                else{
+                    boolean localCorreto = file.get().getParent().equals(base);
+                    if(!localCorreto || !nomeCorreto) pair = ioUtils.move(c, file.get(), destinoAtiva);
+                }
+            }
+            else{
+                //criar pasta oficial caso não exista
+                if(c.getStatus().equalsIgnoreCase("Desligada")) pair = ioUtils.create(c, destinoDesligada);
+                else pair = ioUtils.create(c,destinoAtiva);
+            }
+            cliMap.put(pair.getCliente(),pair.getPath());
+        });
+    }
     public Path searchClient(Cliente c) {
         return cliMap.get(c);
     }
-
 }

@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -20,37 +21,44 @@ public class IOUtils {
     @Autowired
     private StructureService structureService;
 
-
-    private Pair criar(Cliente cliente, Path destino){
+    //criar diretorio para o cliente
+    public Pair<Cliente, Path> create(Cliente client, Path destination){
         try {
-            if (Files.notExists(destino)) Files.createDirectory(destino);
-            return new Pair(cliente,destino);
+            if (Files.notExists(destination)) Files.createDirectory(destination);
+            return new Pair<>(client,destination);
         }catch (IOException e){
             //em caso de erro nenhum diretorio sera criado
             e.printStackTrace();
-            return new Pair(cliente,null);
+            return new Pair<Cliente, Path>(client,null);
         }
     }
-    private Pair mover(Cliente cliente, Path origem, Path destino){
+    //tentar mover, se nao conseguir usar o diretorio de origem
+    public Pair<Cliente, Path> move(Cliente client, Path origin, Path destination){
         try{
-            Files.move(origem, destino, StandardCopyOption.REPLACE_EXISTING);
-            return new Pair(cliente,destino);
+            Files.move(origin, destination, StandardCopyOption.REPLACE_EXISTING);
+            return new Pair<>(client,destination);
         }catch (IOException e){
             e.printStackTrace();
-            return new Pair(cliente,origem);
+            return new Pair<>(client,origin);
         }
     }
-
+    //buscar por ID nos 4 primeiros caracteres
+    public Optional<Path> searchFolderById(Cliente client, Set<Path> paths){
+        return paths
+                .stream()
+                .filter(n->n.getFileName().toString().substring(0,4).equals(client.getIdFormatado()))
+                .findFirst();
+    }
+    //listar diretorios e por regex
     public Set<Path> listByDirectoryAndRegex(Path path, String regex) throws IOException{
         return Files.list(path)
-                .filter(f->Files.isDirectory(f) && f.getFileName().toString()
-                        .matches(regex))
+                .filter(f->Files.isDirectory(f) && f.getFileName().toString().matches(regex))
                 .collect(Collectors.toSet());
     }
 
     //verificar e criar estrutura de modelo
-    public void verifyStructureInModel(Path estrutura) throws StructureNotFoundException {
-        Path path = structureService.getModel().resolve(estrutura);
+    public void verifyStructureInModel(Path structure) throws StructureNotFoundException {
+        Path path = structureService.getModel().resolve(structure);
         createDirectories(path);
     }
     //verificar e criar estrutura de modelo

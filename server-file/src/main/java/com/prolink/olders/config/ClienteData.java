@@ -65,7 +65,7 @@ public class ClienteData {
             Properties properties = new Properties();
             OutputStream outputStream = new FileOutputStream(path.toFile());
             for (Cliente c : list)
-                properties.setProperty(String.valueOf(c.getId()), c.toFile());
+                properties.setProperty(String.valueOf(c.getId()), c.toFileProperties());
             properties.store(outputStream, "Properties");
             outputStream.close();
             load();
