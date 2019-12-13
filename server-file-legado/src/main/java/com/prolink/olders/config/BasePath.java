@@ -67,7 +67,7 @@ public abstract class BasePath {
                     //caminho do diretorio
                     boolean localCorreto = arquivo.get().getParent().equals(desligados);
                     if(localCorreto && !nomeCorreto) {
-                         try{
+                        try{
                             Path destino = desligados.resolve(c.toString());
                             Files.move(arquivo.get(), desligados.resolve(c.toString()), StandardCopyOption.REPLACE_EXISTING);
                             cliMap.put(c, destino);
@@ -98,6 +98,7 @@ public abstract class BasePath {
                             e.printStackTrace();
                             cliMap.put(c,arquivo.get());
                         }
+
                     }
                     else if(!localCorreto){
                         try {
@@ -110,6 +111,7 @@ public abstract class BasePath {
                         }
                     }
                 }
+
             }
             else{
                 //criar pasta oficial caso não exista
