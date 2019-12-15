@@ -1,4 +1,4 @@
-package com.prolink.olders.model;
+package com.prolink.model;
 
 public enum Ordem {
     INICIO

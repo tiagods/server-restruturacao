@@ -1,4 +1,4 @@
-package com.prolink.olders.model;
+package com.prolink.model;
 
 import java.io.Serializable;
 import java.util.Objects;

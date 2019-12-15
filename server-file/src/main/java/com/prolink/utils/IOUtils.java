@@ -2,7 +2,7 @@ package com.prolink.utils;
 
 import com.prolink.exception.StructureNotFoundException;
 import com.prolink.model.Pair;
-import com.prolink.olders.model.Cliente;
+import com.prolink.model.Cliente;
 import com.prolink.service.StructureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

@@ -1,7 +1,7 @@
 package com.prolink.olders.dao;
 
 import com.prolink.olders.factory.Conexao;
-import com.prolink.olders.model.Cliente;
+import com.prolink.model.Cliente;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

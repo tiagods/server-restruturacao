@@ -1,12 +1,10 @@
 package com.prolink.olders.job;
 
-import com.prolink.olders.config.BasePath;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class Correcao extends BasePath {
+public class Correcao {
 
     public static void main(String[] args){
         new Correcao().iniciar();

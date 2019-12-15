@@ -1,7 +1,7 @@
 package com.tiagods.springbootfile;
 
 import com.prolink.olders.config.ClienteData;
-import com.prolink.olders.model.Cliente;
+import com.prolink.model.Cliente;
 
 import java.io.IOException;
 import java.nio.file.Files;

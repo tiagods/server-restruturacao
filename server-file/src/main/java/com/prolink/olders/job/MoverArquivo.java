@@ -2,8 +2,8 @@ package com.prolink.olders.job;
 
 import com.prolink.olders.config.BasePath;
 import com.prolink.olders.config.ClienteData;
-import com.prolink.olders.model.Cliente;
-import com.prolink.olders.model.Ordem;
+import com.prolink.model.Cliente;
+import com.prolink.model.Ordem;
 
 import java.io.FileWriter;
 import java.io.IOException;

@@ -7,5 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ServerFileApplication{
     public static void main(String[] args) {
         SpringApplication.run(ServerFileApplication.class,args);
+        Cliente cliente = new Cliente();
     }
 }

@@ -1,7 +1,7 @@
 package com.prolink.olders.config;
 
 import com.prolink.olders.dao.ClienteDAO;
-import com.prolink.olders.model.Cliente;
+import com.prolink.model.Cliente;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

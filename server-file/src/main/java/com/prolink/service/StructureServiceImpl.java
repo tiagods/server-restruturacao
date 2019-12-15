@@ -39,11 +39,10 @@ public class StructureServiceImpl implements StructureService{
 
         ioUtils.createDirectory(shutdown);
         ioUtils.createDirectory(model);
-
-        Set<Path> clientsFolders = listAllInBaseAndShutdown();
-        clientIOService.mapClient(clientsFolders);
     }
+
     //listar todos os clientes ativos e inativos, e suas pastas
+    @Override
     public Set<Path> listAllInBaseAndShutdown(){
         try {
             //listando todos os arquivos e corrigir nomes se necessarios
@@ -57,7 +56,6 @@ public class StructureServiceImpl implements StructureService{
             throw new StructureNotFoundException("Nao foi possivel listar os arquivos dos clientes",e.getCause());
         }
     }
-
     @Override
     public Path getBase() {
         return base;

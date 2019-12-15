@@ -2,9 +2,9 @@ package com.prolink.olders.job;
 
 import com.prolink.olders.config.BasePath;
 import com.prolink.olders.config.ClienteData;
-import com.prolink.olders.model.Cliente;
-import com.prolink.olders.model.Obrigacao;
-import com.prolink.olders.model.Ordem;
+import com.prolink.model.Cliente;
+import com.prolink.model.Obrigacao;
+import com.prolink.model.Ordem;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -24,7 +24,6 @@ public class MoverArquivoComPeriodo extends BasePath {
         String[] m = new String[]{"01","02","03","04","05","06","07","08","09","10","11","12"};
         meses.addAll(Arrays.asList(m));
         new MoverArquivoComPeriodo().iniciar();
-
 
         Obrigacao o = new Obrigacao("Obrigacao/Documento");
         List<Obrigacao> obrigacaoSet = new ArrayList<>();

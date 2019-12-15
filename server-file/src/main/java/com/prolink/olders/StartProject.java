@@ -1,7 +1,7 @@
 package com.prolink.olders;
 
 import com.prolink.olders.config.ClienteData;
-import com.prolink.olders.model.Cliente;
+import com.prolink.model.Cliente;
 
 import java.util.stream.Collectors;
 

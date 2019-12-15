@@ -1,8 +1,8 @@
 package com.prolink.olders.job;
 
-import com.prolink.olders.model.Cliente;
-import com.prolink.olders.model.Ordem;
-import com.prolink.olders.model.OrdemBusca;
+import com.prolink.model.Cliente;
+import com.prolink.model.Ordem;
+import com.prolink.model.OrdemBusca;
 
 import java.io.IOException;
 import java.nio.file.Path;

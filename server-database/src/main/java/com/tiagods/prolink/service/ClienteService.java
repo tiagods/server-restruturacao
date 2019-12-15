@@ -1,7 +1,7 @@
 package com.tiagods.prolink.service;
 
 import com.tiagods.prolink.exception.ClienteNotFoundException;
-import com.tiagods.prolink.dto.ClienteDTO;
+import com.tiagods.prolink.model.Cliente;
 import com.tiagods.prolink.repository.ClienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,25 +14,25 @@ public class ClienteService {
     @Autowired
     ClienteRepository clienteRepository;
 
-    public List<ClienteDTO> list() {
+    public List<Cliente> list() {
         return clienteRepository.findAll();
     }
 
-    public List<ClienteDTO> listarNaoMapeados() {
+    public List<Cliente> listarNaoMapeados() {
         return clienteRepository.findByFolderCreateTrue();
     }
 
-    public void atualizarMapeados(String apelido) throws ClienteNotFoundException{
-        Optional<ClienteDTO> cli = clienteRepository.findByApelido(apelido);
+    public void atualizarMapeados(Long apelido) throws ClienteNotFoundException{
+        Optional<Cliente> cli = clienteRepository.findByApelido(apelido);
         if(cli.isPresent()){
-            ClienteDTO cliente = cli.get();
+            Cliente cliente = cli.get();
             cliente.setFolderCreate(true);
             clienteRepository.save(cliente);
         }
         else throw new ClienteNotFoundException("Não foi encontrado um cliente com esse id");
     }
 
-    public void save(ClienteDTO clienteDTO){
+    public void save(Cliente clienteDTO){
         System.out.println("cliente salvo");
         clienteRepository.save(clienteDTO);
     }

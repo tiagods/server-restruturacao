@@ -1,7 +1,7 @@
 package com.prolink.service;
 
 import com.prolink.model.Pair;
-import com.prolink.olders.model.Cliente;
+import com.prolink.model.Cliente;
 import com.prolink.utils.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,8 +28,9 @@ public class ClientIOService {
     }
     @PostConstruct
     public void onInit(){
-        mapClient();
+        mapClient(structureService.listAllInBaseAndShutdown());
     }
+
     public void mapClient(Set<Path> files){
         clientSet.forEach(c->{
             Optional<Path> file = ioUtils.searchFolderById(c,files);
