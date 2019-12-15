@@ -1,10 +1,13 @@
-package com.prolink.olders.job;
+package com.prolink.utils;
 
-import com.prolink.olders.config.BasePath;
 import com.prolink.olders.config.ClienteData;
 import com.prolink.model.Cliente;
 import com.prolink.model.Obrigacao;
 import com.prolink.model.Ordem;
+import com.prolink.model.OrdemBusca;
+import com.prolink.service.ClientIOService;
+import com.prolink.service.StructureService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,11 +15,17 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
-public class MoverArquivoComPeriodo extends BasePath {
 
-    private enum OrdemBusca{
-        ID,CNPJ
-    }
+public class MoverArquivoComPeriodo {
+
+    @Autowired
+    StructureService structureService;
+
+    @Autowired
+    IOUtils ioUtils;
+
+    ClientIOService clientIOService;
+
     private static Set<String> meses = new HashSet<>();
 
     private Set<Cliente> clienteSet;
@@ -74,7 +83,7 @@ public class MoverArquivoComPeriodo extends BasePath {
                 if(Files.isDirectory(p) && meses.contains(p.getFileName().toString())) {
                     Path estrutura = Paths.get("Obrigacoes", "SPED ICMS IPI", ano);
                     Path novaEstrutura = estrutura.resolve(p.getFileName());
-                    verificarEstrutura(novaEstrutura);
+                    ioUtils.verifyStructureInModel(novaEstrutura);
                     processar(novaEstrutura,Files.list(p).iterator(), OrdemBusca.CNPJ,null,1);
                     processar(novaEstrutura,Files.list(p).iterator(), OrdemBusca.ID, null, 1);
                     processar(novaEstrutura,Files.list(p).iterator(), OrdemBusca.CNPJ,"-",1);
@@ -188,11 +197,11 @@ public class MoverArquivoComPeriodo extends BasePath {
         final String result = valor;
         if(order.equals(OrdemBusca.ID)) {
             Optional<Cliente> cliente = clientes.stream().filter(c -> c.getIdFormatado().equals(result)).findAny();
-            return cliente.isPresent() ? buscarCliente(cliente.get()) : null;
+            return cliente.isPresent() ? clientIOService.searchClient(cliente.get()) : null;
         }
         else if(order.equals((OrdemBusca.CNPJ))){
             Optional<Cliente> cliente = clientes.stream().filter(c -> c.isCnpjValido() && c.getCnpjFormatado().equals(result)).findAny();
-            return cliente.isPresent() ? buscarCliente(cliente.get()) : null;
+            return cliente.isPresent() ? clientIOService.searchClient(cliente.get()) : null;
         }
         return null;
     }
@@ -201,7 +210,7 @@ public class MoverArquivoComPeriodo extends BasePath {
         if(ordem.equals(Ordem.INICIO)) {
             String cnpj = arquivo.getFileName().toString().substring(0,14);
             Optional<Cliente> cliente = clienteSet.stream().filter(c -> c.isCnpjValido() && c.getCnpjFormatado().equals(cnpj)).findAny();
-            return cliente.isPresent()? buscarCliente(cliente.get()) : null;
+            return cliente.isPresent()? clientIOService.searchClient(cliente.get()) : null;
         }
         else return null;
     }
@@ -216,7 +225,7 @@ public class MoverArquivoComPeriodo extends BasePath {
             }
             String valor =  arquivo.getFileName().toString().substring(0,4);
             Optional<Cliente> cliente = clienteSet.stream().filter(c -> c.getIdFormatado().equals(valor)).findAny();
-            return cliente.isPresent() ? buscarCliente(cliente.get()) : null;
+            return cliente.isPresent() ? clientIOService.searchClient(cliente.get()) : null;
         }
         else{
             String nome = arquivo.getFileName().toString();
@@ -232,7 +241,7 @@ public class MoverArquivoComPeriodo extends BasePath {
                     //nao fazer nada
                 }
                 Optional<Cliente> cliente = clienteSet.stream().filter(c -> c.getIdFormatado().equals(array[index])).findAny();
-                return cliente.isPresent() ? buscarCliente(cliente.get()) : null;
+                return cliente.isPresent() ? clientIOService.searchClient(cliente.get()) : null;
             }
             else return null;
         }

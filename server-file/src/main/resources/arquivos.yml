@@ -1,0 +1,6 @@
+fileServer:
+  base:
+  model:
+  shutdown:
+regex:
+  initById:

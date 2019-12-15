@@ -9,6 +9,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Configuration
+@PropertySource("classpath: arquivos.yml")
 public class LocationConfig {
-
 }

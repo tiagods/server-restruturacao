@@ -2,6 +2,9 @@ package com.prolink.service;
 
 import com.prolink.exception.StructureNotFoundException;
 import com.prolink.utils.IOUtils;
+import com.prolink.utils.UtilsValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,13 +19,17 @@ import java.util.Set;
 @Service
 public class StructureServiceImpl implements StructureService{
 
-    @Value("${fileServer.regex}") private String regex;
+    Logger log = LoggerFactory.getLogger(getClass());
+
     @Value("${fileServer.base}") private String sBase;
     @Value("${fileServer.model}") private String sModel;
     @Value("${fileServer.shutdown}") private String sShutdown;
 
     @Autowired
     private IOUtils ioUtils;
+
+    @Autowired
+    private UtilsValidator validator;
 
     @Autowired
     private ClientIOService clientIOService;
@@ -37,8 +44,18 @@ public class StructureServiceImpl implements StructureService{
         shutdown = Paths.get(sShutdown);
         model = Paths.get(sModel);
 
-        ioUtils.createDirectory(shutdown);
-        ioUtils.createDirectory(model);
+        log.info("Verificando se pastas padroes se existem");
+        try {
+            if (!ioUtils.verifyIfExist(base))
+                throw new StructureNotFoundException("Base de arquivos não existe");
+            ioUtils.createDirectory(shutdown);
+            ioUtils.createDirectory(model);
+            log.info("Concluindo verificação");
+        } catch (StructureNotFoundException e){
+            log.error("Falha ao verificar/criar diretorios");
+            throw new RuntimeException("Pasta's importantes não fora encontradas: "
+                    +e.getMessage(),e.getCause());
+        }
     }
 
     //listar todos os clientes ativos e inativos, e suas pastas
@@ -46,8 +63,8 @@ public class StructureServiceImpl implements StructureService{
     public Set<Path> listAllInBaseAndShutdown(){
         try {
             //listando todos os arquivos e corrigir nomes se necessarios
-            Set<Path> actives = ioUtils.listByDirectoryAndRegex(base, regex);
-            Set<Path> shutdowns = ioUtils.listByDirectoryAndRegex(shutdown, regex);
+            Set<Path> actives = ioUtils.listByDirectoryAndRegex(base, validator.getInitById());
+            Set<Path> shutdowns = ioUtils.listByDirectoryAndRegex(shutdown, validator.getInitById());
             Set<Path> files = new HashSet<>();
             files.addAll(actives);
             files.addAll(shutdowns);

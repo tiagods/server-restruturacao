@@ -17,14 +17,14 @@
 	<version>1.0</version>
 
 	<dependencies>
-<!--		<dependency>-->
-<!--			<groupId>org.springframework.boot</groupId>-->
-<!--			<artifactId>spring-boot-starter-web</artifactId>-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--			<groupId>org.springframework.boot</groupId>-->
-<!--			<artifactId>spring-boot-starter-data-mongodb</artifactId>-->
-<!--		</dependency>-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-mongodb</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
@@ -41,14 +41,14 @@
 			<artifactId>lombok</artifactId>
 		</dependency>
 
-<!--		<dependency>-->
-<!--			<groupId>com.tiagods</groupId>-->
-<!--			<artifactId>server-database</artifactId>-->
-<!--			<version>1.0</version>-->s
-<!--			<systemPath>${basedir}\..\server-database\target\server-database.jar</systemPath>-->
-<!--		</dependency>-->
-	</dependencies>
+		<dependency>
+			<groupId>com.tiagods</groupId>
+			<artifactId>server-database</artifactId>
+			<version>1.0</version>
+			<systemPath>${basedir}\..\server-database\target\server-database.jar</systemPath>
+		</dependency>
 
+	</dependencies>
 	<build>
 		<plugins>
 			<plugin>

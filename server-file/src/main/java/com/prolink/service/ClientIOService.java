@@ -3,6 +3,8 @@ package com.prolink.service;
 import com.prolink.model.Pair;
 import com.prolink.model.Cliente;
 import com.prolink.utils.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +14,8 @@ import java.util.*;
 
 @Service
 public class ClientIOService {
+
+    private Logger log = LoggerFactory.getLogger(getClass());
 
     @Autowired
     private IOUtils ioUtils;
@@ -28,9 +32,12 @@ public class ClientIOService {
     }
     @PostConstruct
     public void onInit(){
+        log.info("Iniciando mapeamento de clientes");
         mapClient(structureService.listAllInBaseAndShutdown());
+        log.info("Concluindo mapeamento");
     }
 
+    //mapeamento de pastas, cuidado ao usar em produção
     public void mapClient(Set<Path> files){
         clientSet.forEach(c->{
             Optional<Path> file = ioUtils.searchFolderById(c,files);

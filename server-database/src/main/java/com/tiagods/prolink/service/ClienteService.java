@@ -19,7 +19,7 @@ public class ClienteService {
     }
 
     public List<Cliente> listarNaoMapeados() {
-        return clienteRepository.findByFolderCreateTrue();
+        return clienteRepository.findByFolderCreateFalse();
     }
 
     public void atualizarMapeados(Long apelido) throws ClienteNotFoundException{

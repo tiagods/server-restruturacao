@@ -1,9 +1,13 @@
-package com.prolink.olders.job;
+package com.prolink.utils;
 
-import com.prolink.olders.config.BasePath;
 import com.prolink.olders.config.ClienteData;
 import com.prolink.model.Cliente;
 import com.prolink.model.Ordem;
+import com.prolink.model.OrdemBusca;
+import com.prolink.service.ClientIOService;
+import com.prolink.service.StructureService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -13,24 +17,33 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
 
-public class MoverArquivo extends BasePath {
-    private enum OrdemBusca{
-        ID,CNPJ
-    }
+@Service
+public class MoverArquivo {
+
     private Set<Cliente> clienteSet;
+
     private Path novaEstrutura;
+
+    @Autowired
+    StructureService structureService;
+
+    @Autowired
+    IOUtils ioUtils;
+
+    ClientIOService clientIOService;
+
     public static void main(String[] args) {
         new MoverArquivo().iniciar();
     }
+
     private void iniciar(){
         ClienteData data = ClienteData.getInstance();
         clienteSet = data.getClientes();
         Path path = Paths.get("\\\\PLKSERVER\\Obrigacoes\\contabil\\Contabil\\SPED CONTÁBIL");
         try {
-            System.out.println(getDesligados());
             Iterator<Path> files = Files.list(path).iterator();
             novaEstrutura = Paths.get("Obrigacoes","SPED CONTABIL", "2019");
-            verificarEstrutura(novaEstrutura);
+            ioUtils.verifyStructureInModel(novaEstrutura);
 
             processar(files, OrdemBusca.ID,null,1);
             //processar(files, OrdemBusca.CNPJ,null,1);
@@ -108,7 +121,7 @@ public class MoverArquivo extends BasePath {
         if(ordem.equals(Ordem.INICIO)) {
             String cnpj = arquivo.getFileName().toString().substring(0,14);
             Optional<Cliente> cliente = clienteSet.stream().filter(c -> c.isCnpjValido() && c.getCnpjFormatado().equals(cnpj)).findAny();
-            return cliente.isPresent()? buscarCliente(cliente.get()) : null;
+            return cliente.isPresent()? clientIOService.searchClient(cliente.get()) : null;
         }
         else return null;
     }
@@ -123,7 +136,7 @@ public class MoverArquivo extends BasePath {
              }
              String valor =  arquivo.getFileName().toString().substring(0,4);
              Optional<Cliente> cliente = clienteSet.stream().filter(c -> c.getIdFormatado().equals(valor)).findAny();
-             return cliente.isPresent() ? buscarCliente(cliente.get()) : null;
+             return cliente.isPresent() ? clientIOService.searchClient(cliente.get()) : null;
          }
          else{
             String nome = arquivo.getFileName().toString();
@@ -139,7 +152,7 @@ public class MoverArquivo extends BasePath {
                     //nao fazer nada
                 }
                 Optional<Cliente> cliente = clienteSet.stream().filter(c -> c.getIdFormatado().equals(array[index])).findAny();
-                return cliente.isPresent() ? buscarCliente(cliente.get()) : null;
+                return cliente.isPresent() ? clientIOService.searchClient(cliente.get()) : null;
             }
             else return null;
          }

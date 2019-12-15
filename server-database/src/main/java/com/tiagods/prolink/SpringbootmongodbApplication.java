@@ -1,18 +1,12 @@
 package com.tiagods.prolink;
 
-import com.tiagods.prolink.model.Cliente;
 import com.tiagods.prolink.repository.ClienteRepository;
 import com.tiagods.prolink.service.ArquivoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Query;
-
-import java.util.List;
-import java.util.Optional;
 
 @SpringBootApplication
 public class SpringbootmongodbApplication implements CommandLineRunner {
@@ -59,7 +53,6 @@ public class SpringbootmongodbApplication implements CommandLineRunner {
 
 		service.salvar(dto);
 
-		 */
 		Optional<Cliente> cli = repository.findByApelido(2222L);
 
 		Query query = new Query();
@@ -70,5 +63,7 @@ public class SpringbootmongodbApplication implements CommandLineRunner {
 		if(cli.isPresent())
 			System.out.println(cli.get().getApelido()+"-"+cli.get().getStatus()+"-"+cli.get().getNome());
 		System.out.println(cliLast.getApelido()+"-"+cli.get().getStatus()+"-"+cliLast.getNome());
+
+		 */
 	}
 }
