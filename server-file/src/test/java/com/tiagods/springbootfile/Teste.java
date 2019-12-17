@@ -1,6 +1,5 @@
 package com.tiagods.springbootfile;
 
-import com.prolink.olders.config.ClienteData;
 import com.prolink.model.Cliente;
 
 import java.io.IOException;
@@ -27,8 +26,7 @@ public class Teste {
             Map<Cliente, Path> cliMap = new HashMap<>();
 
             if (Files.notExists(desligados)) Files.createDirectories(desligados);
-            ClienteData clienteData = ClienteData.getInstance();
-            Set<Cliente> clienteSet = clienteData.getClientes();
+            Set<Cliente> clienteSet = new HashSet<>();
 
             //listando todos os arquivos e corrigir nomes se necessarios
             Set<Path> actives = Files.list(base)

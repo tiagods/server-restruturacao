@@ -21,9 +21,9 @@ public class StructureServiceImpl implements StructureService{
 
     Logger log = LoggerFactory.getLogger(getClass());
 
-    @Value("${fileServer.base}") private String sBase;
-    @Value("${fileServer.model}") private String sModel;
-    @Value("${fileServer.shutdown}") private String sShutdown;
+    //@Value("${fileServer.base}") private String sBase;
+    //@Value("${fileServer.model}") private String sModel;
+    //@Value("${fileServer.shutdown}") private String sShutdown;
 
     @Autowired
     private IOUtils ioUtils;
@@ -38,8 +38,11 @@ public class StructureServiceImpl implements StructureService{
     private Path shutdown;
     private Path model;
 
-    @PostConstruct
+    //@PostConstruct
     private void init(){
+         String sBase =null;
+         String sModel = null ;
+         String sShutdown =null;
         base  = Paths.get(sBase);
         shutdown = Paths.get(sShutdown);
         model = Paths.get(sModel);

@@ -5,6 +5,8 @@ import com.prolink.model.Ordem;
 import com.prolink.model.OrdemBusca;
 import com.prolink.service.ClientIOService;
 import com.prolink.service.StructureService;
+import com.tiagods.prolink.dto.ClienteDTO;
+import com.tiagods.prolink.service.ClienteService;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,10 +14,7 @@ import org.springframework.stereotype.Service;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.*;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,16 +37,23 @@ public class MoverPorPastas {
 
     private void iniciar(){
         Path path = Paths.get("\\\\PLKSERVER\\Todos Departamentos\\SAC");
-
         try {
-            novaEstrutura = Paths.get("SAC");
+            novaEstrutura = Paths.get("GERAL","SAC");
             ioUtils.verifyStructureInModel(novaEstrutura);
-            //vai mover apenas os arquivos de dentro das pastas, as pastas irao continuar
 
             Map<Path,String> mapClientes = ioUtils.listByDirectoryDefaultToMap(path, validator.getInitById());
 
-            processar(directories.iterator());
+            Map<Cliente,Path> mapPath = new HashMap<>();
 
+            mapClientes.keySet().forEach(c->{
+                Long l = Long.parseLong(mapClientes.get(c));
+                clientIOService.searchClientById(l).ifPresent(r->mapPath.put(r,c));
+            });
+            //vai mover apenas os arquivos de dentro das pastas, as pastas irao continuar
+            for(Cliente cli : mapPath.keySet()){
+                Path p = mapPath.get(cli);
+                processar(cli, Files.list(p).iterator(),novaEstrutura);
+            };
             ioUtils.deleteFolderIfEmptyRecursive(path);
         }catch (IOException e){
             e.printStackTrace();
@@ -57,19 +63,14 @@ public class MoverPorPastas {
         while (files.hasNext()) {
             Path arquivo  = files.next();
             if(Files.isDirectory(arquivo)){
-                processar(cli, Files.list(arquivo).iterator(), arquivo);
+                processar(cli, Files.list(arquivo).iterator(), parent.resolve(arquivo.getFileName()));
             }
             else {
-                moverRecursive(arquivo,);
-                if(ordemBusca.equals(OrdemBusca.CNPJ)) {
-                    Path pathCli = buscarPorCnpj(arquivo, clienteSet, Ordem.INICIO);
-                    if (pathCli != null) mover(arquivo, pathCli);
-                }
-                else{
-                    Path pathCli = buscarPorId(arquivo,clienteSet,regex,index);
-                    if(pathCli !=null) mover(arquivo,pathCli);
-                }
-            }
+                Path basePath  = clientIOService.searchClientPathBase(cli);
+                //base - subpastas - arquivo
+                Path estrutura = basePath.resolve(parent);
+                moverRecursive(arquivo, basePath, estrutura);
+           }
         }
     }
     private void moverRecursive(Path arquivo, Path pathCli, Path estrutura) throws IOException{

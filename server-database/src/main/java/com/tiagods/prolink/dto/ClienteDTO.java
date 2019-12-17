@@ -1,4 +1,4 @@
-package com.tiagods.prolink.model;
+package com.tiagods.prolink.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +12,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Document(collection = "cliente")
-public class Cliente implements Serializable {
+public class ClienteDTO implements Serializable {
     @Id
     private String id;
     private Long apelido;

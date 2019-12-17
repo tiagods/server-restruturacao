@@ -1,6 +1,5 @@
 package com.prolink.utils;
 
-import com.prolink.olders.config.ClienteData;
 import com.prolink.model.Cliente;
 import com.prolink.model.Obrigacao;
 import com.prolink.model.Ordem;
@@ -71,8 +70,6 @@ public class MoverArquivoComPeriodo {
 
     }
     private void iniciar(){
-        ClienteData data = ClienteData.getInstance();
-        clienteSet = data.getClientes();
 
         String ano = "2019";
         Path path = Paths.get("\\\\PLKSERVER\\Obrigacoes\\contabil\\Contabil\\SPED ICMS IPI",ano);
@@ -197,11 +194,11 @@ public class MoverArquivoComPeriodo {
         final String result = valor;
         if(order.equals(OrdemBusca.ID)) {
             Optional<Cliente> cliente = clientes.stream().filter(c -> c.getIdFormatado().equals(result)).findAny();
-            return cliente.isPresent() ? clientIOService.searchClient(cliente.get()) : null;
+            return cliente.isPresent() ? clientIOService.searchClientPathBase(cliente.get()) : null;
         }
         else if(order.equals((OrdemBusca.CNPJ))){
             Optional<Cliente> cliente = clientes.stream().filter(c -> c.isCnpjValido() && c.getCnpjFormatado().equals(result)).findAny();
-            return cliente.isPresent() ? clientIOService.searchClient(cliente.get()) : null;
+            return cliente.isPresent() ? clientIOService.searchClientPathBase(cliente.get()) : null;
         }
         return null;
     }
@@ -210,7 +207,7 @@ public class MoverArquivoComPeriodo {
         if(ordem.equals(Ordem.INICIO)) {
             String cnpj = arquivo.getFileName().toString().substring(0,14);
             Optional<Cliente> cliente = clienteSet.stream().filter(c -> c.isCnpjValido() && c.getCnpjFormatado().equals(cnpj)).findAny();
-            return cliente.isPresent()? clientIOService.searchClient(cliente.get()) : null;
+            return cliente.isPresent()? clientIOService.searchClientPathBase(cliente.get()) : null;
         }
         else return null;
     }
@@ -225,7 +222,7 @@ public class MoverArquivoComPeriodo {
             }
             String valor =  arquivo.getFileName().toString().substring(0,4);
             Optional<Cliente> cliente = clienteSet.stream().filter(c -> c.getIdFormatado().equals(valor)).findAny();
-            return cliente.isPresent() ? clientIOService.searchClient(cliente.get()) : null;
+            return cliente.isPresent() ? clientIOService.searchClientPathBase(cliente.get()) : null;
         }
         else{
             String nome = arquivo.getFileName().toString();
@@ -241,7 +238,7 @@ public class MoverArquivoComPeriodo {
                     //nao fazer nada
                 }
                 Optional<Cliente> cliente = clienteSet.stream().filter(c -> c.getIdFormatado().equals(array[index])).findAny();
-                return cliente.isPresent() ? clientIOService.searchClient(cliente.get()) : null;
+                return cliente.isPresent() ? clientIOService.searchClientPathBase(cliente.get()) : null;
             }
             else return null;
         }

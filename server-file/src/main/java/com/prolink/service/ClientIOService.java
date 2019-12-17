@@ -3,9 +3,12 @@ package com.prolink.service;
 import com.prolink.model.Pair;
 import com.prolink.model.Cliente;
 import com.prolink.utils.IOUtils;
+import com.tiagods.prolink.dto.ClienteDTO;
+import com.tiagods.prolink.service.ClienteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -22,16 +25,23 @@ public class ClientIOService {
 
     @Autowired
     private StructureService structureService;
-
+    //cliente e sua localizacao
     private Map<Cliente, Path> cliMap = new HashMap<>();
 
-    Set<Cliente> clientSet = new HashSet<>();
+    private Set<Cliente> allClients = new HashSet<>();
 
-    static{
-        //Cliente cli = new Cliente(1,)
-    }
+    @Autowired
+    private ClienteService clienteService;
+
     @PostConstruct
     public void onInit(){
+        //carregar e converter lista de clientes
+        List<ClienteDTO> list = clienteService.list();
+        list.forEach(c->{
+            Cliente cli = new Cliente(c.getApelido(),c.getNome(),c.getStatus(),c.getCnpj());
+            allClients.add(cli);
+        });
+
         log.info("Iniciando mapeamento de clientes");
         mapClient(structureService.listAllInBaseAndShutdown());
         log.info("Concluindo mapeamento");
@@ -39,7 +49,7 @@ public class ClientIOService {
 
     //mapeamento de pastas, cuidado ao usar em produção
     public void mapClient(Set<Path> files){
-        clientSet.forEach(c->{
+        allClients.forEach(c->{
             Optional<Path> file = ioUtils.searchFolderById(c,files);
 
             Pair<Cliente,Path> pair = null;
@@ -71,7 +81,13 @@ public class ClientIOService {
             cliMap.put(pair.getCliente(),pair.getPath());
         });
     }
-    public Path searchClient(Cliente c) {
+    public Path searchClientPathBase(Cliente c) {
         return cliMap.get(c);
+    }
+    public Optional<Cliente> searchClientById(Long id){
+        return allClients.parallelStream().filter(f-> f.getId().equals(id)).findFirst();
+    }
+    public Set<Cliente> getAllClients() {
+        return allClients;
     }
 }
