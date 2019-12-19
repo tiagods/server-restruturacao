@@ -1,0 +1,4 @@
+serverfile:
+  base: c:\clientes
+  model: c:\clientes\_base
+  shutdown: c:\clientes\_desligados

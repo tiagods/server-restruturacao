@@ -1,6 +1,0 @@
-fileServer:
-  base: "c:/clientes"
-  model: "c:/clientes/_base"
-  shutdown: "c:/clientes/_desligados"
-regex:
-  initById: "[0-9]{4}+[^0-9]*$"

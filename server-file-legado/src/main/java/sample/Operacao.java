@@ -1,7 +1,7 @@
 package sample;
 
 import com.prolink.olders.config.BasePath;
-import com.prolink.olders.job.OperacaoInterface;
+import com.tiagods.prolink.job.OperacaoInterface;
 import com.prolink.olders.model.Cliente;
 import com.prolink.olders.model.Ordem;
 import com.prolink.olders.model.OrdemBusca;

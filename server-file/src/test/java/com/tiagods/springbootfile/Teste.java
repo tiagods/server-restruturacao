@@ -1,6 +1,6 @@
 package com.tiagods.springbootfile;
 
-import com.prolink.model.Cliente;
+import com.tiagods.prolink.model.Cliente;
 
 import java.io.IOException;
 import java.nio.file.Files;
