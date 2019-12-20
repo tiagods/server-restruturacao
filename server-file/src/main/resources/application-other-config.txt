@@ -1,0 +1,6 @@
+spring:
+  application:
+    profiles:
+      include:
+        - arquivos
+        - regex
