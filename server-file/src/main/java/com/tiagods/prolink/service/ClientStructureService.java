@@ -4,7 +4,6 @@ import com.tiagods.prolink.config.Regex;
 import com.tiagods.prolink.config.ServerFile;
 import com.tiagods.prolink.exception.StructureNotFoundException;
 import com.tiagods.prolink.utils.IOUtils;
-import com.tiagods.prolink.utils.UtilsValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,24 +17,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Service
-public class StructureServiceImpl implements StructureService{
+public class StructureService {
 
-    Logger log = LoggerFactory.getLogger(getClass());
+    private Logger log = LoggerFactory.getLogger(getClass());
 
     @Autowired
     private ServerFile serverFile;
-
     @Autowired
     private Regex regex;
-
     @Autowired
     private IOUtils ioUtils;
-
-    @Autowired
-    private UtilsValidator validator;
-
-    @Autowired
-    private ClientIOService clientIOService;
 
     private Path base;
     private Path shutdown;
@@ -43,26 +34,10 @@ public class StructureServiceImpl implements StructureService{
 
     @PostConstruct
     private void init(){
-        base  = Paths.get(serverFile.getBase());
-        shutdown = Paths.get(serverFile.getShutdown());
-        model = Paths.get(serverFile.getModel());
-
-        log.info("Verificando se pastas padroes se existem");
-        try {
-            if (!ioUtils.verifyIfExist(base))
-                throw new StructureNotFoundException("Base de arquivos não existe");
-            ioUtils.createDirectory(shutdown);
-            ioUtils.createDirectory(model);
-            log.info("Concluindo verificação");
-        } catch (StructureNotFoundException e){
-            log.error("Falha ao verificar/criar diretorios");
-            throw new RuntimeException("Pasta's importantes não fora encontradas: "
-                    +e.getMessage(),e.getCause());
-        }
+        verifyFolders();
     }
+    //listar todos os clientes ativos, inativos e suas pastas
 
-    //listar todos os clientes ativos e inativos, e suas pastas
-    @Override
     public Set<Path> listAllInBaseAndShutdown(){
         try {
             //listando todos os arquivos e corrigir nomes se necessarios
@@ -76,16 +51,30 @@ public class StructureServiceImpl implements StructureService{
             throw new StructureNotFoundException("Nao foi possivel listar os arquivos dos clientes",e.getCause());
         }
     }
-    @Override
-    public Path getBase() {
-        return base;
+    private void verifyFolders(){
+        base  = Paths.get(serverFile.getBase());
+        shutdown = Paths.get(serverFile.getShutdown());
+        model = Paths.get(serverFile.getModel());
+        log.info("Verificando se pastas padroes se existem");
+        try {
+            if (!ioUtils.verifyIfExist(base))
+                throw new StructureNotFoundException("Base de arquivos não existe");
+            ioUtils.createDirectory(shutdown);
+            ioUtils.createDirectory(model);
+            log.info("Concluindo verificação");
+        } catch (StructureNotFoundException e){
+            log.error("Falha ao verificar/criar diretorios");
+            throw new RuntimeException("Pasta's importantes não fora encontradas: "
+                    +e.getMessage(),e.getCause());
+        }
     }
-    @Override
     public Path getModel() {
         return model;
     }
-    @Override
     public Path getShutdown() {
         return shutdown;
+    }
+    public Path getBase() {
+        return base;
     }
 }
