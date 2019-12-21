@@ -1,4 +1,4 @@
-package com.tiagods.prolink.model;
+package com.tiagods.prolink.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +10,7 @@ import java.util.Date;
 
 @Getter
 @Setter
-public class Arquivo implements Serializable {
+public class ArquivoDTO implements Serializable {
     @Id
     private String id;
     private String nome;

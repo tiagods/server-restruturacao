@@ -1,7 +1,8 @@
 package com.tiagods.prolink;
 
+import com.tiagods.prolink.config.Regex;
 import com.tiagods.prolink.config.ServerFile;
-import com.tiagods.prolink.repository.ClienteRepository;
+import com.tiagods.prolink.service.ClienteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +20,13 @@ public class ServerFileApplication implements CommandLineRunner {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    static ClienteRepository clientes;
+    private ServerFile serverFile;
 
     @Autowired
-    private ServerFile serverFile;
+    private Regex regex;
+
+    @Autowired
+    private ClienteService clientes;
 
     public static void main(String[] args) {
         SpringApplication.run(ServerFileApplication.class,args);
@@ -30,12 +34,12 @@ public class ServerFileApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        logger.info(serverFile.getBase());
-/*
-        clientes.findAll().forEach(c->
-                System.out.println(c.getApelido()+"-"+c.getStatus()+"-"+c.getNome())
+        logger.info("Regex:" +regex.getInitById());
+        logger.info("ServerFile base: "+serverFile.getBase());
+        logger.info("ServerFile model: "+serverFile.getModel());
+        logger.info("ServerFile shutdown: "+serverFile.getShutdown());
+        clientes.list().forEach(c->
+                logger.info(c.getApelido()+"-"+c.getStatus()+"-"+c.getNome())
         );
-        */
-
     }
 }

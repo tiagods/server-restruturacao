@@ -31,7 +31,7 @@ public class ClientIOService {
     @Autowired
     private ClienteService clienteService;
 
-//    @PostConstruct
+    @PostConstruct
     public void onInit(){
         //carregar e converter lista de clientes
         List<ClienteDTO> list = clienteService.list();

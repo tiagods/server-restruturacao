@@ -41,7 +41,7 @@ public class StructureServiceImpl implements StructureService{
     private Path shutdown;
     private Path model;
 
-//    @PostConstruct
+    @PostConstruct
     private void init(){
         base  = Paths.get(serverFile.getBase());
         shutdown = Paths.get(serverFile.getShutdown());

@@ -41,13 +41,6 @@
 			<artifactId>lombok</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>com.tiagods</groupId>
-			<artifactId>server-database</artifactId>
-			<version>1.0</version>
-			<systemPath>${basedir}\..\server-database\target\server-database.jar</systemPath>
-		</dependency>
-
 	</dependencies>
 	<build>
 		<plugins>
