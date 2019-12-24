@@ -4,7 +4,7 @@ import com.tiagods.prolink.model.Cliente;
 import com.tiagods.prolink.model.Ordem;
 import com.tiagods.prolink.model.OrdemBusca;
 import com.tiagods.prolink.service.ClientIOService;
-import com.tiagods.prolink.service.StructureService;
+import com.tiagods.prolink.service.ClientStructureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +24,7 @@ public class MoverArquivo {
     private Path novaEstrutura;
 
     @Autowired
-    StructureService structureService;
+    ClientStructureService structureService;
 
     @Autowired
     IOUtils ioUtils;

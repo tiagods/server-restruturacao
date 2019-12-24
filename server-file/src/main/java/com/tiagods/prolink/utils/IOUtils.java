@@ -3,12 +3,14 @@ package com.tiagods.prolink.utils;
 import com.tiagods.prolink.exception.StructureNotFoundException;
 import com.tiagods.prolink.model.Pair;
 import com.tiagods.prolink.model.Cliente;
-import com.tiagods.prolink.service.StructureService;
+import com.tiagods.prolink.service.ClientStructureService;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -20,7 +22,7 @@ import java.util.stream.Stream;
 public class IOUtils {
 
     @Autowired
-    private StructureService structureService;
+    private ClientStructureService structureService;
 
     //criar diretorio para o cliente
     public Pair<Cliente, Path> create(Cliente client, Path destination){
@@ -89,6 +91,18 @@ public class IOUtils {
         }catch (IOException e){
             e.printStackTrace();
             return new Pair<>(client,origin);
+        }
+    }
+    //mover arquivo com estrutura pre estabelecida
+    public Path move(Path file, Path pathCli, Path structure){
+        Path newStructureFile = structure.resolve(file.getFileName());
+        Path finalFile = pathCli.resolve(newStructureFile);
+        createDirectories(finalFile.getParent());
+        try {
+            Files.move(file, finalFile, StandardCopyOption.REPLACE_EXISTING);
+            return finalFile;
+        }catch (IOException e){
+            return null;
         }
     }
     //buscar por ID nos 4 primeiros caracteres

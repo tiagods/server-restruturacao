@@ -22,7 +22,7 @@ public class ClientIOService {
     private IOUtils ioUtils;
 
     @Autowired
-    private StructureService structureService;
+    private ClientStructureService structureService;
     //cliente e sua localizacao
     private Map<Cliente, Path> cliMap = new HashMap<>();
 
@@ -50,7 +50,7 @@ public class ClientIOService {
         allClients.forEach(c->{
             Optional<Path> file = ioUtils.searchFolderById(c,files);
 
-            Pair<Cliente,Path> pair = null;
+            Pair<Cliente,Path> pair = new Pair<>(c,null);
 
             Path desligados = structureService.getShutdown();
             Path base = structureService.getBase();

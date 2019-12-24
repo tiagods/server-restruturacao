@@ -17,7 +17,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Service
-public class StructureService {
+public class ClientStructureService {
 
     private Logger log = LoggerFactory.getLogger(getClass());
 

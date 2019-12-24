@@ -2,7 +2,10 @@ package com.tiagods.prolink;
 
 import com.tiagods.prolink.config.Regex;
 import com.tiagods.prolink.config.ServerFile;
+import com.tiagods.prolink.dto.ClienteDTO;
+import com.tiagods.prolink.service.ClientIOService;
 import com.tiagods.prolink.service.ClienteService;
+import com.tiagods.prolink.utils.MoverPastas;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +16,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
+
+import java.util.Date;
 
 @SpringBootApplication
 public class ServerFileApplication implements CommandLineRunner {
@@ -28,10 +33,15 @@ public class ServerFileApplication implements CommandLineRunner {
     @Autowired
     private ClienteService clientes;
 
+    @Autowired
+    private ClientIOService clientIO;
+
     public static void main(String[] args) {
         SpringApplication.run(ServerFileApplication.class,args);
     }
 
+    @Autowired
+    MoverPastas pastas;
     @Override
     public void run(String... args) throws Exception {
         logger.info("Regex:" +regex.getInitById());
@@ -41,5 +51,6 @@ public class ServerFileApplication implements CommandLineRunner {
         clientes.list().forEach(c->
                 logger.info(c.getApelido()+"-"+c.getStatus()+"-"+c.getNome())
         );
+        pastas.iniciar();
     }
 }
