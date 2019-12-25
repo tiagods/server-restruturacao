@@ -50,7 +50,7 @@ public class ClientIOService {
         allClients.forEach(c->{
             Optional<Path> file = ioUtils.searchFolderById(c,files);
 
-            Pair<Cliente,Path> pair = new Pair<>(c,null);
+            Pair<Cliente,Path> pair;
 
             Path desligados = structureService.getShutdown();
             Path base = structureService.getBase();
@@ -65,10 +65,12 @@ public class ClientIOService {
                 if (c.getStatus().equalsIgnoreCase("Desligada")) {
                     boolean localCorreto = file.get().getParent().equals(desligados);
                     if(!localCorreto || !nomeCorreto) pair = ioUtils.move(c, file.get(), destinoDesligada);
+                    else pair = new Pair<>(c,destinoDesligada);
                 }
                 else{
                     boolean localCorreto = file.get().getParent().equals(base);
                     if(!localCorreto || !nomeCorreto) pair = ioUtils.move(c, file.get(), destinoAtiva);
+                    else pair = new Pair<>(c,destinoAtiva);
                 }
             }
             else{

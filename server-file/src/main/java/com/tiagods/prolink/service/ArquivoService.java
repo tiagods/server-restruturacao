@@ -13,14 +13,26 @@ import org.springframework.stereotype.Service;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Date;
 
 @Service
 public class ArquivoService {
     @Autowired
     ArquivoRepository repository;
 
-    public ArquivoDTO salvar(ArquivoDTO arquivo){
+    public ArquivoDTO save(ArquivoDTO arquivo){
         return repository.save(arquivo);
+    }
+
+    public void convertAndSave(Path file, Path finalFile){
+        ArquivoDTO arquivoDTO = new ArquivoDTO();
+        arquivoDTO.setData(new Date());
+        arquivoDTO.setDestino(finalFile.toString());
+        arquivoDTO.setNovoNome(finalFile.getFileName().toString());
+        arquivoDTO.setOrigem(file.toString());
+        arquivoDTO.setNome(file.getFileName().toString());
+        save(arquivoDTO);
     }
 
     private void saveToJsonFile(ArquivoDTO arquivo){
