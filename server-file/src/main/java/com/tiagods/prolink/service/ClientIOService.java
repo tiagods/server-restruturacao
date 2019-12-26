@@ -1,5 +1,6 @@
 package com.tiagods.prolink.service;
 
+import com.tiagods.prolink.exception.StructureNotFoundException;
 import com.tiagods.prolink.model.Pair;
 import com.tiagods.prolink.model.Cliente;
 import com.tiagods.prolink.utils.IOUtils;
@@ -39,16 +40,18 @@ public class ClientIOService {
             Cliente cli = new Cliente(c.getApelido(),c.getNome(),c.getStatus(),c.getCnpj());
             allClients.add(cli);
         });
-
         log.info("Iniciando mapeamento de clientes");
         mapClient(structureService.listAllInBaseAndShutdown());
         log.info("Concluindo mapeamento");
     }
-
     //mapeamento de pastas, cuidado ao usar em produção
     public void mapClient(Set<Path> files){
         allClients.forEach(c->{
             Optional<Path> file = ioUtils.searchFolderById(c,files);
+
+            Optional<ClienteDTO> opt = clienteService.findOne(c.getId());
+            //verificar se ja foi criado
+            boolean isCreated = opt.map(ClienteDTO::isFolderCreate).orElse(true);
 
             Pair<Cliente,Path> pair;
 
@@ -73,17 +76,41 @@ public class ClientIOService {
                     else pair = new Pair<>(c,destinoAtiva);
                 }
             }
-            else{
+            //criar pasta apenas em condicao de que deva ser criado
+            else if(!isCreated){
                 //criar pasta oficial caso não exista
                 if(c.getStatus().equalsIgnoreCase("Desligada")) pair = ioUtils.create(c, destinoDesligada);
                 else pair = ioUtils.create(c,destinoAtiva);
+            }
+            else{
+                pair = new Pair<>(c,null);
             }
             cliMap.put(pair.getCliente(),pair.getPath());
         });
     }
     public Path searchClientPathBase(Cliente c) {
-        return cliMap.get(c);
+        Path p =  cliMap.get(c);
+        if (p == null) {
+            p = structureService.getBase().resolve(c.toString());
+            Pair pair = ioUtils.create(c,p);
+            if(pair.getPath() == null)
+                throw new StructureNotFoundException("Não foi possivel criar o diretorio: "+p.toString());
+            else{
+                cliMap.put(c,p);
+            }
+        }
+        return p;
+
     }
+    public Path searchClientPathBaseById(Long id) {
+        return cliMap
+                .keySet()
+                .stream()
+                .filter(c-> c.getId().equals(id))
+                .findFirst()
+                .map(this::searchClientPathBase).orElse(null);
+    }
+
     public Optional<Cliente> searchClientById(Long id){
         return allClients.parallelStream().filter(f-> f.getId().equals(id)).findFirst();
     }

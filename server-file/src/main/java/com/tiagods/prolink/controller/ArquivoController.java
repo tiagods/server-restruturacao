@@ -15,7 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/arquivo")
 public class ArquivoController {
 
     private Logger log = LoggerFactory.getLogger(getClass());
@@ -23,7 +23,7 @@ public class ArquivoController {
     @Autowired
     private MoverPastas moverPastas;
 
-    @GetMapping("/moverPasta")
+    @GetMapping("/moverPastas")
     public ResponseEntity<?> mover(@RequestBody String structure,
                                       @RequestBody String dirForJob
                             ){

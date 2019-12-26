@@ -18,16 +18,21 @@ public class ClienteService {
         return clienteRepository.findAll();
     }
 
-    public List<ClienteDTO> listarNaoMapeados() {
+    public List<ClienteDTO> findAllByFolderCreateFalse() {
         return clienteRepository.findByFolderCreateFalse();
     }
 
-    public void atualizarMapeados(Long apelido) throws ClientNotFoundException {
+    public Optional<ClienteDTO> findOne(Long apelido){
+        return clienteRepository.findByApelido(apelido);
+    }
+
+
+    public void updateThisCreateIsTrue(Long apelido) throws ClientNotFoundException {
         Optional<ClienteDTO> cli = clienteRepository.findByApelido(apelido);
         if(cli.isPresent()){
-            ClienteDTO cliente = cli.get();
-            cliente.setFolderCreate(true);
-            clienteRepository.save(cliente);
+            ClienteDTO client = cli.get();
+            client.setFolderCreate(true);
+            clienteRepository.save(client);
         }
         else throw new ClientNotFoundException("Não foi encontrado um cliente com esse id");
     }
