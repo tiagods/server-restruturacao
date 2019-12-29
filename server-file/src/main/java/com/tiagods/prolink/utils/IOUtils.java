@@ -3,7 +3,7 @@ package com.tiagods.prolink.utils;
 import com.tiagods.prolink.exception.StructureNotFoundException;
 import com.tiagods.prolink.model.Pair;
 import com.tiagods.prolink.model.Cliente;
-import com.tiagods.prolink.service.ClientStructureService;
+import com.tiagods.prolink.service.ClientIOService;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,13 +13,12 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component
 public class IOUtils {
 
     @Autowired
-    private ClientStructureService structureService;
+    private ClientIOService clientService;
 
     //criar diretorio para o cliente
     public Pair<Cliente, Path> create(Cliente client, Path destination){
@@ -29,7 +28,7 @@ public class IOUtils {
         }catch (IOException e){
             //em caso de erro nenhum diretorio sera criado
             e.printStackTrace();
-            return new Pair<Cliente, Path>(client,null);
+            return null;
         }
     }
     //verificar e criar estrutura de modelo
@@ -120,7 +119,7 @@ public class IOUtils {
 
     //verificar e criar estrutura de modelo
     public void verifyStructureInModel(Path structure) throws StructureNotFoundException {
-        Path path = structureService.getModel().resolve(structure);
+        Path path = clientService.getModel().resolve(structure);
         createDirectories(path);
     }
 

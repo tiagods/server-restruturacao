@@ -4,23 +4,18 @@ import com.tiagods.prolink.config.Regex;
 import com.tiagods.prolink.model.Cliente;
 import com.tiagods.prolink.service.ArquivoService;
 import com.tiagods.prolink.service.ClientIOService;
-import com.tiagods.prolink.service.ClientStructureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 @Service
 public class MoverPastas {
-
-    @Autowired
-    private ClientStructureService structureService;
 
     @Autowired
     private IOUtils ioUtils;
@@ -42,6 +37,7 @@ public class MoverPastas {
         //Path path = Paths.get("c:/job");
         //Path novaEstrutura = Paths.get("GERAL","SAC");
         try {
+
             ioUtils.verifyStructureInModel(structure);
             Map<Path,String> mapClientes = ioUtils.listByDirectoryDefaultToMap(job, regex.getInitById());
             Map<Cliente,Path> mapPath = new HashMap<>();

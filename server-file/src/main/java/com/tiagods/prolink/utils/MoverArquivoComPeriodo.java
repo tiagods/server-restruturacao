@@ -5,7 +5,6 @@ import com.tiagods.prolink.model.Obrigacao;
 import com.tiagods.prolink.model.Ordem;
 import com.tiagods.prolink.model.OrdemBusca;
 import com.tiagods.prolink.service.ClientIOService;
-import com.tiagods.prolink.service.ClientStructureService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.FileWriter;
@@ -16,9 +15,6 @@ import java.util.*;
 
 
 public class MoverArquivoComPeriodo {
-
-    @Autowired
-    private ClientStructureService structureService;
 
     @Autowired
     IOUtils ioUtils;
