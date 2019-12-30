@@ -64,7 +64,7 @@ public class MoverPastas {
             for(Path p : mapPath.keySet()){
                 Cliente cli = mapPath.get(p);
                 process(cli, Files.list(p).iterator(),structure);
-                ioUtils.deleteFolderIfEmptyRecursive(p);
+                //ioUtils.deleteFolderIfEmptyRecursive(p);
             }
         }catch (IOException e){
             e.printStackTrace();
