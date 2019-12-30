@@ -4,15 +4,17 @@ import com.tiagods.prolink.exception.StructureNotFoundException;
 import com.tiagods.prolink.model.Pair;
 import com.tiagods.prolink.model.Cliente;
 import com.tiagods.prolink.service.ClientIOService;
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public class IOUtils {
@@ -47,31 +49,38 @@ public class IOUtils {
             throw new StructureNotFoundException("Falha ao criar a estrutura: "+e.getMessage(), e.getCause());
         }
     }
-    //deletar de forma recursiva
+
+    public static void main(String[] args) throws IOException, InterruptedException {
+        Path path = Paths.get("c:/job/2222/nf");
+        Runtime.getRuntime().exec("cmd /c rmdir \"" + path.toString() + "\" /Q");
+        Thread.sleep(100000000L);
+    }
+   //deletar de forma recursiva
     public void deleteFolderIfEmptyRecursive(Path path) throws IOException {
         if(Files.isDirectory(path)){
+
             try {
-                File[] files = deleteFolderIfEmpty(path);
-                if(files!=null){
-                    for (File p : files) {
-                        Path dir = p.toPath();
-                        deleteFolderIfEmptyRecursive(dir);
+                deleteFolderIfEmpty(path);
+                boolean exists = Files.exists(path);
+                if (exists) {
+                    Stream<Path> files = Files.list(path);
+                    for (Path p : files.collect(Collectors.toSet())) {
+                        deleteFolderIfEmptyRecursive(p);
                     }
-                    //reanalizar
-                    deleteFolderIfEmpty(path);
                 }
+                deleteFolderIfEmpty(path);
             } catch(IOException e){
                 e.printStackTrace();
             }
         }
     }
-    private File[] deleteFolderIfEmpty(Path path) throws IOException{
-        File[] files = path.toFile().listFiles();
-        if(files.length == 0) {
-            FileUtils.deleteDirectory(path.toFile());
-            return null;
+
+    private void deleteFolderIfEmpty(Path path) throws IOException{
+        long q = Files.list(path).count();
+        if(q == 0) {
+//            Runtime.getRuntime().exec("cmd /c rmdir \"" + path.toString() + "\" /Q");
+            FileSystemUtils.deleteRecursively(path);
         }
-        else return files;
     }
     //listar diretorios e por regex
     public Set<Path> listByDirectoryAndRegex(Path path, String regex) throws IOException{
@@ -86,7 +95,6 @@ public class IOUtils {
         paths.forEach(c-> parentMap.put(c,c.getFileName().toString().substring(0,4)));
         return parentMap;
     }
-
     //tentar mover, se nao conseguir usar o diretorio de origem
     public Pair<Cliente, Path> move(Cliente client, Path origin, Path destination){
         try{

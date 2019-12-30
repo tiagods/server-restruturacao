@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.xml.transform.URIResolver;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,18 +36,21 @@ public class ClientIOService {
     //cliente e sua localizacao
     private Map<Cliente, Path> cliMap = new HashMap<>();
 
-    private Set<Cliente> clienteSet = new HashSet<>();
+    private Set<Cliente> clientSet = new HashSet<>();
+
+    private Set<Path> foldersConcurrentJobs = Collections.synchronizedSet(new HashSet<>());
 
     @Autowired
     private ClienteService clienteService;
 
     private void createIsEmpty(){
-        if(clienteSet.isEmpty() || cliMap.isEmpty()) initClientsPaths();
+        if(clientSet.isEmpty() || cliMap.isEmpty()) initClientsPaths();
     }
 
     public void destroyAll() {
-        clienteSet.clear();
+        clientSet.clear();
         cliMap.clear();
+        foldersConcurrentJobs.clear();
     }
 
     private void initClientsPaths() {
@@ -57,11 +59,11 @@ public class ClientIOService {
         List<ClienteDTO> list = clienteService.list();
         list.forEach(c -> {
             Cliente cli = new Cliente(c.getApelido(), c.getNome(), c.getStatus(), c.getCnpj());
-            clienteSet.add(cli);
+            clientSet.add(cli);
         });
         log.info("Iniciando mapeamento de clientes");
 
-        clienteSet.forEach(cliente -> {
+        clientSet.forEach(cliente -> {
             mapClient(cliente,listAllInBaseAndShutdown());
         });
         log.info("Concluindo mapeamento");
@@ -69,7 +71,7 @@ public class ClientIOService {
 
     //listar todos os clientes ativos, inativos e suas pastas
     private Set<Path> listAllInBaseAndShutdown() {
-        verifyFolders();
+        verifyFoldersInBase();
         try {
             //listando todos os arquivos e corrigir nomes se necessarios
             Set<Path> actives = ioUtils.listByDirectoryAndRegex(base, regex.getInitById());
@@ -120,7 +122,7 @@ public class ClientIOService {
         cliMap.put(pair.getCliente(), pair.getPath());
     }
 
-    public Path searchClientPathBase(Cliente c) {
+    public Path searchClientPathBaseAndCreateIfNotExists(Cliente c) {
         createIsEmpty();
         Optional<Path> result = Optional.ofNullable(cliMap.get(c));
         if(result.isPresent()) return result.get();
@@ -134,22 +136,29 @@ public class ClientIOService {
                 throw new StructureNotFoundException("Não foi possivel criar o diretorio: " + p.toString());
         }
     }
-
+    public Path searchClientPathBase(Cliente c) {
+        createIsEmpty();
+        return cliMap.get(c);
+    }
     public Path searchClientPathBaseById(Long id) {
+        Optional<Path> optional = findMapClientById(id)
+                .map(this::searchClientPathBase);
+        return optional.orElse(null);
+    }
+    private Path searchClientPathBaseByIdAndCreate(Long id) {
+        return findMapClientById(id)
+                .map(this::searchClientPathBaseAndCreateIfNotExists).get();
+    }
+    public Optional<Cliente> findMapClientById(long id){
         createIsEmpty();
         return cliMap
                 .keySet()
                 .stream()
                 .filter(c -> c.getId().equals(id))
-                .findFirst()
-                .map(this::searchClientPathBase).get();
-    }
-    public Optional<Cliente> searchClientById(Long id) {
-        createIsEmpty();
-        return clienteSet.parallelStream().filter(f -> f.getId().equals(id)).findFirst();
+                .findFirst();
     }
 
-    private void verifyFolders() {
+    public void verifyFoldersInBase() {
         base = Paths.get(serverFile.getBase());
         shutdown = Paths.get(serverFile.getShutdown());
         model = Paths.get(serverFile.getModel());
@@ -166,8 +175,17 @@ public class ClientIOService {
                     + e.getMessage(), e.getCause());
         }
     }
-
     public Path getModel() {
         return this.model;
+    }
+
+    public void addFolderToJob(Path dirForJob) {
+        this.foldersConcurrentJobs.add(dirForJob);
+    }
+    public void removeFolderToJob(Path job) {
+        this.foldersConcurrentJobs.remove(job);
+    }
+    public boolean containsFolderToJob(Path job) {
+        return this.foldersConcurrentJobs.contains(job);
     }
 }

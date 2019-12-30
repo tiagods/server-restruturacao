@@ -9,7 +9,7 @@ import java.lang.annotation.*;
 @Target( { ElementType.METHOD, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PathLocation {
-    String message() default "O diretorio {value} não existe";
+    String message() default "O diretorio informado não existe";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

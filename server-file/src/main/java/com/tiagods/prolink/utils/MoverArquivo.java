@@ -115,7 +115,7 @@ public class MoverArquivo {
         if(ordem.equals(Ordem.INICIO)) {
             String cnpj = arquivo.getFileName().toString().substring(0,14);
             Optional<Cliente> cliente = clienteSet.stream().filter(c -> c.isCnpjValido() && c.getCnpjFormatado().equals(cnpj)).findAny();
-            return cliente.isPresent()? clientIOService.searchClientPathBase(cliente.get()) : null;
+            return cliente.isPresent()? clientIOService.searchClientPathBaseAndCreateIfNotExists(cliente.get()) : null;
         }
         else return null;
     }
@@ -130,7 +130,7 @@ public class MoverArquivo {
              }
              String valor =  arquivo.getFileName().toString().substring(0,4);
              Optional<Cliente> cliente = clienteSet.stream().filter(c -> c.getIdFormatado().equals(valor)).findAny();
-             return cliente.isPresent() ? clientIOService.searchClientPathBase(cliente.get()) : null;
+             return cliente.isPresent() ? clientIOService.searchClientPathBaseAndCreateIfNotExists(cliente.get()) : null;
          }
          else{
             String nome = arquivo.getFileName().toString();
@@ -146,7 +146,7 @@ public class MoverArquivo {
                     //nao fazer nada
                 }
                 Optional<Cliente> cliente = clienteSet.stream().filter(c -> c.getIdFormatado().equals(array[index])).findAny();
-                return cliente.isPresent() ? clientIOService.searchClientPathBase(cliente.get()) : null;
+                return cliente.isPresent() ? clientIOService.searchClientPathBaseAndCreateIfNotExists(cliente.get()) : null;
             }
             else return null;
          }

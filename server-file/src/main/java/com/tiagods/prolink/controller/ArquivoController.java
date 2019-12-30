@@ -22,12 +22,8 @@ public class ArquivoController {
     private MoverPastas moverPastas;
 
     @PostMapping("/moverPastas")
-    public ResponseEntity<?> mover(@RequestBody @Valid PathJob pathJob){
-        Path structureBase = Paths.get(pathJob.getStructure());
-        Path base = Paths.get(pathJob.getDirForJob());
-        log.info(structureBase.toString());
-        log.info(base.toString());
-        return ResponseEntity.ok().build();
-        //moverPastas.moveByFolder(base,structureBase);
+    public ResponseEntity<?> mover(@RequestBody @Valid PathJob pathJob) throws Exception {
+        moverPastas.moveByFolder(pathJob);
+        return ResponseEntity.noContent().build();
     }
 }
