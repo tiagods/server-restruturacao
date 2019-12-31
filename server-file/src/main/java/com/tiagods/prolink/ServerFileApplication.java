@@ -15,6 +15,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class ServerFileApplication {
 
+    private Logger log = LoggerFactory.getLogger(getClass());
+
     public static void main(String[] args) {
         SpringApplication.run(ServerFileApplication.class,args);
     }

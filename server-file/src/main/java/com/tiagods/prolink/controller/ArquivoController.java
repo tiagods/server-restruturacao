@@ -9,21 +9,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @RestController
-@RequestMapping("/arquivo")
+@RequestMapping("/files")
 public class ArquivoController {
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    private MoverPastas moverPastas;
+    private MoverPastas moveFolders;
 
-    @PostMapping("/moverPastas")
+    @PostMapping("/moveFolders")
     public ResponseEntity<?> mover(@RequestBody @Valid PathJob pathJob) throws Exception {
-        moverPastas.moveByFolder(pathJob);
+        moveFolders.moveByFolder(pathJob);
         return ResponseEntity.noContent().build();
     }
 }

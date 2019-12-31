@@ -114,7 +114,7 @@ public class Cliente implements Serializable {
                 );
     }
     private String newName(String nome) {
-        String novoNome = nome;
+        String novoNome = removeSpecialsCharacters(nome);
         String[] valor = novoNome.split(" ");
         StringBuilder v1 = new StringBuilder();
         int limite = 20;
@@ -133,7 +133,8 @@ public class Cliente implements Serializable {
         }
         return v1.toString().trim();
     }
-    private String replace(String valor){
+
+    private String removeSpecialsCharacters(String valor){
         String newValor = valor;
         //String chars = "\"!@#$%¨&*()_+{}|<>:?'-=[]\\,.;/£¢¬§ªº°";
         String chars = "\"!@#$%¨*()_+{}|<>:?'-=[]\\,.;/£¢¬§ªº°";
