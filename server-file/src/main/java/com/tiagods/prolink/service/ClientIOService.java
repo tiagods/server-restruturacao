@@ -118,6 +118,13 @@ public class ClientIOService {
             //criar pasta oficial caso não exista
             if (c.getStatus().equalsIgnoreCase("Desligada")) pair = createFolder(c,destinoDesligada);
             else pair = createFolder(c, destinoAtiva);
+
+            Optional<ClienteDTO> dtoOptional = clienteService.findOne(c.getId());
+            if(dtoOptional.isPresent()){
+                ClienteDTO cli = dtoOptional.get();
+                cli.setFolderCreate(true);
+                clienteService.save(cli);
+            }
         }
         else pair = new Pair<>(c, null);
         cliMap.put(pair.getCliente(), pair.getPath());
