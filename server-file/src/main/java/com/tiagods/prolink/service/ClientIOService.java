@@ -2,6 +2,7 @@ package com.tiagods.prolink.service;
 
 import com.tiagods.prolink.config.Regex;
 import com.tiagods.prolink.config.ServerFile;
+import com.tiagods.prolink.dto.ClientDefaultPathDTO;
 import com.tiagods.prolink.exception.StructureNotFoundException;
 import com.tiagods.prolink.model.Pair;
 import com.tiagods.prolink.model.Cliente;
@@ -14,6 +15,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -39,12 +41,12 @@ public class ClientIOService {
 
     private Set<Cliente> clientSet = new HashSet<>();
 
-    List<ClienteDTO> clienteDTOList = new ArrayList<>();
+    private List<ClienteDTO> clientDTOList = new ArrayList<>();
 
     private Set<Path> foldersConcurrentJobs = Collections.synchronizedSet(new HashSet<>());
 
     @Autowired
-    private ClienteService clienteService;
+    private ClientService clientService;
 
     private void createIsEmpty(){
         if(clientSet.isEmpty() || cliMap.isEmpty()) initClientsPaths(false);
@@ -52,16 +54,17 @@ public class ClientIOService {
 
     public void destroyAll() {
         clientSet.clear();
-        clienteDTOList.clear();
+        clientDTOList.clear();
         cliMap.clear();
         foldersConcurrentJobs.clear();
     }
+
     @Async
-    public void initClientsPaths(boolean organize) throws StructureNotFoundException{
+    public synchronized void initClientsPaths(boolean organize) throws StructureNotFoundException{
         destroyAll();
         //carregar e converter lista de clientes
-        clienteDTOList = clienteService.list();
-        clienteDTOList.forEach(c -> {
+        clientDTOList = clientService.list();
+        clientDTOList.forEach(c -> {
             Cliente cli = new Cliente(c.getApelido(), c.getNome(), c.getStatus(), c.getCnpj());
             clientSet.add(cli);
         });
@@ -75,7 +78,7 @@ public class ClientIOService {
     }
 
     //listar todos os clientes ativos, inativos e suas pastas
-    private Set<Path> listAllInBaseAndShutdown() throws StructureNotFoundException{
+    private synchronized Set<Path> listAllInBaseAndShutdown() throws StructureNotFoundException{
         verifyFoldersInBase();
         try {
             //listando todos os arquivos e corrigir nomes se necessarios
@@ -94,7 +97,7 @@ public class ClientIOService {
     private void mapClient(Cliente c, Set<Path> files, boolean organize) {
         log.info("Mapeando cliente: "+c.toString());
         Optional<Path> file = ioUtils.searchFolderById(c, files);
-        Optional<ClienteDTO> opt = clienteDTOList.stream().filter(f-> f.getApelido().equals(c.getId())).findFirst();
+        Optional<ClienteDTO> opt = clientDTOList.stream().filter(f-> f.getApelido().equals(c.getId())).findFirst();
         //verificar se ja foi criado
         boolean isCreated = opt.map(ClienteDTO::isFolderCreate).orElse(true);
 
@@ -119,11 +122,11 @@ public class ClientIOService {
             if (c.getStatus().equalsIgnoreCase("Desligada")) pair = createFolder(c,destinoDesligada);
             else pair = createFolder(c, destinoAtiva);
 
-            Optional<ClienteDTO> dtoOptional = clienteService.findOne(c.getId());
+            Optional<ClienteDTO> dtoOptional = clientService.findOne(c.getId());
             if(dtoOptional.isPresent()){
                 ClienteDTO cli = dtoOptional.get();
                 cli.setFolderCreate(true);
-                clienteService.save(cli);
+                clientService.save(cli);
             }
         }
         else pair = new Pair<>(c, null);
@@ -133,6 +136,17 @@ public class ClientIOService {
     private Pair<Cliente, Path>  createFolder(Cliente c, Path path){
         Pair<Cliente, Path> pair = ioUtils.create(c, path);
         log.info("Criado pasta: "+path.toString());
+        if(Files.exists(path)){
+            List<ClientDefaultPathDTO> paths = clientService.getPathsForClient();
+            for (ClientDefaultPathDTO pathDTO : paths) {
+                try{
+                    Path p = path.resolve(pathDTO.getValue());
+                    ioUtils.createDirectories(p);
+                }catch (IOException e){
+                    log.error("Falha ao criar estrutura basica "+e.getMessage());
+                }
+            }
+        }
         return pair;
     }
 
@@ -179,6 +193,11 @@ public class ClientIOService {
                 .filter(c -> c.getId().equals(id))
                 .findFirst();
     }
+    //verificar e criar estrutura de modelo
+    public void verifyStructureInModel(Path structure) throws IOException {
+        Path path = getModel().resolve(structure);
+        ioUtils.createDirectories(path);
+    }
 
     public void verifyFoldersInBase() {
         base = Paths.get(serverFile.getBase());
@@ -191,9 +210,9 @@ public class ClientIOService {
             ioUtils.createDirectory(shutdown);
             ioUtils.createDirectory(model);
             log.info("Concluindo verificação");
-        } catch (StructureNotFoundException e) {
+        } catch (IOException e) {
             log.error("Falha ao verificar/criar diretorios");
-            throw new RuntimeException("Pasta's importantes não fora encontradas: "
+            throw new StructureNotFoundException("Pasta's importantes não fora encontradas: "
                     + e.getMessage(), e.getCause());
         }
     }

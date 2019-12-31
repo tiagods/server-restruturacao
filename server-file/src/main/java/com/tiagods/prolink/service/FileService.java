@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.tiagods.prolink.dto.ArquivoDTO;
+import com.tiagods.prolink.dto.ArquivoErroDTO;
+import com.tiagods.prolink.repository.ArquivoErroRepository;
 import com.tiagods.prolink.repository.ArquivoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,12 +19,17 @@ import java.nio.file.Path;
 import java.util.Date;
 
 @Service
-public class ArquivoService {
+public class FileService {
+
     @Autowired
-    ArquivoRepository repository;
+    private ArquivoRepository arquivoRepository;
+
+    @Autowired
+    private ArquivoErroRepository erroRepository;
+
 
     public ArquivoDTO save(ArquivoDTO arquivo){
-        return repository.save(arquivo);
+        return arquivoRepository.save(arquivo);
     }
 
     public void convertAndSave(Path file, Path finalFile){
@@ -33,6 +40,14 @@ public class ArquivoService {
         arquivoDTO.setOrigem(file.toString());
         arquivoDTO.setNome(file.getFileName().toString());
         save(arquivoDTO);
+    }
+    public void saveError(Path file, Path finalFile,String error) {
+        ArquivoErroDTO errorDto = new ArquivoErroDTO();
+        errorDto.setData(new Date());
+        errorDto.setCause(error);
+        errorDto.setOrigem(file.toString());
+        errorDto.setDestino(finalFile.toString());
+        erroRepository.save(errorDto);
     }
 
     private void saveToJsonFile(ArquivoDTO arquivo){
@@ -50,6 +65,5 @@ public class ArquivoService {
         } catch (IOException e) {
         }
     }
-
 
 }

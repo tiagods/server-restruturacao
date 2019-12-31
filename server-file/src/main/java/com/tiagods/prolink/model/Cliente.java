@@ -1,6 +1,7 @@
 package com.tiagods.prolink.model;
 
 import java.io.Serializable;
+import java.nio.file.Paths;
 import java.text.Normalizer;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -38,9 +39,9 @@ public class Cliente implements Serializable {
         this.id = id;
         this.idFormatado = newId(id);
         this.nome = normalize(nome).toUpperCase();
-        this.nomeFormatado = newName(nome);
+        this.nomeFormatado = newName(this.nome);
         this.status = status;
-        this.cnpj=cnpj;
+        this.cnpj = cnpj;
         String cnpjFormat = "(^\\d{2}\\d{3}\\d{3}\\d{4}\\d{2}$)";
         cnpj = cnpj.replace(".","").replace("/","").replace("-","");
         Matcher matcher = Pattern.compile(cnpjFormat).matcher(cnpj);
@@ -87,9 +88,11 @@ public class Cliente implements Serializable {
         return cnpjValido;
     }
 
-    private String normalize(String nome){
+    private static String normalize(String nome){
         String novo= Normalizer.normalize(nome, Normalizer.Form.NFD)
                 .replaceAll("[^\\p{ASCII}]", "");
+        //Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+        //novo = pattern.matcher(novo).replaceAll("");
         return novo;
     }
 

@@ -1,7 +1,7 @@
 package com.tiagods.prolink.controller;
 
 import com.tiagods.prolink.model.PathJob;
-import com.tiagods.prolink.utils.MoverPastas;
+import com.tiagods.prolink.service.ActionProcess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ public class ArquivoController {
     private Logger log = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    private MoverPastas moveFolders;
+    private ActionProcess moveFolders;
 
     @PostMapping("/moveFolders")
     public ResponseEntity<?> mover(@RequestBody @Valid PathJob pathJob) throws Exception {

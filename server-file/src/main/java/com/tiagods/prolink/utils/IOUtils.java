@@ -3,13 +3,13 @@ package com.tiagods.prolink.utils;
 import com.tiagods.prolink.exception.StructureNotFoundException;
 import com.tiagods.prolink.model.Pair;
 import com.tiagods.prolink.model.Cliente;
-import com.tiagods.prolink.service.ClientIOService;
+import com.tiagods.prolink.service.FileService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.util.FileSystemUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
@@ -19,8 +19,10 @@ import java.util.stream.Stream;
 @Component
 public class IOUtils {
 
+    private Logger log = LoggerFactory.getLogger(getClass());
+
     @Autowired
-    private ClientIOService clientService;
+    private FileService fileService;
 
     //criar diretorio para o cliente
     public Pair<Cliente, Path> create(Cliente client, Path destination){
@@ -29,31 +31,17 @@ public class IOUtils {
             return new Pair<>(client,destination);
         }catch (IOException e){
             //em caso de erro nenhum diretorio sera criado
-            e.printStackTrace();
+            log.error(e.getMessage());
             return null;
         }
     }
     //verificar e criar estrutura de modelo
-    public void createDirectories(Path path) throws StructureNotFoundException {
-        try {
-            if (Files.notExists(path)) Files.createDirectories(path);
-        }catch (IOException e){
-            throw new StructureNotFoundException("Falha ao criar a estrutura: "+e.getMessage(), e.getCause());
-        }
+    public void createDirectories(Path path) throws IOException {
+        if (Files.notExists(path)) Files.createDirectories(path);
     }
     //criar um diretorio
-    public void createDirectory(Path path) throws StructureNotFoundException {
-        try {
-            if (Files.notExists(path)) Files.createDirectory(path);
-        }catch (IOException e){
-            throw new StructureNotFoundException("Falha ao criar a estrutura: "+e.getMessage(), e.getCause());
-        }
-    }
-
-    public static void main(String[] args) throws IOException, InterruptedException {
-        Path path = Paths.get("c:/job/2222/nf");
-        Runtime.getRuntime().exec("cmd /c rmdir \"" + path.toString() + "\" /Q");
-        Thread.sleep(100000000L);
+    public void createDirectory(Path path) throws IOException {
+       if (Files.notExists(path)) Files.createDirectory(path);
     }
    //deletar de forma recursiva
     public void deleteFolderIfEmptyRecursive(Path path) throws IOException {
@@ -70,7 +58,7 @@ public class IOUtils {
                 }
                 deleteFolderIfEmpty(path);
             } catch(IOException e){
-                e.printStackTrace();
+                log.error(e.getMessage());
             }
         }
     }
@@ -99,9 +87,10 @@ public class IOUtils {
     public Pair<Cliente, Path> move(Cliente client, Path origin, Path destination){
         try{
             Files.move(origin, destination, StandardCopyOption.REPLACE_EXISTING);
+            fileService.convertAndSave(origin,destination);
             return new Pair<>(client,destination);
         }catch (IOException e){
-            e.printStackTrace();
+            log.error(e.getMessage());
             return new Pair<>(client,origin);
         }
     }
@@ -109,11 +98,14 @@ public class IOUtils {
     public Path move(Path file, Path pathCli, Path structure){
         Path newStructureFile = structure.resolve(file.getFileName());
         Path finalFile = pathCli.resolve(newStructureFile);
-        createDirectories(finalFile.getParent());
         try {
+            createDirectories(finalFile.getParent());
             Files.move(file, finalFile, StandardCopyOption.REPLACE_EXISTING);
+            fileService.convertAndSave(file,finalFile);
             return finalFile;
         }catch (IOException e){
+            fileService.saveError(file,finalFile,e.getMessage());
+            log.error(e.getMessage());
             return null;
         }
     }
@@ -125,14 +117,7 @@ public class IOUtils {
                 .findFirst();
     }
 
-    //verificar e criar estrutura de modelo
-    public void verifyStructureInModel(Path structure) throws StructureNotFoundException {
-        Path path = clientService.getModel().resolve(structure);
-        createDirectories(path);
-    }
-
     public boolean verifyIfExist(Path file){
         return Files.exists(file);
     }
-
 }
