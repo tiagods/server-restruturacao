@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
-
 @Component
 @EnableConfigurationProperties
 @ConfigurationProperties(prefix = "regex")
