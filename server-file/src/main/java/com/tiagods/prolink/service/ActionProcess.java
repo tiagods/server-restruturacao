@@ -17,10 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ActionProcess {
@@ -52,10 +49,10 @@ public class ActionProcess {
 
         clientIOService.verifyFoldersInBase();
 
-        if(clientIOService.containsFolderToJob(job))
-            throw new FolderCuncurrencyJob("Um processo ja esta em execução nessa pasta");
+        //if(clientIOService.containsFolderToJob(job))
+        //    throw new FolderCuncurrencyJob("Um processo ja esta em execução nessa pasta");
+        //clientIOService.addFolderToJob(job);
 
-        clientIOService.addFolderToJob(job);
         log.info("Iniciando movimentação de arquivos");
         try {
             clientIOService.verifyStructureInModel(structure);
@@ -75,17 +72,25 @@ public class ActionProcess {
             //vai mover apenas os arquivos de dentro das pastas, as pastas irao continuar
             int i = 1;
 
-            for(Path p : mapPath.keySet()){
-                Cliente cli = mapPath.get(p);
-                log.info(structure.toString()+" - Processando item: "+i+" = cliente: "+cli.toString());
-                Path basePath  = clientIOService.searchClientPathBaseAndCreateIfNotExists(cli);
-                if(basePath != null)
-                    try {
-                        processByFolder(basePath, Files.list(p).iterator(), structure);
-                    }catch (IOException e){
-                        log.error("Falha ao abrir pasta "+p.toString());
+            List<Path> list = new ArrayList<>(mapPath.keySet());
+            Collections.shuffle(list);
+            for(Path p : list){
+                if(clientIOService.containsFolderToJob(p)) continue;
+                else {
+                    Cliente cli = mapPath.get(p);
+                    clientIOService.addFolderToJob(p);
+                    log.info(structure.toString() + " - Processando item: " + i + " = cliente: " + cli.toString());
+                    Path basePath = clientIOService.searchClientPathBaseAndCreateIfNotExists(cli);
+                    if (basePath != null) {
+                        try {
+                            processByFolder(basePath, Files.list(p).iterator(), structure);
+                        } catch (IOException e) {
+                            log.error("Falha ao abrir pasta " + p.toString());
+                        }
                     }
-                //ioUtils.deleteFolderIfEmptyRecursive(p);
+                    clientIOService.removeFolderToJob(p);
+                    //ioUtils.deleteFolderIfEmptyRecursive(p);
+                }
                 i++;
             }
         }catch (IOException e){
@@ -93,7 +98,7 @@ public class ActionProcess {
             log.info("Movimentação cancelada por erro");
         }
         log.info("Concluido movimentação de arquivos da pasta "+job.toString());
-        clientIOService.removeFolderToJob(job);
+        //clientIOService.removeFolderToJob(job);
 
     }
     //inicia processo, vai percorrer todas as pastar e ira mover conteudo para um novo diretorio
