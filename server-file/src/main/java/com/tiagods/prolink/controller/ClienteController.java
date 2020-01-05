@@ -21,10 +21,10 @@ public class ClienteController {
 
     @Autowired
     private ClientIOService ioService;
-    @GetMapping("/{nickname}/path")
+    @GetMapping("/{nickName}/path")
 //    @ApiResponse(code = 404 , message = "A pasta do cliente solicitado não existe" )
-    public ResponseEntity<?> getDir(@PathVariable Long nickname){
-        Optional<Path> optional = Optional.ofNullable(ioService.searchClientPathBaseById(nickname));
+    public ResponseEntity<?> getDir(@PathVariable Long nickName){
+        Optional<Path> optional = Optional.ofNullable(ioService.searchClientPathBaseById(nickName));
         if(optional.isPresent()) return ResponseEntity.ok().body(optional.get().toString());
         else throw new StructureNotFoundException("A pasta do cliente solicitado não existe");
     }

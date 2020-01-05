@@ -42,7 +42,7 @@ public class ActionProcess {
 
     //mover por pastas
     @Async
-    public void moveByFolder(PathJob pathJob) throws FolderCuncurrencyJob {
+    public void moveByFolder(PathJob pathJob, Long nickName) throws FolderCuncurrencyJob {
         //Path path = Paths.get("c:/job");
         //Path novaEstrutura = Paths.get("GERAL","SAC");
         Path job = Paths.get(pathJob.getDirForJob());
@@ -57,7 +57,11 @@ public class ActionProcess {
         log.info("Iniciando movimentação de arquivos");
         try {
             clientIOService.verifyStructureInModel(structure);
-            Map<Path,String> mapClientes = ioUtils.listByDirectoryDefaultToMap(job, regex.getInitById());
+
+            String newRegex = nickName==-1 ? regex.getInitById():
+                    regex.getInitByIdReplaceNickName().replace("nickName",String.valueOf(nickName));
+
+            Map<Path,String> mapClientes = ioUtils.listByDirectoryDefaultToMap(job, newRegex);
             Map<Path,Cliente> mapPath = new HashMap<>();
             mapClientes.keySet().forEach(c->{
                 Long l = Long.parseLong(mapClientes.get(c));

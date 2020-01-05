@@ -15,5 +15,6 @@ import org.springframework.stereotype.Component;
 @Data
 public class Regex {
     private String initById;
+    private String initByIdReplaceNickName;
     private String structure;
 }
