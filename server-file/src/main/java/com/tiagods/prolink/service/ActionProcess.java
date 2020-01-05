@@ -19,6 +19,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class ActionProcess {
@@ -42,7 +43,7 @@ public class ActionProcess {
 
     //mover por pastas
     @Async
-    public void moveByFolder(PathJob pathJob, Long nickName) throws FolderCuncurrencyJob {
+    public void moveByFolder(PathJob pathJob, String nickName) throws FolderCuncurrencyJob {
         //Path path = Paths.get("c:/job");
         //Path novaEstrutura = Paths.get("GERAL","SAC");
         Path job = Paths.get(pathJob.getDirForJob());
@@ -57,11 +58,14 @@ public class ActionProcess {
         log.info("Iniciando movimentação de arquivos");
         try {
             clientIOService.verifyStructureInModel(structure);
-
-            String newRegex = nickName==-1 ? regex.getInitById():
-                    regex.getInitByIdReplaceNickName().replace("nickName",String.valueOf(nickName));
+            Optional<String> optionalS = Optional.ofNullable(nickName);
+            String newRegex = "";
+            if(optionalS.isPresent()) newRegex = regex.getInitByIdReplaceNickName().replace("nickName", nickName);
+            else newRegex = regex.getInitById();
 
             Map<Path,String> mapClientes = ioUtils.listByDirectoryDefaultToMap(job, newRegex);
+            log.info("Clientes encontrados com o regex: "+newRegex+" = "+mapClientes.size());
+
             Map<Path,Cliente> mapPath = new HashMap<>();
             mapClientes.keySet().forEach(c->{
                 Long l = Long.parseLong(mapClientes.get(c));

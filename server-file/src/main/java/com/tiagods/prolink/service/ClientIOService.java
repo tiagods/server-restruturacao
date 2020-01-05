@@ -52,7 +52,7 @@ public class ClientIOService {
         if(clientSet.isEmpty() || cliMap.isEmpty()) initClientsPaths(false);
     }
 
-    public void destroyAll() {
+    void destroyAll() {
         clientSet.clear();
         clientDTOList.clear();
         cliMap.clear();
@@ -73,7 +73,7 @@ public class ClientIOService {
         clientSet.forEach(c -> {
             mapClient(c,set,organize);
         });
-        log.info("Concluido mapeamento");
+        log.info("Concluido mapeamento: "+cliMap.values().size()+" pastas de clientes mapeadas");
     }
 
     //listar todos os clientes ativos, inativos e suas pastas
@@ -136,6 +136,7 @@ public class ClientIOService {
         Pair<Cliente, Path> pair = ioUtils.create(c, path);
         log.info("Criado pasta: "+path.toString());
         if(Files.exists(path)){
+            //usado para criar uma estrutura basica de um novo cliente
             List<ClientDefaultPathDTO> paths = clientService.getPathsForClient();
             for (ClientDefaultPathDTO pathDTO : paths) {
                 try{
