@@ -74,12 +74,17 @@ public class ActionProcess {
             });
             //vai mover apenas os arquivos de dentro das pastas, as pastas irao continuar
             int i = 1;
+
             for(Path p : mapPath.keySet()){
                 Cliente cli = mapPath.get(p);
                 log.info(structure.toString()+" - Processando item: "+i+" = cliente: "+cli.toString());
                 Path basePath  = clientIOService.searchClientPathBaseAndCreateIfNotExists(cli);
                 if(basePath != null)
-                    processByFolder(basePath, Files.list(p).iterator(),structure);
+                    try {
+                        processByFolder(basePath, Files.list(p).iterator(), structure);
+                    }catch (IOException e){
+                        log.error("Falha ao abrir pasta "+p.toString());
+                    }
                 //ioUtils.deleteFolderIfEmptyRecursive(p);
                 i++;
             }
