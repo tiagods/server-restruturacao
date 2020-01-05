@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -72,19 +73,21 @@ public class ActionProcess {
                 clientIOService.findMapClientById(l).ifPresent(r->mapPath.put(c,r));
             });
             //vai mover apenas os arquivos de dentro das pastas, as pastas irao continuar
+            int i = 1;
             for(Path p : mapPath.keySet()){
                 Cliente cli = mapPath.get(p);
-                log.info("Processando cliente "+cli.toString());
+                log.info(structure.toString()+" - Processando item: "+i+" = cliente: "+cli.toString());
                 Path basePath  = clientIOService.searchClientPathBaseAndCreateIfNotExists(cli);
                 if(basePath != null)
                     processByFolder(basePath, Files.list(p).iterator(),structure);
                 //ioUtils.deleteFolderIfEmptyRecursive(p);
+                i++;
             }
-            log.info("Concluido movimentação de arquivos");
         }catch (IOException e){
             log.error(e.getMessage());
             log.info("Movimentação cancelada por erro");
         }
+        log.info("Concluido movimentação de arquivos da pasta "+job.toString());
         clientIOService.removeFolderToJob(job);
 
     }

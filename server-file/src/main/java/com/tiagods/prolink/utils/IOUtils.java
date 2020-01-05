@@ -96,7 +96,6 @@ public class IOUtils {
         }
     }
     //mover arquivo com estrutura pre estabelecida
-    @Async
     public Path move(Path file, Path pathCli, Path structure){
         Path newStructureFile = structure.resolve(file.getFileName());
         Path finalFile = pathCli.resolve(newStructureFile);
