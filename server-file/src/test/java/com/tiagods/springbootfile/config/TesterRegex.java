@@ -34,6 +34,14 @@ public class TesterRegex {
         Assert.assertTrue("2222-".matches(regex.getInitById()));
         Assert.assertTrue("2222L ".matches(regex.getInitById()));
         Assert.assertFalse("22223".matches(regex.getInitById()));
-
+        Assert.assertTrue("2222 - Teste".matches(regex.getInitById()));
+        Assert.assertTrue("2222 Teste".matches(regex.getInitById()));
+        Assert.assertTrue("2222 - 555Teste".matches(regex.getInitById()));
+        Assert.assertTrue("2222 555Teste".matches(regex.getInitById()));
+        Assert.assertTrue("0677 - ssaq545KADES".matches(regex.getInitById()));
+        Assert.assertTrue("0677".matches(regex.getInitById()));
+        Assert.assertTrue("0677 545KADES".matches(regex.getInitById()));
+        Assert.assertFalse("067545KADES".matches(regex.getInitById()));
+        Assert.assertFalse("06754".matches(regex.getInitById()));
     }
 }

@@ -7,6 +7,7 @@ import com.tiagods.prolink.service.FileService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
 
@@ -95,6 +96,7 @@ public class IOUtils {
         }
     }
     //mover arquivo com estrutura pre estabelecida
+    @Async
     public Path move(Path file, Path pathCli, Path structure){
         Path newStructureFile = structure.resolve(file.getFileName());
         Path finalFile = pathCli.resolve(newStructureFile);

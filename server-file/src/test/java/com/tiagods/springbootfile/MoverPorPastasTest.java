@@ -14,10 +14,17 @@ import java.util.stream.Collectors;
 
 public class MoverPorPastasTest {
     public static void main(String[] args) throws IOException {
-        Path job = Paths.get("c:/job");
 
-        System.out.println("2225-CLIENTE B IND SA".matches("[2225]+[^0-9]*$"));
-        System.out.println("2222-".matches("2225+[^0-9]*$"));
+        Path job = Paths.get("c:/job");
+        String regex = "[0-9]{4}+([^0-9]{1,1}+.*$)?";
+
+        System.out.println("0677 - 545KADES".matches(regex));
+        System.out.println("0677 - ssaq545KADES".matches(regex));
+        System.out.println("0677 - ".matches(regex));
+        System.out.println("0677".matches(regex));
+        System.out.println("0677 545KADES".matches(regex));
+        System.out.println("067545KADES".matches(regex));
+        System.out.println("06754".matches(regex));
 
         Map<Path,String> mapClientes = listByDirectoryDefaultToMap(job, "[0-9]{4}+[^0-9]*$");
         mapClientes.keySet().forEach(c->System.out.println(c.toString()+" - "+mapClientes.get(c)));
