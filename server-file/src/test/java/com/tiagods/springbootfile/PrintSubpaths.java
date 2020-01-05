@@ -26,7 +26,7 @@ public class PrintSubpaths {
             String fileName = p.getFileName().toString();
             String cli = fileName.substring(0,4);
             List<String> collect = Files.list(p)
-                    .filter(f -> f.getFileName().toString().matches(regex))
+                    .filter(f ->  Files.isDirectory(f) && f.getFileName().toString().matches(regex))
                     .map(f->f.getFileName().getFileName().toString().substring(0,4))
                     .collect(Collectors.toList());
             if(!collect.isEmpty())
