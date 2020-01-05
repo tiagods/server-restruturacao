@@ -70,6 +70,7 @@ public class ActionProcess {
             //vai mover apenas os arquivos de dentro das pastas, as pastas irao continuar
             for(Path p : mapPath.keySet()){
                 Cliente cli = mapPath.get(p);
+                log.info("Processando cliente "+cli.toString());
                 Path basePath  = clientIOService.searchClientPathBaseAndCreateIfNotExists(cli);
                 if(basePath != null)
                     processByFolder(basePath, Files.list(p).iterator(),structure);
