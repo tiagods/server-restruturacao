@@ -73,7 +73,7 @@ public class ClientIOService {
         clientSet.forEach(c -> {
             mapClient(c,set,organize);
         });
-        log.info("Concluindo mapeamento");
+        log.info("Concluido mapeamento");
     }
 
     //listar todos os clientes ativos, inativos e suas pastas
