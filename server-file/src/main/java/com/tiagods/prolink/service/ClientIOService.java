@@ -69,7 +69,6 @@ public class ClientIOService {
             clientSet.add(cli);
         });
         log.info("Iniciando mapeamento de clientes");
-
         Set<Path> set = listAllInBaseAndShutdown();
         clientSet.forEach(c -> {
             mapClient(c,set,organize);
@@ -166,7 +165,8 @@ public class ClientIOService {
             Path p = base.resolve(c.toString());
             Optional<Pair<Cliente,Path>> result2 = Optional.ofNullable(ioUtils.create(c, p));
             if(result2.isPresent()){
-                return cliMap.put(c, result2.get().getPath());
+                cliMap.put(c, result2.get().getPath());
+                return result2.get().getPath();
             }
             else
                 throw new StructureNotFoundException("Não foi possivel criar o diretorio: " + p.toString());

@@ -54,6 +54,7 @@ public class ActionProcess {
             throw new FolderCuncurrencyJob("Um processo ja esta em execução nessa pasta");
 
         clientIOService.addFolderToJob(job);
+        log.info("Iniciando movimentação de arquivos");
         try {
             clientIOService.verifyStructureInModel(structure);
             Map<Path,String> mapClientes = ioUtils.listByDirectoryDefaultToMap(job, regex.getInitById());
@@ -65,29 +66,31 @@ public class ActionProcess {
             //vai mover apenas os arquivos de dentro das pastas, as pastas irao continuar
             for(Path p : mapPath.keySet()){
                 Cliente cli = mapPath.get(p);
-                processByFolder(cli, Files.list(p).iterator(),structure);
+                Path basePath  = clientIOService.searchClientPathBaseAndCreateIfNotExists(cli);
+                if(basePath != null)
+                    processByFolder(basePath, Files.list(p).iterator(),structure);
                 //ioUtils.deleteFolderIfEmptyRecursive(p);
             }
+            log.info("Concluido movimentação de arquivos");
         }catch (IOException e){
             log.error(e.getMessage());
+            log.info("Movimentação cancelada por erro");
         }
         clientIOService.removeFolderToJob(job);
 
     }
     //inicia processo, vai percorrer todas as pastar e ira mover conteudo para um novo diretorio
-    private void processByFolder(Cliente cli, Iterator<Path> files, Path parent){
+    private void processByFolder(Path basePath, Iterator<Path> files, Path parent){
         while (files.hasNext()) {
             Path file  = files.next();
             if(Files.isDirectory(file)){
                 try {
-                    processByFolder(cli, Files.list(file).iterator(), parent.resolve(file.getFileName()));
+                    processByFolder(basePath, Files.list(file).iterator(), parent.resolve(file.getFileName()));
                 } catch (IOException e) {
-
                     log.error(e.getMessage());
                 }
             }
             else {
-                Path basePath  = clientIOService.searchClientPathBaseAndCreateIfNotExists(cli);
                 //base - subpastas - arquivo
                 Path estrutura = basePath.resolve(parent);
                 ioUtils.move(file, basePath, estrutura);
