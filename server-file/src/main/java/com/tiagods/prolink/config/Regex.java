@@ -9,12 +9,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
-
 @Component
 @EnableConfigurationProperties
 @ConfigurationProperties(prefix = "regex")
 @Data
 public class Regex {
     private String initById;
+    private String initByIdReplaceNickName;
     private String structure;
 }

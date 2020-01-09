@@ -16,16 +16,21 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/cliente")
+@RequestMapping("/clients")
 public class ClienteController {
 
     @Autowired
     private ClientIOService ioService;
-    @GetMapping("/{apelido}/diretorio")
+    @GetMapping("/{nickName}/path")
 //    @ApiResponse(code = 404 , message = "A pasta do cliente solicitado não existe" )
-    public ResponseEntity<?> pegarDiretorio(@PathVariable Long apelido){
-        Optional<Path> optional = Optional.ofNullable(ioService.searchClientPathBaseById(apelido));
+    public ResponseEntity<?> getDir(@PathVariable Long nickName){
+        Optional<Path> optional = Optional.ofNullable(ioService.searchClientPathBaseById(nickName));
         if(optional.isPresent()) return ResponseEntity.ok().body(optional.get().toString());
         else throw new StructureNotFoundException("A pasta do cliente solicitado não existe");
+    }
+    @GetMapping("/organize")
+    public ResponseEntity<?> organizeFoldersClients(){
+        ioService.initClientsPaths(true);
+        return ResponseEntity.ok().build();
     }
 }

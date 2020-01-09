@@ -28,24 +28,20 @@ public class MoverArquivo {
 
     ClientIOService clientIOService;
 
-    public static void main(String[] args) {
-        new MoverArquivo().iniciar();
-    }
-
     private void iniciar(){
         Path path = Paths.get("\\\\PLKSERVER\\Obrigacoes\\contabil\\Contabil\\SPED CONTÁBIL");
+        novaEstrutura = Paths.get("Obrigacoes","SPED CONTABIL", "2019");
+
         try {
             Iterator<Path> files = Files.list(path).iterator();
-            novaEstrutura = Paths.get("Obrigacoes","SPED CONTABIL", "2019");
-            ioUtils.verifyStructureInModel(novaEstrutura);
+            clientIOService.verifyStructureInModel(novaEstrutura);
 
             processar(files, OrdemBusca.ID,null,1);
             //processar(files, OrdemBusca.CNPJ,null,1);
-
-            removerVazios(path);
         }catch (IOException e){
             e.printStackTrace();
         }
+
     }
     private void processar(Iterator<Path> files, OrdemBusca ordemBusca,String regex,int index) throws IOException{
         while (files.hasNext()) {
@@ -71,43 +67,7 @@ public class MoverArquivo {
         if(Files.notExists(arquivoFinal.getParent())) Files.createDirectories(arquivoFinal.getParent());
         Files.move(arquivo, arquivoFinal, StandardCopyOption.REPLACE_EXISTING);
         System.out.println(arquivo + "\t>\t" + arquivoFinal);
-        salvarRelatorio(arquivo.toString(),arquivoFinal.toString());
-    }
-    private void removerVazios(Path path) throws IOException{
-        if(Files.isDirectory(path)){
-            System.out.println(Files.list(path).count());
-            try {
-                Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-                    @Override
-                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                        //System.out.println("delete file: " + file.toString());
-                        //Files.delete(file);
-                        return FileVisitResult.CONTINUE;
-                    }
-
-                    @Override
-                    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                        if(Files.list(dir).count()==0) {
-                            Files.delete(dir);
-                            System.out.println("delete dir: " + dir.toString());
-                        }
-                        return FileVisitResult.CONTINUE;
-                    }
-                });
-            } catch(IOException e){
-                e.printStackTrace();
-            }
-        }
-    }
-
-    void salvarRelatorio(String de, String to) throws IOException{
-        Path path = Paths.get("result.csv");
-        if(Files.notExists(path)) Files.createFile(path);
-        FileWriter fw = new FileWriter(path.toFile(),true);
-        fw.write(de+"\t"+to);
-        fw.write(System.getProperty("line.separator"));
-        fw.flush();
-        fw.close();
+        //salvarRelatorio(arquivo.toString(),arquivoFinal.toString());
     }
 
     private Path buscarPorCnpj(Path arquivo, Set<Cliente> clienteSet, Ordem ordem){

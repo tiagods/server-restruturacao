@@ -2,6 +2,7 @@ package com.tiagods.prolink.service;
 
 import com.tiagods.prolink.config.Regex;
 import com.tiagods.prolink.config.ServerFile;
+import com.tiagods.prolink.dto.ClientDefaultPathDTO;
 import com.tiagods.prolink.exception.StructureNotFoundException;
 import com.tiagods.prolink.model.Pair;
 import com.tiagods.prolink.model.Cliente;
@@ -10,9 +11,11 @@ import com.tiagods.prolink.dto.ClienteDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -38,39 +41,43 @@ public class ClientIOService {
 
     private Set<Cliente> clientSet = new HashSet<>();
 
+    private List<ClienteDTO> clientDTOList = new ArrayList<>();
+
     private Set<Path> foldersConcurrentJobs = Collections.synchronizedSet(new HashSet<>());
 
     @Autowired
-    private ClienteService clienteService;
+    private ClientService clientService;
 
     private void createIsEmpty(){
-        if(clientSet.isEmpty() || cliMap.isEmpty()) initClientsPaths();
+        if(clientSet.isEmpty() || cliMap.isEmpty()) initClientsPaths(false);
     }
 
-    public void destroyAll() {
+    void destroyAll() {
         clientSet.clear();
+        clientDTOList.clear();
         cliMap.clear();
         foldersConcurrentJobs.clear();
     }
 
-    private void initClientsPaths() {
+    @Async
+    public synchronized void initClientsPaths(boolean organize) throws StructureNotFoundException{
         destroyAll();
         //carregar e converter lista de clientes
-        List<ClienteDTO> list = clienteService.list();
-        list.forEach(c -> {
+        clientDTOList = clientService.list();
+        clientDTOList.forEach(c -> {
             Cliente cli = new Cliente(c.getApelido(), c.getNome(), c.getStatus(), c.getCnpj());
             clientSet.add(cli);
         });
         log.info("Iniciando mapeamento de clientes");
-
-        clientSet.forEach(cliente -> {
-            mapClient(cliente,listAllInBaseAndShutdown());
+        Set<Path> set = listAllInBaseAndShutdown();
+        clientSet.forEach(c -> {
+            mapClient(c,set,organize);
         });
-        log.info("Concluindo mapeamento");
+        log.info("Concluido mapeamento: "+cliMap.values().size()+" pastas de clientes mapeadas");
     }
 
     //listar todos os clientes ativos, inativos e suas pastas
-    private Set<Path> listAllInBaseAndShutdown() {
+    private synchronized Set<Path> listAllInBaseAndShutdown() throws StructureNotFoundException{
         verifyFoldersInBase();
         try {
             //listando todos os arquivos e corrigir nomes se necessarios
@@ -86,40 +93,69 @@ public class ClientIOService {
     }
 
     //mapeamento de pastas, cuidado ao usar em produção
-    private void mapClient(Cliente c, Set<Path> files) {
+    private void mapClient(Cliente c, Set<Path> files, boolean organize) {
+        log.info("Mapeando cliente: "+c.toString());
         Optional<Path> file = ioUtils.searchFolderById(c, files);
-        Optional<ClienteDTO> opt = clienteService.findOne(c.getId());
+        Optional<ClienteDTO> opt = clientDTOList.stream().filter(f-> f.getApelido().equals(c.getId())).findFirst();
         //verificar se ja foi criado
         boolean isCreated = opt.map(ClienteDTO::isFolderCreate).orElse(true);
 
         Pair<Cliente, Path> pair;
-
         Path destinoDesligada = shutdown.resolve(c.toString());
         Path destinoAtiva = base.resolve(c.toString());
 
         if (file.isPresent()) {
             //verificar nome do arquivo se esta de acordo com a norma
-            boolean nomeCorreto = file.get().getFileName().toString().equals(c.toString());
+            boolean correctName = file.get().getFileName().toString().equals(c.toString());
             //caminho do diretorio
-            if (c.getStatus().equalsIgnoreCase("Desligada")) {
-                boolean localCorreto = file.get().getParent().equals(shutdown);
-                if (!localCorreto || !nomeCorreto) pair = ioUtils.move(c, file.get(), destinoDesligada);
-                else pair = new Pair<>(c, destinoDesligada);
-            } else {
-                boolean localCorreto = file.get().getParent().equals(base);
-                if (!localCorreto || !nomeCorreto) pair = ioUtils.move(c, file.get(), destinoAtiva);
-                else pair = new Pair<>(c, destinoAtiva);
+            if(organize) {
+                if (c.getStatus().equalsIgnoreCase("Desligada"))
+                    pair = moveFolder(c, file.get(), shutdown, correctName, destinoDesligada);
+                else pair = moveFolder(c, file.get(), base, correctName, destinoAtiva);
             }
+            else pair = new Pair<>(c,file.get());
         }
-        //criar pasta apenas em condicao de que deva ser criado
+        //criar pasta apenas em condicao de que deva ser criado, principalmente em novos clientes
         else if (!isCreated) {
             //criar pasta oficial caso não exista
-            if (c.getStatus().equalsIgnoreCase("Desligada")) pair = ioUtils.create(c, destinoDesligada);
-            else pair = ioUtils.create(c, destinoAtiva);
-        } else {
-            pair = new Pair<>(c, null);
+            if (c.getStatus().equalsIgnoreCase("Desligada")) pair = createFolder(c,destinoDesligada);
+            else pair = createFolder(c, destinoAtiva);
+
+            Optional<ClienteDTO> dtoOptional = clientService.findOne(c.getId());
+            if(dtoOptional.isPresent()){
+                ClienteDTO cli = dtoOptional.get();
+                cli.setFolderCreate(true);
+                clientService.save(cli);
+            }
         }
+        else pair = new Pair<>(c, null);
         cliMap.put(pair.getCliente(), pair.getPath());
+    }
+
+    private Pair<Cliente, Path>  createFolder(Cliente c, Path path){
+        Pair<Cliente, Path> pair = ioUtils.create(c, path);
+        log.info("Criado pasta: "+path.toString());
+        if(Files.exists(path)){
+            //usado para criar uma estrutura basica de um novo cliente
+            List<ClientDefaultPathDTO> paths = clientService.getPathsForClient();
+            for (ClientDefaultPathDTO pathDTO : paths) {
+                try{
+                    Path p = path.resolve(pathDTO.getValue());
+                    ioUtils.createDirectories(p);
+                }catch (IOException e){
+                    log.error("Falha ao criar estrutura basica "+e.getMessage());
+                }
+            }
+        }
+        return pair;
+    }
+
+    private Pair<Cliente, Path> moveFolder(Cliente c, Path file, Path base, boolean correctName, Path destiny){
+        boolean localCorreto = file.getParent().equals(base);
+        if (!localCorreto || !correctName) {
+            log.info("Movendo cliente: " + c.getIdFormatado() + " de: " + file.toString() + " para: " + destiny.toString());
+            return ioUtils.move(c, file, destiny);
+        } else return new Pair<>(c, destiny);
     }
 
     public Path searchClientPathBaseAndCreateIfNotExists(Cliente c) {
@@ -130,7 +166,8 @@ public class ClientIOService {
             Path p = base.resolve(c.toString());
             Optional<Pair<Cliente,Path>> result2 = Optional.ofNullable(ioUtils.create(c, p));
             if(result2.isPresent()){
-                return cliMap.put(c, result2.get().getPath());
+                cliMap.put(c, result2.get().getPath());
+                return result2.get().getPath();
             }
             else
                 throw new StructureNotFoundException("Não foi possivel criar o diretorio: " + p.toString());
@@ -157,6 +194,11 @@ public class ClientIOService {
                 .filter(c -> c.getId().equals(id))
                 .findFirst();
     }
+    //verificar e criar estrutura de modelo
+    public void verifyStructureInModel(Path structure) throws IOException {
+        Path path = getModel().resolve(structure);
+        ioUtils.createDirectories(path);
+    }
 
     public void verifyFoldersInBase() {
         base = Paths.get(serverFile.getBase());
@@ -169,9 +211,9 @@ public class ClientIOService {
             ioUtils.createDirectory(shutdown);
             ioUtils.createDirectory(model);
             log.info("Concluindo verificação");
-        } catch (StructureNotFoundException e) {
+        } catch (IOException e) {
             log.error("Falha ao verificar/criar diretorios");
-            throw new RuntimeException("Pasta's importantes não fora encontradas: "
+            throw new StructureNotFoundException("Pasta's importantes não fora encontradas: "
                     + e.getMessage(), e.getCause());
         }
     }

@@ -17,8 +17,8 @@ public class PrintSubpaths {
     public static void main(String[] args) throws IOException{
         String regex = "[0-9]{4}+[^0-9]*$";
 
-        Path path = Paths.get("c:/job");
-        Iterator<Path> iterator = Files.list(path).filter(f-> f.getFileName().toString().matches(regex)).iterator();
+        Path path = Paths.get("\\\\plkserver\\Todos Departamentos\\SAC");
+        Iterator<Path> iterator = Files.list(path).filter(f-> Files.isDirectory(f) && f.getFileName().toString().matches(regex)).iterator();
         Map<String, List<String>> maps = new HashMap<>();
 
         while(iterator.hasNext()){
@@ -26,7 +26,7 @@ public class PrintSubpaths {
             String fileName = p.getFileName().toString();
             String cli = fileName.substring(0,4);
             List<String> collect = Files.list(p)
-                    .filter(f -> f.getFileName().toString().matches(regex))
+                    .filter(f ->  Files.isDirectory(f) && f.getFileName().toString().matches(regex))
                     .map(f->f.getFileName().getFileName().toString().substring(0,4))
                     .collect(Collectors.toList());
             if(!collect.isEmpty())

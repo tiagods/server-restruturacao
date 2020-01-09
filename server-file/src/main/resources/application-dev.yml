@@ -1,7 +1,7 @@
 serverfile:
   base: c:\clientes
   model: c:\clientes\_base
-  shutdown: c:\clientes\_desligados
+  shutdown: c:\clientes\_desligados_extintas
 server:
   port: 8082
 spring:

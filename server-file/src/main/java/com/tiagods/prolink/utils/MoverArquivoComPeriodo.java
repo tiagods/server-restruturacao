@@ -76,7 +76,7 @@ public class MoverArquivoComPeriodo {
                 if(Files.isDirectory(p) && meses.contains(p.getFileName().toString())) {
                     Path estrutura = Paths.get("Obrigacoes", "SPED ICMS IPI", ano);
                     Path novaEstrutura = estrutura.resolve(p.getFileName());
-                    ioUtils.verifyStructureInModel(novaEstrutura);
+                    clientIOService.verifyStructureInModel(novaEstrutura);
                     processar(novaEstrutura,Files.list(p).iterator(), OrdemBusca.CNPJ,null,1);
                     processar(novaEstrutura,Files.list(p).iterator(), OrdemBusca.ID, null, 1);
                     processar(novaEstrutura,Files.list(p).iterator(), OrdemBusca.CNPJ,"-",1);
