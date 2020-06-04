@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @RestController
-@RequestMapping("/files")
+@RequestMapping("/api/files")
 public class ArquivoController {
 
     private Logger log = LoggerFactory.getLogger(getClass());
@@ -36,4 +36,5 @@ public class ArquivoController {
         }
         throw new InvalidNickException("O apelido informado é invalido, tamanho minimo de 4 caracteres");
     }
+
 }

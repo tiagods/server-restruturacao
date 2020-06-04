@@ -13,6 +13,6 @@ public class PathLocationValidator implements ConstraintValidator<PathLocation,S
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         Path path = Paths.get(value);
-        return Files.exists(path);
+        return Files.exists(path) && Files.isDirectory(path);
     }
 }

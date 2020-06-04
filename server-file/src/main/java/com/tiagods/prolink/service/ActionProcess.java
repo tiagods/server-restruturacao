@@ -85,7 +85,7 @@ public class ActionProcess {
                         try {
                             processByFolder(basePath, Files.list(p).iterator(), structure);
                         } catch (IOException e) {
-                            log.error("Falha ao abrir pasta " + p.toString());
+                            log.error("Falha ao abrir pasta ".concat(p.toString()));
                         }
                     }
                     clientIOService.removeFolderToJob(p);

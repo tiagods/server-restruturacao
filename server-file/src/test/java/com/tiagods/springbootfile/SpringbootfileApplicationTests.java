@@ -19,21 +19,21 @@ public class SpringbootfileApplicationTests {
 	private static Path desligados = base.resolve("_desligados_extintas");
 	static String regex = "[0-9]{4}+[^0-9]*$";
 
-	@Test
+	//@Test
 	public void folderNotEmpty() throws IOException {
 		Stream<Path> ativos = Files.list(base);
 		Stream<Path> inativos = Files.list(desligados);
 		Assert.assertFalse(ativos.collect(Collectors.toList()).isEmpty());
 		Assert.assertFalse(inativos.collect(Collectors.toList()).isEmpty());
 	}
-	@Test
+	//@Test
 	public void validNameFolder(){
 		String nome = "0192-STUDIO HILUX";
 		Assert.assertTrue(nome.matches(regex));
 	}
 
 	//buscando pastas de clientes, com id duplicados
-	@Test
+	//@Test
 	public void searchDuplicateClientFolder() throws IOException {
 		Set<Path> actives = Files.list(base)
 				.filter(f->Files.isDirectory(f) && f.getFileName().toString()

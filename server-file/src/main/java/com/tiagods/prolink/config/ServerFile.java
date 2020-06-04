@@ -15,6 +15,8 @@ import javax.validation.constraints.NotNull;
 @Data
 public class ServerFile {
     @NotNull
+    private String root;
+    @NotNull
     private String base;
     @NotNull
     private String model;

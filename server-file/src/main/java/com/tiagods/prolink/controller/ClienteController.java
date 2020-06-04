@@ -16,7 +16,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/clients")
+@RequestMapping("/api/clients")
 public class ClienteController {
 
     @Autowired

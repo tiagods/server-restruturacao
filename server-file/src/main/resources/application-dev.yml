@@ -1,4 +1,6 @@
 serverfile:
+  root: c:\plkserver
+  root: c:\plkserver
   base: c:\clientes
   model: c:\clientes\_base
   shutdown: c:\clientes\_desligados_extintas
