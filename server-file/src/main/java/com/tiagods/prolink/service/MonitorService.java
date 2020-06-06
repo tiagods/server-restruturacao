@@ -38,10 +38,9 @@ public class MonitorService {
             wr.close();
 
             stream = new FileInputStream(file);
-            IOUtils.toByteArray(stream);
+            return IOUtils.toByteArray(stream);
         }catch (IOException e){
             throw new RuntimeException(e.getMessage());
         }
-        return null;
     }
 }

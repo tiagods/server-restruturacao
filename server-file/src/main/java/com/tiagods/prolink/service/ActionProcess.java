@@ -5,7 +5,6 @@ import com.tiagods.prolink.exception.FolderCuncurrencyJob;
 import com.tiagods.prolink.model.Cliente;
 import com.tiagods.prolink.model.PathJob;
 import com.tiagods.prolink.utils.IOUtils;
-import com.tiagods.prolink.utils.UtilsValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,13 +36,13 @@ public class ActionProcess {
 
     //mover por pastas
     @Async
-    public void moveByFolder(PathJob pathJob, String nickName) throws FolderCuncurrencyJob {
+    public void moverPorPasta(PathJob pathJob, String nickName) throws FolderCuncurrencyJob {
         //Path path = Paths.get("c:/job");
         //Path novaEstrutura = Paths.get("GERAL","SAC");
         Path job = Paths.get(pathJob.getDirForJob());
         Path structure = Paths.get(pathJob.getStructure());
 
-        clientIOService.verifyFoldersInBase();
+        clientIOService.verficarDiretoriosBaseECriar();
 
         //if(clientIOService.containsFolderToJob(job))
         //    throw new FolderCuncurrencyJob("Um processo ja esta em execução nessa pasta");
@@ -69,7 +68,6 @@ public class ActionProcess {
             int i = 1;
 
             List<Path> list = new ArrayList<>(mapPath.keySet());
-            Collections.shuffle(list);
             for(Path p : list){
                 if(clientIOService.containsFolderToJob(p)) continue;
                 else {
@@ -111,7 +109,7 @@ public class ActionProcess {
             else {
                 //base - subpastas - arquivo
                 Path estrutura = basePath.resolve(parent);
-                ioUtils.move(file, basePath, estrutura);
+                ioUtils.mover(file, basePath, estrutura);
             }
         }
     }

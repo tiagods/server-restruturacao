@@ -8,8 +8,7 @@ import com.tiagods.prolink.model.Pair;
 import com.tiagods.prolink.model.Cliente;
 import com.tiagods.prolink.utils.IOUtils;
 import com.tiagods.prolink.dto.ClienteDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -21,9 +20,8 @@ import java.nio.file.Paths;
 import java.util.*;
 
 @Service
+@Slf4j
 public class ClienteIOService {
-
-    private Logger log = LoggerFactory.getLogger(getClass());
 
     @Autowired
     private ServerFile serverFile;
@@ -48,8 +46,8 @@ public class ClienteIOService {
     @Autowired
     private ClientService clientService;
 
-    private void createIsEmpty(){
-        if(clientSet.isEmpty() || cliMap.isEmpty()) initClientsPaths(false);
+    private void iniciarlizarSeVazio(){
+        if(clientSet.isEmpty() || cliMap.isEmpty()) inicializarPathClientes(false);
     }
 
     void destroyAll() {
@@ -60,16 +58,17 @@ public class ClienteIOService {
     }
 
     @Async
-    public synchronized void initClientsPaths(boolean organize) throws StructureNotFoundException{
+    public synchronized void inicializarPathClientes(boolean organize) throws StructureNotFoundException{
         destroyAll();
         //carregar e converter lista de clientes
         clientDTOList = clientService.list();
         clientDTOList.forEach(c -> {
-            Cliente cli = new Cliente(c.getApelido(), c.getNome(), c.getStatus(), c.getCnpj());
-            clientSet.add(cli);
+            clientSet.add(
+                    new Cliente(c.getApelido(), c.getNome(), c.getStatus(), c.getCnpj())
+            );
         });
         log.info("Iniciando mapeamento de clientes");
-        Set<Path> set = listAllInBaseAndShutdown();
+        Set<Path> set = buscarClientesPath();
         clientSet.forEach(c -> {
             mapClient(c,set,organize);
         });
@@ -77,8 +76,8 @@ public class ClienteIOService {
     }
 
     //listar todos os clientes ativos, inativos e suas pastas
-    private synchronized Set<Path> listAllInBaseAndShutdown() throws StructureNotFoundException{
-        verifyFoldersInBase();
+    private synchronized Set<Path> buscarClientesPath() throws StructureNotFoundException{
+        verficarDiretoriosBaseECriar();
         try {
             //listando todos os arquivos e corrigir nomes se necessarios
             Set<Path> actives = ioUtils.filtrarPorDiretorioERegex(base, regex.getInitById());
@@ -92,7 +91,7 @@ public class ClienteIOService {
         }
     }
 
-    //mapeamento de pastas, cuidado ao usar em produção
+    //mapeamento de pastas
     private void mapClient(Cliente c, Set<Path> files, boolean organize) {
         log.info("Mapeando cliente: "+c.toString());
         Optional<Path> file = ioUtils.searchFolderById(c, files);
@@ -110,16 +109,16 @@ public class ClienteIOService {
             //caminho do diretorio
             if(organize) {
                 if (c.getStatus().equalsIgnoreCase("Desligada"))
-                    pair = moveFolder(c, file.get(), shutdown, correctName, destinoDesligada);
-                else pair = moveFolder(c, file.get(), base, correctName, destinoAtiva);
+                    pair = moverPastaCliente(c, file.get(), shutdown, correctName, destinoDesligada);
+                else pair = moverPastaCliente(c, file.get(), base, correctName, destinoAtiva);
             }
             else pair = new Pair<>(c,file.get());
         }
         //criar pasta apenas em condicao de que deva ser criado, principalmente em novos clientes
         else if (!isCreated) {
             //criar pasta oficial caso não exista
-            if (c.getStatus().equalsIgnoreCase("Desligada")) pair = createFolder(c,destinoDesligada);
-            else pair = createFolder(c, destinoAtiva);
+            if (c.getStatus().equalsIgnoreCase("Desligada")) pair = montarEstruturaNoCliente(c,destinoDesligada);
+            else pair = montarEstruturaNoCliente(c, destinoAtiva);
 
             Optional<ClienteDTO> dtoOptional = clientService.findOne(c.getId());
             if(dtoOptional.isPresent()){
@@ -131,8 +130,8 @@ public class ClienteIOService {
         else pair = new Pair<>(c, null);
         cliMap.put(pair.getCliente(), pair.getPath());
     }
-
-    private Pair<Cliente, Path>  createFolder(Cliente c, Path path){
+    //criar estrutura no cliente com base nos parametros passados
+    private Pair<Cliente, Path> montarEstruturaNoCliente(Cliente c, Path path){
         Pair<Cliente, Path> pair = ioUtils.criarDiretorioCliente(c, path);
         log.info("Criado pasta: "+path.toString());
         if(Files.exists(path)){
@@ -150,16 +149,16 @@ public class ClienteIOService {
         return pair;
     }
 
-    private Pair<Cliente, Path> moveFolder(Cliente c, Path file, Path base, boolean correctName, Path destiny){
+    private Pair<Cliente, Path> moverPastaCliente(Cliente c, Path file, Path base, boolean correctName, Path destiny){
         boolean localCorreto = file.getParent().equals(base);
         if (!localCorreto || !correctName) {
             log.info("Movendo cliente: " + c.getIdFormatado() + " de: " + file.toString() + " para: " + destiny.toString());
-            return ioUtils.move(c, file, destiny);
+            return ioUtils.mover(c, file, destiny);
         } else return new Pair<>(c, destiny);
     }
 
     public Path searchClientPathBaseAndCreateIfNotExists(Cliente c) {
-        createIsEmpty();
+        iniciarlizarSeVazio();
         Optional<Path> result = Optional.ofNullable(cliMap.get(c));
         if(result.isPresent()) return result.get();
         else {
@@ -174,20 +173,23 @@ public class ClienteIOService {
         }
     }
     public Path searchClientPathBase(Cliente c) {
-        createIsEmpty();
+        iniciarlizarSeVazio();
         return cliMap.get(c);
     }
+
     public Path searchClientPathBaseById(Long id) {
         Optional<Path> optional = findMapClientById(id)
                 .map(this::searchClientPathBase);
         return optional.orElse(null);
     }
+
     private Path searchClientPathBaseByIdAndCreate(Long id) {
         return findMapClientById(id)
                 .map(this::searchClientPathBaseAndCreateIfNotExists).get();
     }
+
     public Optional<Cliente> findMapClientById(long id){
-        createIsEmpty();
+        iniciarlizarSeVazio();
         return cliMap
                 .keySet()
                 .stream()
@@ -200,7 +202,7 @@ public class ClienteIOService {
         ioUtils.criarDiretorios(path);
     }
 
-    public void verifyFoldersInBase() {
+    public void verficarDiretoriosBaseECriar() {
         base = Paths.get(serverFile.getBase());
         shutdown = Paths.get(serverFile.getShutdown());
         model = Paths.get(serverFile.getModel());

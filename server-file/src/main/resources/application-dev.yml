@@ -1,3 +1,9 @@
+spring:
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: prolink
 serverfile:
   root: C:\Temp\plkserver
   base: C:\Temp\clientes
@@ -5,9 +11,3 @@ serverfile:
   shutdown: C:\Temp\clientes\_desligados_extintas
 server:
   port: 8082
-spring:
-  data:
-    mongodb:
-      host: localhost
-      port: 27017
-      database: prolink

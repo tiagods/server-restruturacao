@@ -13,21 +13,22 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/clients")
+@RequestMapping("/api/clientes")
 public class ClienteController {
 
     @Autowired
     private ClienteIOService ioService;
     @GetMapping("/{nickName}/path")
-//    @ApiResponse(code = 404 , message = "A pasta do cliente solicitado não existe" )
+
+    //@ApiResponse(code = 404 , message = "A pasta do cliente solicitado não existe" )
     public ResponseEntity<?> getDir(@PathVariable Long nickName){
         Optional<Path> optional = Optional.ofNullable(ioService.searchClientPathBaseById(nickName));
         if(optional.isPresent()) return ResponseEntity.ok().body(optional.get().toString());
         else throw new StructureNotFoundException("A pasta do cliente solicitado não existe");
     }
-    @GetMapping("/organize")
+    @GetMapping("/organizar")
     public ResponseEntity<?> organizeFoldersClients(){
-        ioService.initClientsPaths(true);
+        ioService.inicializarPathClientes(true);
         return ResponseEntity.ok().build();
     }
 }

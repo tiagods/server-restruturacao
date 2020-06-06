@@ -27,7 +27,6 @@ public class FileService {
     @Autowired
     private ArquivoErroRepository erroRepository;
 
-
     public ArquivoDTO save(ArquivoDTO arquivo){
         return arquivoRepository.save(arquivo);
     }

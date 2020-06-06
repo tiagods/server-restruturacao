@@ -81,7 +81,7 @@ public class IOUtils {
         return parentMap;
     }
     //tentar mover, se nao conseguir usar o diretorio de origem
-    public Pair<Cliente, Path> move(Cliente client, Path origin, Path destination){
+    public Pair<Cliente, Path> mover(Cliente client, Path origin, Path destination){
         try{
             Files.move(origin, destination, StandardCopyOption.REPLACE_EXISTING);
             fileService.convertAndSave(origin,destination);
@@ -92,7 +92,7 @@ public class IOUtils {
         }
     }
     //mover arquivo com estrutura pre estabelecida
-    public Path move(Path file, Path pathCli, Path structure){
+    public Path mover(Path file, Path pathCli, Path structure){
         Path newStructureFile = structure.resolve(file.getFileName());
         Path finalFile = pathCli.resolve(newStructureFile);
         try {
