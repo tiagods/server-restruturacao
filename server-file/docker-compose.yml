@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  mongo:
+    image: mongo
+    ports:
+      - 27017:27017
+    restart: always
+    volumes:
+      - db-data:/var/lib/mongo
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_DB: processos
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - /var/lib/postgresql/data
+    networks:
+      - postgres-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "admin@admin.com"
+      PGADMIN_DEFAULT_PASSWORD: "admin"
+    ports:
+      - "6543:80"
+    depends_on:
+      - postgres
+    networks:
+      - postgres-network
+networks:
+  postgres-network:
+    driver: bridge
+volumes:
+  db-data:

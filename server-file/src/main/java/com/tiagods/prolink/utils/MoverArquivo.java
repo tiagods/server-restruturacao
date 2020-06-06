@@ -3,14 +3,12 @@ package com.tiagods.prolink.utils;
 import com.tiagods.prolink.model.Cliente;
 import com.tiagods.prolink.model.Ordem;
 import com.tiagods.prolink.model.OrdemBusca;
-import com.tiagods.prolink.service.ClientIOService;
+import com.tiagods.prolink.service.ClienteIOService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
@@ -26,7 +24,7 @@ public class MoverArquivo {
     @Autowired
     IOUtils ioUtils;
 
-    ClientIOService clientIOService;
+    ClienteIOService clientIOService;
 
     private void iniciar(){
         Path path = Paths.get("\\\\PLKSERVER\\Obrigacoes\\contabil\\Contabil\\SPED CONTÁBIL");

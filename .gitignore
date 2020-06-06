@@ -4,6 +4,7 @@ target/
 */.mvn/
 application.properties
 application.yml
+application-prod.yml
 ### STS ###
 .apt_generated
 .classpath

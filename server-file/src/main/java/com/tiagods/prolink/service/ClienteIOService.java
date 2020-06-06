@@ -21,7 +21,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 @Service
-public class ClientIOService {
+public class ClienteIOService {
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -81,8 +81,8 @@ public class ClientIOService {
         verifyFoldersInBase();
         try {
             //listando todos os arquivos e corrigir nomes se necessarios
-            Set<Path> actives = ioUtils.listByDirectoryAndRegex(base, regex.getInitById());
-            Set<Path> shutdowns = ioUtils.listByDirectoryAndRegex(shutdown, regex.getInitById());
+            Set<Path> actives = ioUtils.filtrarPorDiretorioERegex(base, regex.getInitById());
+            Set<Path> shutdowns = ioUtils.filtrarPorDiretorioERegex(shutdown, regex.getInitById());
             Set<Path> files = new HashSet<>();
             files.addAll(actives);
             files.addAll(shutdowns);
@@ -133,7 +133,7 @@ public class ClientIOService {
     }
 
     private Pair<Cliente, Path>  createFolder(Cliente c, Path path){
-        Pair<Cliente, Path> pair = ioUtils.create(c, path);
+        Pair<Cliente, Path> pair = ioUtils.criarDiretorioCliente(c, path);
         log.info("Criado pasta: "+path.toString());
         if(Files.exists(path)){
             //usado para criar uma estrutura basica de um novo cliente
@@ -141,7 +141,7 @@ public class ClientIOService {
             for (ClientDefaultPathDTO pathDTO : paths) {
                 try{
                     Path p = path.resolve(pathDTO.getValue());
-                    ioUtils.createDirectories(p);
+                    ioUtils.criarDiretorios(p);
                 }catch (IOException e){
                     log.error("Falha ao criar estrutura basica "+e.getMessage());
                 }
@@ -164,7 +164,7 @@ public class ClientIOService {
         if(result.isPresent()) return result.get();
         else {
             Path p = base.resolve(c.toString());
-            Optional<Pair<Cliente,Path>> result2 = Optional.ofNullable(ioUtils.create(c, p));
+            Optional<Pair<Cliente,Path>> result2 = Optional.ofNullable(ioUtils.criarDiretorioCliente(c, p));
             if(result2.isPresent()){
                 cliMap.put(c, result2.get().getPath());
                 return result2.get().getPath();
@@ -197,7 +197,7 @@ public class ClientIOService {
     //verificar e criar estrutura de modelo
     public void verifyStructureInModel(Path structure) throws IOException {
         Path path = getModel().resolve(structure);
-        ioUtils.createDirectories(path);
+        ioUtils.criarDiretorios(path);
     }
 
     public void verifyFoldersInBase() {
@@ -208,8 +208,8 @@ public class ClientIOService {
         try {
             if (!ioUtils.verifyIfExist(base))
                 throw new StructureNotFoundException("Base de arquivos não existe");
-            ioUtils.createDirectory(shutdown);
-            ioUtils.createDirectory(model);
+            ioUtils.criarDiretorio(shutdown);
+            ioUtils.criarDiretorio(model);
             log.info("Concluindo verificação");
         } catch (IOException e) {
             log.error("Falha ao verificar/criar diretorios");

@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -29,10 +28,7 @@ public class ActionProcess {
     private Regex regex;
 
     @Autowired
-    private UtilsValidator validator;
-
-    @Autowired
-    private ClientIOService clientIOService;
+    private ClienteIOService clientIOService;
 
     @Autowired
     private FileService fileService;
