@@ -1,4 +1,4 @@
-package com.tiagods.prolink.model;
+package com.tiagods.prolink.job;
 
 public enum OrdemBusca {
     ID,CNPJ

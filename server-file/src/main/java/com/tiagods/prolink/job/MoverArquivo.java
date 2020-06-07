@@ -1,9 +1,8 @@
-package com.tiagods.prolink.utils;
+package com.tiagods.prolink.job;
 
 import com.tiagods.prolink.model.Cliente;
-import com.tiagods.prolink.model.Ordem;
-import com.tiagods.prolink.model.OrdemBusca;
 import com.tiagods.prolink.service.ClienteIOService;
+import com.tiagods.prolink.utils.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

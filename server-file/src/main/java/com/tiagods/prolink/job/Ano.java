@@ -1,4 +1,4 @@
-package com.tiagods.prolink.model;
+package com.tiagods.prolink.job;
 
 import java.io.Serializable;
 import java.util.Objects;

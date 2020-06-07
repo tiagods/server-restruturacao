@@ -1,8 +1,6 @@
 package com.tiagods.prolink.job;
 
 import com.tiagods.prolink.model.Cliente;
-import com.tiagods.prolink.model.Ordem;
-import com.tiagods.prolink.model.OrdemBusca;
 
 import java.io.IOException;
 import java.nio.file.Path;
