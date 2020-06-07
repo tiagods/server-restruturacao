@@ -10,7 +10,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Regex.class)
-public class TesterRegex {
+public class RegexTest {
     @Autowired
     private Regex regex;
 

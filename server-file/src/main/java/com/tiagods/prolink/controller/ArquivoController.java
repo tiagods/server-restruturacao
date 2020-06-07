@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -80,15 +81,19 @@ public class ArquivoController {
                                     obrigacao.getPathMes().replace("{MES}", DateUtils.mesString(tipo.getMes().getValue()));
 
 
-                            Files.list(f)
-                                    .filter(filter->
-                                            addMes==null ?
-                                                    Files.isDirectory(filter)
-                                                    : Files.isDirectory(filter) && filter.getFileName().toString().equals(addMes)
-                                    )
-                                    .forEach(t->{
+                            try {
+                                Files.list(f)
+                                        .filter(filter->
+                                                addMes==null ?
+                                                        Files.isDirectory(filter)
+                                                        : Files.isDirectory(filter) && filter.getFileName().toString().equals(addMes)
+                                        )
+                                        .forEach(t->{
 
-                                    });
+                                        });
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
                     });
         }

@@ -31,4 +31,12 @@ public class StringUtilsTest {
         Assert.assertTrue(StringUtils.validarCnpj(cnpjFim));
     }
 
+    @Test
+    public void novoApelido(){
+        Assert.assertEquals("0001", StringUtils.novoApelido(1L));
+        Assert.assertEquals("0015", StringUtils.novoApelido(15L));
+        Assert.assertEquals("0501", StringUtils.novoApelido(501L));
+        Assert.assertEquals("1519", StringUtils.novoApelido(1519L));
+    }
+
 }

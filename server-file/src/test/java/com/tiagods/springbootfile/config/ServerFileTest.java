@@ -17,7 +17,7 @@ import java.nio.file.Paths;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ServerFile.class)
-public class TesterServerFile {
+public class ServerFileTest {
     @Autowired
     private ServerFile serverFile;
 

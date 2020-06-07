@@ -74,24 +74,4 @@ public class StringUtils {
     public static boolean validarCnpj(String cnpj){
         return Pattern.compile(CNPJNUMERICO).matcher(cnpj).find();
     }
-
-    public static void main(String[] args) {
-        String cnpj= "04.110.394/0001-00";
-
-        String cnpjFormatado1 = "";
-        Boolean cnpjValido1 = true;
-
-        String cnpjFormat = "(^\\d{2}\\.\\d{3}\\.\\d{3}\\/\\d{4}\\-\\d{2}$)";
-        cnpj = cnpj.replace(".","").replace("/","").replace("-","");
-        Matcher matcher = Pattern.compile(cnpjFormat).matcher(cnpj);
-        if(matcher.find()) {
-            cnpjFormatado1 = cnpj;
-            cnpjValido1 = true;
-        }
-        else cnpjValido1 = false;
-
-        System.out.println(cnpjValido1);
-        System.out.println(cnpjFormatado1);
-        System.out.println("Validando cnpj:" + cnpj + "-" +validarCnpj("04110394000191"));
-    }
 }
