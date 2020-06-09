@@ -1,11 +1,9 @@
 package com.tiagods.prolink.model;
 
-import com.tiagods.prolink.utils.StringUtils;
+import com.tiagods.prolink.utils.MyStringUtils;
 
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Cliente implements Serializable {
     private Long id;
@@ -34,14 +32,14 @@ public class Cliente implements Serializable {
 
     public Cliente(Long id, String nome, String status, String cnpj){
         this.id = id;
-        this.idFormatado = StringUtils.novoApelido(id);
-        this.nome = StringUtils.normalizer(nome).toUpperCase();
-        this.nomeFormatado = StringUtils.encurtarNome(this.nome);
+        this.idFormatado = MyStringUtils.novoApelido(id);
+        this.nome = MyStringUtils.normalizer(nome).toUpperCase();
+        this.nomeFormatado = MyStringUtils.encurtarNome(this.nome);
         this.status = status;
-        String newCnpj = StringUtils.cnpjNumerico(cnpj);
+        String newCnpj = MyStringUtils.cnpjNumerico(cnpj);
         this.cnpjFormatado = "";
         this.cnpjValido = false;
-        if(StringUtils.validarCnpj(newCnpj)){
+        if(MyStringUtils.validarCnpj(newCnpj)){
             cnpjValido = true;
             cnpjFormatado = newCnpj;
         }

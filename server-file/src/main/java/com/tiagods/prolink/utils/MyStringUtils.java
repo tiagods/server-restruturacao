@@ -4,7 +4,7 @@ import java.text.Normalizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class StringUtils {
+public class MyStringUtils {
 
     public final static String CNPJNUMERICO = "[0-9]{14}";
     public final static String TODOS_ECOMECIAL = "\"!@#$%¨*()_+{}|<>:?'-=[]\\,.;/£¢¬§ªº°";//todos exceto e comercial
@@ -13,6 +13,16 @@ public class StringUtils {
     public static String substituirCaracteresEspeciaisPorEspaco(String valor, String regex){
         String newValor = valor;
         for(char b : regex.toCharArray()) {
+            //verificar espacos extras criados e substituir
+            newValor = newValor.replace(String.valueOf(b), " ");//substituir por espaco
+            newValor = newValor.replace("  "," ");
+        }
+        return newValor;
+    }
+
+    public static String substituirCaracteresEspeciais(String valor){
+        String newValor = valor;
+        for(char b : TODOS.toCharArray()) {
             //verificar espacos extras criados e substituir
             newValor = newValor.replace(String.valueOf(b), " ");//substituir por espaco
             newValor = newValor.replace("  "," ");
