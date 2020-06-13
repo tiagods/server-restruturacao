@@ -1,6 +1,7 @@
 package com.tiagods.prolink.model;
 
 import com.tiagods.prolink.utils.MyStringUtils;
+import com.tiagods.prolink.utils.UtilsValidator;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -39,7 +40,7 @@ public class Cliente implements Serializable {
         String newCnpj = MyStringUtils.cnpjNumerico(cnpj);
         this.cnpjFormatado = "";
         this.cnpjValido = false;
-        if(MyStringUtils.validarCnpj(newCnpj)){
+        if(UtilsValidator.validarCnpjNumerico(newCnpj)){
             cnpjValido = true;
             cnpjFormatado = newCnpj;
         }

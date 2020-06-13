@@ -5,6 +5,14 @@ import java.time.Year;
 
 public class DateUtils {
 
+    public static String anoString(Year ano){
+        return ano.toString();
+    }
+
+    public static String mesString(Month month){
+        return mesString(month.getValue());
+    }
+
     public static String anoString(int ano){
         Year year = Year.of(ano);
         return year.toString();

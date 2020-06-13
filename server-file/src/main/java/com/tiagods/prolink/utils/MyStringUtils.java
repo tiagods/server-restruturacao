@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 
 public class MyStringUtils {
 
-    public final static String CNPJNUMERICO = "[0-9]{14}";
     public final static String TODOS_ECOMECIAL = "\"!@#$%¨*()_+{}|<>:?'-=[]\\,.;/£¢¬§ªº°";//todos exceto e comercial
     public final static String TODOS = "\"!@#$%¨&*()_+{}|<>:?'-=[]\\,.;/£¢¬§ªº°";
 
@@ -79,9 +78,5 @@ public class MyStringUtils {
             novo = novo.replace(String.valueOf(b), "");
         }
         return novo;
-    }
-
-    public static boolean validarCnpj(String cnpj){
-        return Pattern.compile(CNPJNUMERICO).matcher(cnpj).find();
     }
 }

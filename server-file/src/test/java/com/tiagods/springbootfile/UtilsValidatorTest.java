@@ -30,7 +30,7 @@ public class UtilsValidatorTest {
 
     public void moverPorTipo(@Valid Obrigacao tipo) throws Exception {
         //montar url
-        validar(tipo);
+        //validar(tipo);
         //validando por obrigação
         Obrigacao.Tipo obrigacao = tipo.getTipo();
         Path job = Paths.get(tipo.getDirForJob());
@@ -95,13 +95,15 @@ public class UtilsValidatorTest {
         */
 
     }
-
+/*
     private void validar(Obrigacao obrigacao) throws ParametroNotFoundException, PathInvalidException {
         Obrigacao.Tipo tipo = obrigacao.getTipo();
 
-        ObrigacaoContrato ob = ObrigacaoFactory().get(tipo);
+        ObrigacaoContrato ob = ObrigacaoFactory.get(tipo);
 
-        if(!obrigacao.getDirForJob().endsWith(ob.getDescricao())) {
+        Path dirForJob = Paths.get(obrigacao.getDirForJob());
+
+        if(!dirForJob.getFileName().toString().equals(tipo.getDescricao())) {
             throw new PathInvalidException("O diretorio informado é invalido");
         }
         if(obrigacao.getAno()==null && ob.getConfig().contains(Year.class)) {
@@ -111,4 +113,5 @@ public class UtilsValidatorTest {
             throw new ParametroNotFoundException("O parametro mês é obrigatório para essa obrigação");
         }
     }
+ */
 }

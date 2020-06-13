@@ -24,14 +24,6 @@ public class MyStringUtilsTest {
     }
 
     @Test
-    public void validarCnpj(){
-        String cnpj = "01.100.511/0001-00";
-        String cnpjFim = MyStringUtils.cnpjNumerico(cnpj);
-        Assert.assertEquals("01100511000100", cnpjFim);
-        Assert.assertTrue(MyStringUtils.validarCnpj(cnpjFim));
-    }
-
-    @Test
     public void novoApelido(){
         Assert.assertEquals("0001", MyStringUtils.novoApelido(1L));
         Assert.assertEquals("0015", MyStringUtils.novoApelido(15L));
