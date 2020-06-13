@@ -1,5 +1,5 @@
 package com.tiagods.prolink.job;
 
-public enum Ordem {
+public enum OrdemV1 {
     INICIO
 }

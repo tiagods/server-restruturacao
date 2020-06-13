@@ -3,10 +3,10 @@ package com.tiagods.prolink.job;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class Obrigacao implements Serializable{
+public class ObrigacaoV1 implements Serializable{
         private String nome;
 
-        public Obrigacao(String nome) {
+        public ObrigacaoV1(String nome) {
                 this.nome = nome;
         }
 
@@ -25,7 +25,7 @@ public class Obrigacao implements Serializable{
         public boolean equals(Object o) {
                 if (this == o) return true;
                 if (o == null || getClass() != o.getClass()) return false;
-                Obrigacao obrigacao = (Obrigacao) o;
+                ObrigacaoV1 obrigacao = (ObrigacaoV1) o;
                 return Objects.equals(nome, obrigacao.nome);
         }
 

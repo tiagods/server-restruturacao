@@ -17,7 +17,7 @@ public interface OperacaoInterface {
 
     Path buscarIdOrCnpj(Path arquivo, Set<Cliente> clientes, OrdemBusca order, String regex, int index);
 
-    Path buscarPorCnpj(Path arquivo, Set<Cliente> clienteSet, Ordem ordem);
+    Path buscarPorCnpj(Path arquivo, Set<Cliente> clienteSet, OrdemV1 ordemV1);
 
     Path buscarPorId(Path arquivo, Set<Cliente> clienteSet, String regex, int index);
 }

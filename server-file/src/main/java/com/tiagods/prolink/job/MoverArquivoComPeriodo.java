@@ -27,40 +27,40 @@ public class MoverArquivoComPeriodo {
         meses.addAll(Arrays.asList(m));
         new MoverArquivoComPeriodo().iniciar();
 
-        Obrigacao o = new Obrigacao("Obrigacao/Documento");
-        List<Obrigacao> obrigacaoSet = new ArrayList<>();
-        obrigacaoSet.add(new Obrigacao("DIRF"));
-        obrigacaoSet.add(new Obrigacao("DAS"));
-        obrigacaoSet.add(new Obrigacao("GPS"));
-        obrigacaoSet.add(new Obrigacao("DIPJ"));
-        obrigacaoSet.add(new Obrigacao("DIMOB"));
-        obrigacaoSet.add(new Obrigacao("DACON"));
-        obrigacaoSet.add(new Obrigacao("RAIS"));
-        obrigacaoSet.add(new Obrigacao("DCTF"));
-        obrigacaoSet.add(new Obrigacao("SIMPLES PAULISTA"));
-        obrigacaoSet.add(new Obrigacao("DES"));
-        obrigacaoSet.add(new Obrigacao("PJSI"));
-        obrigacaoSet.add(new Obrigacao("DMED"));
-        obrigacaoSet.add(new Obrigacao("DITR"));
-        obrigacaoSet.add(new Obrigacao("SPED CONTABIL"));
-        obrigacaoSet.add(new Obrigacao("PJ INATIVA"));
-        obrigacaoSet.add(new Obrigacao("STDA SIMPLES NACIONAL"));
-        obrigacaoSet.add(new Obrigacao("COAF"));
-        obrigacaoSet.add(new Obrigacao("DSUP"));
-        obrigacaoSet.add(new Obrigacao("FCONT"));
-        obrigacaoSet.add(new Obrigacao("GIA-ICMS"));
-        obrigacaoSet.add(new Obrigacao("IRPF"));
-        obrigacaoSet.add(new Obrigacao("PERD COMP"));
-        obrigacaoSet.add(new Obrigacao("SISCOSERV"));
-        obrigacaoSet.add(new Obrigacao("SPED ICMS IPI"));
-        obrigacaoSet.add(new Obrigacao("SPED PIS COFINS"));
-        obrigacaoSet.add(new Obrigacao("DAI-PMSP"));
-        obrigacaoSet.add(new Obrigacao("ECF CONTABIL"));
-        obrigacaoSet.add(new Obrigacao("SEDIF-DESTDA"));
-        obrigacaoSet.add(new Obrigacao("IBGE"));
-        obrigacaoSet.add(new Obrigacao("SIMPLES NACIONAL-DEFIS"));
-        obrigacaoSet.add(new Obrigacao("SIMPLES NACIONAL-PGDASD"));
-        obrigacaoSet.add(new Obrigacao("DECLAN-IPM"));
+        ObrigacaoV1 o = new ObrigacaoV1("Obrigacao/Documento");
+        List<ObrigacaoV1> obrigacaoSet = new ArrayList<>();
+        obrigacaoSet.add(new ObrigacaoV1("DIRF"));
+        obrigacaoSet.add(new ObrigacaoV1("DAS"));
+        obrigacaoSet.add(new ObrigacaoV1("GPS"));
+        obrigacaoSet.add(new ObrigacaoV1("DIPJ"));
+        obrigacaoSet.add(new ObrigacaoV1("DIMOB"));
+        obrigacaoSet.add(new ObrigacaoV1("DACON"));
+        obrigacaoSet.add(new ObrigacaoV1("RAIS"));
+        obrigacaoSet.add(new ObrigacaoV1("DCTF"));
+        obrigacaoSet.add(new ObrigacaoV1("SIMPLES PAULISTA"));
+        obrigacaoSet.add(new ObrigacaoV1("DES"));
+        obrigacaoSet.add(new ObrigacaoV1("PJSI"));
+        obrigacaoSet.add(new ObrigacaoV1("DMED"));
+        obrigacaoSet.add(new ObrigacaoV1("DITR"));
+        obrigacaoSet.add(new ObrigacaoV1("SPED CONTABIL"));
+        obrigacaoSet.add(new ObrigacaoV1("PJ INATIVA"));
+        obrigacaoSet.add(new ObrigacaoV1("STDA SIMPLES NACIONAL"));
+        obrigacaoSet.add(new ObrigacaoV1("COAF"));
+        obrigacaoSet.add(new ObrigacaoV1("DSUP"));
+        obrigacaoSet.add(new ObrigacaoV1("FCONT"));
+        obrigacaoSet.add(new ObrigacaoV1("GIA-ICMS"));
+        obrigacaoSet.add(new ObrigacaoV1("IRPF"));
+        obrigacaoSet.add(new ObrigacaoV1("PERD COMP"));
+        obrigacaoSet.add(new ObrigacaoV1("SISCOSERV"));
+        obrigacaoSet.add(new ObrigacaoV1("SPED ICMS IPI"));
+        obrigacaoSet.add(new ObrigacaoV1("SPED PIS COFINS"));
+        obrigacaoSet.add(new ObrigacaoV1("DAI-PMSP"));
+        obrigacaoSet.add(new ObrigacaoV1("ECF CONTABIL"));
+        obrigacaoSet.add(new ObrigacaoV1("SEDIF-DESTDA"));
+        obrigacaoSet.add(new ObrigacaoV1("IBGE"));
+        obrigacaoSet.add(new ObrigacaoV1("SIMPLES NACIONAL-DEFIS"));
+        obrigacaoSet.add(new ObrigacaoV1("SIMPLES NACIONAL-PGDASD"));
+        obrigacaoSet.add(new ObrigacaoV1("DECLAN-IPM"));
 
     }
     private void iniciar(){
@@ -196,9 +196,9 @@ public class MoverArquivoComPeriodo {
         }
         return null;
     }
-    private Path buscarPorCnpj(Path arquivo, Set<Cliente> clienteSet, Ordem ordem){
+    private Path buscarPorCnpj(Path arquivo, Set<Cliente> clienteSet, OrdemV1 ordemV1){
         if(arquivo.getFileName().toString().trim().length()<14) return null;
-        if(ordem.equals(Ordem.INICIO)) {
+        if(ordemV1.equals(OrdemV1.INICIO)) {
             String cnpj = arquivo.getFileName().toString().substring(0,14);
             Optional<Cliente> cliente = clienteSet.stream().filter(c -> c.isCnpjValido() && c.getCnpjFormatado().equals(cnpj)).findAny();
             return cliente.isPresent()? clientIOService.searchClientPathBaseAndCreateIfNotExists(cliente.get()) : null;

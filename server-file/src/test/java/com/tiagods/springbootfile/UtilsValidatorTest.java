@@ -1,8 +1,10 @@
 package com.tiagods.springbootfile;
 
-import com.tiagods.prolink.model.Tipo;
 import com.tiagods.prolink.exception.ParametroNotFoundException;
 import com.tiagods.prolink.exception.PathInvalidException;
+import com.tiagods.prolink.model.Obrigacao;
+import com.tiagods.prolink.obrigacao.ObrigacaoContrato;
+import com.tiagods.prolink.obrigacao.ObrigacaoFactory;
 import com.tiagods.prolink.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,21 +19,23 @@ import java.time.Year;
 @Slf4j
 public class UtilsValidatorTest {
     public static void main(String[] args) throws Exception {
-        Tipo tipo = new Tipo();
-        tipo.setObrigacao(Tipo.Obrigacao.PROLINKDIGITAL);
-        tipo.setDirForJob("\\\\plkserver\\Todos Departamentos\\PROLINK DIGITAL");
-        tipo.setAno(Year.of(2015));
-        tipo.setMes(Month.AUGUST);
+        Obrigacao obrigacao = new Obrigacao();
+        obrigacao.setTipo(Obrigacao.Tipo.PROLINKDIGITAL);
+        obrigacao.setDirForJob("\\\\plkserver\\Todos Departamentos\\PROLINK DIGITAL");
+        obrigacao.setAno(Year.of(2015));
+        obrigacao.setMes(Month.AUGUST);
 
-        new UtilsValidatorTest().moverPorTipo(tipo);
+        new UtilsValidatorTest().moverPorTipo(obrigacao);
     }
 
-    public void moverPorTipo(@Valid Tipo tipo) throws Exception {
+    public void moverPorTipo(@Valid Obrigacao tipo) throws Exception {
         //montar url
         validar(tipo);
         //validando por obrigação
-        Tipo.Obrigacao obrigacao = tipo.getObrigacao();
+        Obrigacao.Tipo obrigacao = tipo.getTipo();
         Path job = Paths.get(tipo.getDirForJob());
+
+/*
         if(obrigacao.getConfig().contains(Year.class)){
             String addYear = tipo.getAno()==null? null : obrigacao.getPathAno().replace("{ANO}", tipo.getAno().toString());
             log.info("Valor do ano: "+addYear);
@@ -88,17 +92,22 @@ public class UtilsValidatorTest {
                         }
                     });
         }
+        */
+
     }
 
-    private void validar(Tipo tipo) throws ParametroNotFoundException, PathInvalidException {
-        Tipo.Obrigacao ob = tipo.getObrigacao();
-        if(!tipo.getDirForJob().endsWith(ob.getDescricao())) {
+    private void validar(Obrigacao obrigacao) throws ParametroNotFoundException, PathInvalidException {
+        Obrigacao.Tipo tipo = obrigacao.getTipo();
+
+        ObrigacaoContrato ob = ObrigacaoFactory().get(tipo);
+
+        if(!obrigacao.getDirForJob().endsWith(ob.getDescricao())) {
             throw new PathInvalidException("O diretorio informado é invalido");
         }
-        if(tipo.getAno()==null && ob.getConfig().contains(Year.class)) {
+        if(obrigacao.getAno()==null && ob.getConfig().contains(Year.class)) {
             throw new ParametroNotFoundException("O parametro ano é obrigatório para essa obrigação");
         }
-        if(tipo.getMes()==null && ob.getConfig().contains(Month.class)) {
+        if(obrigacao.getMes()==null && ob.getConfig().contains(Month.class)) {
             throw new ParametroNotFoundException("O parametro mês é obrigatório para essa obrigação");
         }
     }

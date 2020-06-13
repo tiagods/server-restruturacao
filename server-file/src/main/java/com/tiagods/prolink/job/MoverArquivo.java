@@ -48,7 +48,7 @@ public class MoverArquivo {
             }
             else {
                 if(ordemBusca.equals(OrdemBusca.CNPJ)) {
-                    Path pathCli = buscarPorCnpj(arquivo, clienteSet, Ordem.INICIO);
+                    Path pathCli = buscarPorCnpj(arquivo, clienteSet, OrdemV1.INICIO);
                     if (pathCli != null) mover(arquivo, pathCli);
                 }
                 else{
@@ -67,9 +67,9 @@ public class MoverArquivo {
         //salvarRelatorio(arquivo.toString(),arquivoFinal.toString());
     }
 
-    private Path buscarPorCnpj(Path arquivo, Set<Cliente> clienteSet, Ordem ordem){
+    private Path buscarPorCnpj(Path arquivo, Set<Cliente> clienteSet, OrdemV1 ordemV1){
         if(arquivo.getFileName().toString().trim().length()<14) return null;
-        if(ordem.equals(Ordem.INICIO)) {
+        if(ordemV1.equals(OrdemV1.INICIO)) {
             String cnpj = arquivo.getFileName().toString().substring(0,14);
             Optional<Cliente> cliente = clienteSet.stream().filter(c -> c.isCnpjValido() && c.getCnpjFormatado().equals(cnpj)).findAny();
             return cliente.isPresent()? clientIOService.searchClientPathBaseAndCreateIfNotExists(cliente.get()) : null;

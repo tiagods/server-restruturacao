@@ -9,14 +9,13 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotNull;
 import java.time.Month;
 import java.time.Year;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Tipo {
+public class Obrigacao {
     @NotNull
-    private Obrigacao obrigacao;
+    private Obrigacao.Tipo tipo;
     private Year ano;
     private Month mes;
     private int cliente;
@@ -24,19 +23,7 @@ public class Tipo {
     private String dirForJob;
 
     @Getter
-    public enum Obrigacao {
-        PROLINKDIGITAL("PROLINK DIGITAL",
-                "Geral/PROLINK DIGITAL");
-        private String descricao;
-        private String estrutura;
-        private List config;
-
-        Obrigacao(String descricao, String estrutura){
-            this.descricao = descricao;
-            this.estrutura = estrutura;
-        }
+    public enum Tipo {
+        PROLINKDIGITAL
     }
-    
-    
-    
 }
