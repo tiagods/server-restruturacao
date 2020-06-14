@@ -19,11 +19,11 @@ public abstract class ObrigacaoFactory {
 
         if(tipo.equals(Obrigacao.Tipo.PROLINKDIGITAL)){
             Pair<String, String> pairMes = Pair.of("PROLINK DIGITAL ","-{ANO}");
-            return new ObrigacaoContratoImpl(Map.of(Periodo.ANO, IGUAL, Periodo.MES, MEIO),
+            return new ObrigacaoContratoImpl(obrigacao, Map.of(Periodo.ANO, IGUAL, Periodo.MES, MEIO),
                     Pair.of("", ""), pairMes, year, month);
         }
         else if(tipo.equals(Obrigacao.Tipo.IRPF)){
-            return new ObrigacaoContratoImpl(Map.of(Periodo.ANO, IGUAL),
+            return new ObrigacaoContratoImpl(obrigacao, Map.of(Periodo.ANO, IGUAL),
                     Pair.of("", ""), Pair.of("",""), year, month);
         }
         throw new ObrigacaoNotFoundException("Recurso nao implementado para esse tipo de obrigação");

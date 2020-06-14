@@ -1,10 +1,10 @@
 package com.tiagods.prolink.obrigacao;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 import org.springframework.data.util.Pair;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 public class PeriodoSubstring {
     //usado para capturar uma expressão de uma string ex: 04 de 01-04/2011, first=01-, second=/2011
@@ -17,4 +17,11 @@ public class PeriodoSubstring {
         } else return mes;
     }
 
+    @Override
+    public String toString() {
+        return "{" +
+                "ano=" + ano +
+                ", mes=" + mes +
+                '}';
+    }
 }

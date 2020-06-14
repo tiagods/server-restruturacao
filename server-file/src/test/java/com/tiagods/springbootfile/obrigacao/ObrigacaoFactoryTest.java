@@ -8,11 +8,14 @@ import com.tiagods.prolink.obrigacao.ObrigacaoFactory;
 import com.tiagods.prolink.obrigacao.Periodo;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import java.time.Month;
 import java.time.Year;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ObrigacaoFactoryTest {
 
     private static Obrigacao obrigacao;
@@ -28,14 +31,14 @@ public class ObrigacaoFactoryTest {
     }
 
     @Test
-    public void validarInclusaoPeriodos() {
+    public void inclusaoPeriodos() {
         ObrigacaoContrato ob = ObrigacaoFactory.get(obrigacao);
         Assert.assertTrue(ob.contains(Periodo.ANO));
         Assert.assertTrue(ob.contains(Periodo.MES));
     }
 
     @Test
-    public void validarPeriodoAno() {
+    public void periodoAno() {
         ObrigacaoContrato ob = ObrigacaoFactory.get(obrigacao);
         try {
             Assert.assertEquals("2011", ob.get(Periodo.ANO, "2011"));
@@ -47,7 +50,7 @@ public class ObrigacaoFactoryTest {
     }
 
     @Test
-    public void validarPeriodoMes() {
+    public void periodoMes() {
         ObrigacaoContrato ob = ObrigacaoFactory.get(obrigacao);
         try {
             Assert.assertEquals("08", ob.get(Periodo.MES, "PROLINK DIGITAL 08-2011"));
@@ -59,17 +62,16 @@ public class ObrigacaoFactoryTest {
     }
 
     @Test
-    public void obrigacaoAnual() {
+    public void validarObrigacaoAnual() {
         Obrigacao obr = obrigacao;
         obr.setTipo(Obrigacao.Tipo.IRPF);
         ObrigacaoContrato ob = ObrigacaoFactory.get(obr);
-
         try {
             //nao existe irpf para mes, apenas ano
             Assert.assertEquals("11", ob.get(Periodo.MES, "04"));
             Assert.fail();
         } catch (ParametroNotFoundException e) {
-            Assert.assertEquals("Periodo invalido para a obrigação", e.getMessage());
+            Assert.assertEquals("Periodo invalido para a obrigação=[Periodo=MES][Pasta=04]", e.getMessage());
         } catch (ParametroIncorretoException e) {
             Assert.fail();
         }
@@ -84,7 +86,7 @@ public class ObrigacaoFactoryTest {
         } catch (ParametroNotFoundException e) {
             Assert.fail();
         } catch (ParametroIncorretoException e) {
-            Assert.assertEquals("O nome da pasta esta inconsistente", e.getMessage());
+            Assert.assertEquals("O nome da pasta esta inconsistente=[Periodo=ANO][Pasta=-2011]", e.getMessage());
         }
     }
 }
