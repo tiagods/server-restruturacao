@@ -11,41 +11,45 @@ import org.springframework.data.util.Pair;
 
 import java.time.Month;
 import java.time.Year;
+import java.util.Date;
 import java.util.Map;
 
 @Slf4j
 public class ObrigacaoContratoImpl implements ObrigacaoContrato {
     
-    private Map<Periodo, OrdemNome>  periodos;
+    private Map<Periodo,OrdemNome>  periodos;
     private PeriodoSubstring substring;
     private Obrigacao obrigacao;
+    private Pair<String,String> pairAnoOficial;
+    private Pair<String,String> pairMesOficial;
 
-    public ObrigacaoContratoImpl(Obrigacao obrigacao, Map<Periodo, OrdemNome> periodos,
-                                 Pair<String, String> pairAno, Pair<String, String> pairMes,
+    public ObrigacaoContratoImpl(Obrigacao obrigacao, Map<Periodo,OrdemNome> periodos,
+                                 Pair<String,String> pairAno, Pair<String,String> pairMes,
                                  Year ano, Month mes) {
         this.periodos = periodos;
         this.obrigacao = obrigacao;
+        this.pairAnoOficial = pairAno;
+        this.pairMesOficial = pairMes;
         process(pairAno, pairMes, ano, mes);
     }
 
     //replace variaveis {ANO}, {MES}
-    private void process(Pair<String, String> pairAno, Pair<String, String> pairMes, Year ano, Month mes) {
+    private void process(Pair<String,String> pairAno, Pair<String,String> pairMes, Year ano, Month mes) {
         Pair<String, String> pairNovoAno = tratar(pairAno, ano, mes);
         Pair<String, String> pairNovoMes = tratar(pairMes, ano, mes);
         this.substring = new PeriodoSubstring(pairNovoAno, pairNovoMes);
-        log.info("Implementando obrigacao ["+substring+"]");
+        log.info("Implementando obrigacao=["+substring+"]");
     }
 
     private Pair<String, String> tratar(Pair<String, String> pair, Year ano, Month mes) {
         String primeiro = pair.getFirst();
         String segundo = pair.getSecond();
-
         String anoString = "";
         String mesString = "";
         if(ano!=null) {
             anoString = DateUtils.anoString(ano);
         }
-        if(mes!=null) {
+        else if(mes!=null) {
             mesString = DateUtils.mesString(mes);
         }
         primeiro = primeiro.replace("{ANO}", anoString).replace("{MES}", mesString);
@@ -59,7 +63,33 @@ public class ObrigacaoContratoImpl implements ObrigacaoContrato {
     }
 
     @Override
-    public String get(Periodo periodo, String nomePasta) throws ParametroNotFoundException, ParametroIncorretoException {
+    public String getPastaNome(Periodo periodo, Year year, Month month) {
+        StringBuilder builder = new StringBuilder();
+        if(periodo.equals(Periodo.MES)) {
+            if(periodos.get(Periodo.MES).equals(OrdemNome.MEIO)) {
+                builder.append(pairMesOficial.getFirst())
+                        .append(DateUtils.mesString(month))
+                        .append(pairMesOficial.getSecond());
+            }
+            else if (periodos.get(Periodo.MES).equals(OrdemNome.IGUAL)) {
+                builder.append(DateUtils.mesString(month));
+            }
+        } else if(periodo.equals(Periodo.ANO)) {
+            if(periodos.get(Periodo.ANO).equals(OrdemNome.MEIO)) {
+                builder.append(pairAnoOficial.getFirst())
+                        .append(pairAnoOficial.getSecond());
+            }
+            else if (periodos.get(Periodo.ANO).equals(OrdemNome.IGUAL)) {
+                builder.append(DateUtils.anoString(year));
+            }
+        }
+        String s=builder.toString().replace("{ANO}", year == null? "" : DateUtils.anoString(year))
+                .replace("{MES}", month == null ? "" : DateUtils.mesString(month));
+        return s;
+    }
+
+    @Override
+    public String getMesOuAno(Periodo periodo, String nomePasta) throws ParametroNotFoundException, ParametroIncorretoException {
         if(contains(periodo)) {
             OrdemNome ordem = periodos.get(periodo);
             Pair<String, String> pair = substring.getPair(periodo);
@@ -86,4 +116,8 @@ public class ObrigacaoContratoImpl implements ObrigacaoContrato {
         }
     }
 
+    @Override
+    public String getEstrutura() {
+        return obrigacao.getTipo().getEstrutura();
+    }
 }

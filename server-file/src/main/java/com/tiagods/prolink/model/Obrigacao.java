@@ -1,16 +1,14 @@
 package com.tiagods.prolink.model;
 
 import com.tiagods.prolink.validation.PathLocation;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.validation.constraints.NotNull;
 import java.time.Month;
 import java.time.Year;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Obrigacao {
@@ -33,5 +31,16 @@ public class Obrigacao {
             this.descricao = descricao;
             this.estrutura = estrutura;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Obrigacao{" +
+                "tipo=" + tipo +
+                ", ano=" + ano +
+                ", mes=" + mes +
+                ", cliente=" + cliente +
+                ", dirForJob='" + dirForJob + '\'' +
+                '}';
     }
 }

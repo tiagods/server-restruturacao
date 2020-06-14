@@ -1,13 +1,14 @@
 package com.tiagods.springbootfile;
 
+import com.tiagods.prolink.exception.ParametroIncorretoException;
 import com.tiagods.prolink.exception.ParametroNotFoundException;
 import com.tiagods.prolink.exception.PathInvalidException;
 import com.tiagods.prolink.model.Obrigacao;
 import com.tiagods.prolink.obrigacao.ObrigacaoContrato;
 import com.tiagods.prolink.obrigacao.ObrigacaoFactory;
 import com.tiagods.prolink.obrigacao.Periodo;
-import com.tiagods.prolink.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import rx.Observable;
 
 import javax.validation.Valid;
 import java.io.IOException;
@@ -16,88 +17,94 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Month;
 import java.time.Year;
-
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 @Slf4j
 public class UtilsValidatorTest {
     public static void main(String[] args) throws Exception {
         Obrigacao obrigacao = new Obrigacao();
         obrigacao.setTipo(Obrigacao.Tipo.PROLINKDIGITAL);
-        obrigacao.setDirForJob("\\\\plkserver\\Todos Departamentos\\PROLINK DIGITAL");
-        obrigacao.setAno(Year.of(2015));
-        obrigacao.setMes(Month.AUGUST);
-
+        obrigacao.setDirForJob("c:\\Temp\\PROLINK DIGITAL");
+        obrigacao.setAno(Year.of(2012));
+        //obrigacao.setMes(Month.MAY);
         new UtilsValidatorTest().moverPorTipo(obrigacao);
     }
 
-    public void moverPorTipo(@Valid Obrigacao tipo) throws Exception {
+    public void moverPorTipo(@Valid Obrigacao obrigacao) throws ParametroNotFoundException, PathInvalidException {
         //montar url
-        validar(tipo);
+        ObrigacaoContrato contrato = validar(obrigacao);
         //validando por obrigação
-        Obrigacao.Tipo obrigacao = tipo.getTipo();
-        Path job = Paths.get(tipo.getDirForJob());
+        Obrigacao.Tipo tipo = obrigacao.getTipo();
+        Path job = Paths.get(obrigacao.getDirForJob());
+        Month mesJob = obrigacao.getMes();
+        Year anoJob = obrigacao.getAno();
 
-/*
-        if(obrigacao.getConfig().contains(Year.class)){
-            String addYear = tipo.getAno()==null? null : obrigacao.getPathAno().replace("{ANO}", tipo.getAno().toString());
-            log.info("Valor do ano: "+addYear);
-            Files.list(job)
-                    .filter(filter->
-                            addYear==null ?
-                                    Files.isDirectory(filter)
-                                    : Files.isDirectory(filter) && filter.getFileName().toString().equals(addYear)
-                    )
-                    .forEach(f -> {
-                        if (obrigacao.getConfig().contains(Month.class)) {
-                            String ano = f.getFileName().toString();
+        if(contrato.contains(Periodo.ANO)) {
+            String pastaAnoObrigatoria = anoJob == null ? null : contrato.getPastaNome(Periodo.ANO, anoJob, mesJob);
+            String pastaMesObrigatoria = mesJob == null ? null : contrato.getPastaNome(Periodo.MES, anoJob, mesJob);
+            log.info("Pasta do ano informada? = [" + pastaAnoObrigatoria + "]");
+            log.info("Pasta do mes informada? = [" + pastaMesObrigatoria + "]");
 
-                            log.info("Nome da pasta ano: "+ano+"\t"+f.toString());
-                            //pegar o nome do diretorio e remover qualquer outro adicional do nome para pegar o periodo
-                            ano = ano.replace(obrigacao.getPathAno().replace("{ANO}",""),"");
-
-                            log.info("Ano da pasta: "+ano);
-                            
-                            String estrutura = obrigacao.getEstrutura()+"/"+ano;
-
-                            log.info("Nome da estrutura: "+estrutura);
-
-                            String addMes = tipo.getMes()==null?
-                                    null
-                                    :
-                                    obrigacao.getPathMes().replace("{MES}", DateUtils.mesString(tipo.getMes().getValue()))
-                                            .replace("{ANO}", ano);
-
-                            log.info("Capturando mes: "+addMes);
+            capturarPastasPeriodo(job, Periodo.ANO, pastaAnoObrigatoria)
+                    .forEach(folderAno -> {
+                        log.info("Listando pasta: ");
+                        if (contrato.contains(Periodo.MES)) {
+                            String nomePasta = folderAno.getFileName().toString();
+                            log.info("Nome da pasta ano=[" + nomePasta + "]=Origem=[" + folderAno.toString() + "]");
+                            //pegar o nome do diretorio e remover qualquer outro adicional do nome para pegar o periodo mes ou ano
                             try {
-                                Files.list(f)
-                                        .filter(filter->
-                                                addMes==null ?
-                                                        Files.isDirectory(filter)
-                                                        : Files.isDirectory(filter) && filter.getFileName().toString().equals(addMes)
-                                        )
-                                        .forEach(t->{
-                                            String mes = t.getFileName().toString();
+                                String ano = contrato.getMesOuAno(Periodo.ANO, nomePasta);
+                                log.info("Ano da pasta=[" + ano + "]");
+                                String estrutura = tipo.getEstrutura() + "/" + ano;
+                                log.info("Nome da estrutura=[" + estrutura + "]");
 
-                                            log.info("Nome da pasta mes: "+mes+"\t"+t.toString());
-                                            //pegar o nome do diretorio e remover qualquer outro adicional do nome para pegar o periodo
-                                            //String extracao = obrigacao.getPathMes().replace("{MES}","").replace("{ANO}","");
-                                            //mes = mes.replace(MyStringUtils.substituirCaracteresEspeciais(extracao),"");
+                                capturarPastasPeriodo(folderAno, Periodo.MES, pastaMesObrigatoria)
+                                        .forEach(folderMes -> {
+                                            String mes = folderMes.getFileName().toString();
+                                            try {
+                                                mes = contrato.getMesOuAno(Periodo.MES, mes);
+                                                log.info("Nome da pasta mes: " + mes + "\t" + folderMes.toString());
+                                                log.info("Mes da pasta=[" + mes + "]");
+                                                String novaEstrutura = estrutura + "/" + mes;
+                                                log.info("Estrutura pasta mes=[" + novaEstrutura + "]");
 
-                                            log.info("Mes da pasta: "+mes);
-
-                                            String novaEstrutura = estrutura+"/"+mes;
-                                            log.info("Estrutura pasta mes: "+novaEstrutura);
+                                                Files.list(folderMes).forEach(c->System.out.println(c));
+                                            } catch (ParametroNotFoundException e) {
+                                                log.error(e.getMessage());
+                                            } catch (ParametroIncorretoException | IOException e) {
+                                                log.error(e.getMessage());
+                                            }
                                         });
-                            } catch (IOException e) {
-                                e.printStackTrace();
+                            } catch (ParametroNotFoundException e) {
+                                log.error(e.getMessage());
+                            } catch (ParametroIncorretoException e) {
+                                log.error(e.getMessage());
                             }
                         }
                     });
         }
-        */
 
     }
 
-    private void validar(Obrigacao obrigacao) throws ParametroNotFoundException, PathInvalidException {
+    Set<Path> capturarPastasPeriodo(Path job, Periodo periodo, String nomeObrigatorioPasta) {
+        log.info("Pasta do periodo "+periodo+" informada? = ["+nomeObrigatorioPasta+"]");
+        Set<Path> files = new LinkedHashSet<>();
+        try {
+            files = Files.list(job)
+                    .filter(filter ->
+                            nomeObrigatorioPasta==null ? Files.isDirectory(filter)
+                                    : Files.isDirectory(filter) && filter.getFileName().toString().equals(nomeObrigatorioPasta)
+                    )
+                    .collect(Collectors.toSet());
+        } catch (IOException e) {
+            log.error("Erro ao carregar listagem da pasta=["+job+"]");
+        }
+        return files;
+    }
+
+    private ObrigacaoContrato validar(Obrigacao obrigacao) throws ParametroNotFoundException, PathInvalidException {
         ObrigacaoContrato ob = ObrigacaoFactory.get(obrigacao);
         Obrigacao.Tipo tipo = obrigacao.getTipo();
         Path dirForJob = Paths.get(obrigacao.getDirForJob());
@@ -108,8 +115,9 @@ public class UtilsValidatorTest {
         if(obrigacao.getAno()==null && ob.contains(Periodo.ANO)) {
             throw new ParametroNotFoundException("O parametro ano é obrigatório para essa obrigação");
         }
-        if(obrigacao.getMes()==null && ob.contains(Periodo.MES)) {
-            throw new ParametroNotFoundException("O parametro mês é obrigatório para essa obrigação");
-        }
+        //if(obrigacao.getMes()==null && ob.contains(Periodo.MES)) {
+        //    throw new ParametroNotFoundException("O parametro mês é obrigatório para essa obrigação");
+       // }
+        return ob;
     }
 }

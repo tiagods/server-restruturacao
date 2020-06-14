@@ -41,7 +41,7 @@ public class ObrigacaoFactoryTest {
     public void periodoAno() {
         ObrigacaoContrato ob = ObrigacaoFactory.get(obrigacao);
         try {
-            Assert.assertEquals("2011", ob.get(Periodo.ANO, "2011"));
+            Assert.assertEquals("2011", ob.getMesOuAno(Periodo.ANO, "2011"));
         } catch (ParametroNotFoundException e) {
             Assert.fail();
         } catch (ParametroIncorretoException e) {
@@ -53,7 +53,19 @@ public class ObrigacaoFactoryTest {
     public void periodoMes() {
         ObrigacaoContrato ob = ObrigacaoFactory.get(obrigacao);
         try {
-            Assert.assertEquals("08", ob.get(Periodo.MES, "PROLINK DIGITAL 08-2011"));
+            Assert.assertEquals("08", ob.getMesOuAno(Periodo.MES, "PROLINK DIGITAL 08-2011"));
+        } catch (ParametroNotFoundException e) {
+            Assert.fail();
+        } catch (ParametroIncorretoException e) {
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void nomePastaMes() {
+        ObrigacaoContrato ob = ObrigacaoFactory.get(obrigacao);
+        try {
+            Assert.assertEquals("08", ob.getMesOuAno(Periodo.MES, "PROLINK DIGITAL 08-2011"));
         } catch (ParametroNotFoundException e) {
             Assert.fail();
         } catch (ParametroIncorretoException e) {
@@ -68,7 +80,7 @@ public class ObrigacaoFactoryTest {
         ObrigacaoContrato ob = ObrigacaoFactory.get(obr);
         try {
             //nao existe irpf para mes, apenas ano
-            Assert.assertEquals("11", ob.get(Periodo.MES, "04"));
+            Assert.assertEquals("11", ob.getMesOuAno(Periodo.MES, "04"));
             Assert.fail();
         } catch (ParametroNotFoundException e) {
             Assert.assertEquals("Periodo invalido para a obrigação=[Periodo=MES][Pasta=04]", e.getMessage());
@@ -81,7 +93,7 @@ public class ObrigacaoFactoryTest {
     public void pastaAnoInvalida() {
         ObrigacaoContrato ob = ObrigacaoFactory.get(obrigacao);
         try {
-            Assert.assertEquals("2011", ob.get(Periodo.ANO, "-2011"));
+            Assert.assertEquals("2011", ob.getMesOuAno(Periodo.ANO, "-2011"));
             Assert.fail();
         } catch (ParametroNotFoundException e) {
             Assert.fail();
