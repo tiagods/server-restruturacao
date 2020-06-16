@@ -8,7 +8,6 @@ import com.tiagods.prolink.obrigacao.ObrigacaoContrato;
 import com.tiagods.prolink.obrigacao.ObrigacaoFactory;
 import com.tiagods.prolink.obrigacao.Periodo;
 import lombok.extern.slf4j.Slf4j;
-import rx.Observable;
 
 import javax.validation.Valid;
 import java.io.IOException;
@@ -17,7 +16,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Month;
 import java.time.Year;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;

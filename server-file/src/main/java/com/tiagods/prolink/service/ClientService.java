@@ -1,9 +1,7 @@
 package com.tiagods.prolink.service;
 
-import com.tiagods.prolink.dto.ClientDefaultPathDTO;
 import com.tiagods.prolink.dto.ClienteDTO;
 import com.tiagods.prolink.exception.ClientNotFoundException;
-import com.tiagods.prolink.repository.ClientDefaultPathRepository;
 import com.tiagods.prolink.repository.ClienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

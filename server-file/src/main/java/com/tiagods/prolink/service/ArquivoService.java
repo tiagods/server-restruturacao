@@ -19,7 +19,7 @@ import java.nio.file.Path;
 import java.util.Date;
 
 @Service
-public class FileService {
+public class ArquivoService {
 
     @Autowired
     private ArquivoRepository arquivoRepository;
@@ -40,7 +40,7 @@ public class FileService {
         arquivoDTO.setNome(file.getFileName().toString());
         save(arquivoDTO);
     }
-    public void saveError(Path file, Path finalFile,String error) {
+    public void salvarErro(Path file, Path finalFile, String error) {
         ArquivoErroDTO errorDto = new ArquivoErroDTO();
         errorDto.setData(new Date());
         errorDto.setCause(error);
@@ -64,5 +64,4 @@ public class FileService {
         } catch (IOException e) {
         }
     }
-
 }

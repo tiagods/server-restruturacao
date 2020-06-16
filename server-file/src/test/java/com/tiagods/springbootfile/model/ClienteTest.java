@@ -2,7 +2,6 @@ package com.tiagods.springbootfile.model;
 
 import com.tiagods.prolink.model.Cliente;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 public class ClienteTest {

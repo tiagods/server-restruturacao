@@ -2,7 +2,7 @@ package com.tiagods.prolink.utils;
 
 import com.tiagods.prolink.model.Pair;
 import com.tiagods.prolink.model.Cliente;
-import com.tiagods.prolink.service.FileService;
+import com.tiagods.prolink.service.ArquivoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 public class IOUtils {
 
     @Autowired
-    private FileService fileService;
+    private ArquivoService arquivoService;
 
     //criar diretorio para o cliente
     public Pair<Cliente, Path> criarDiretorioCliente(Cliente client, Path destino){
@@ -84,7 +84,7 @@ public class IOUtils {
     public Pair<Cliente, Path> mover(Cliente client, Path origin, Path destination){
         try{
             Files.move(origin, destination, StandardCopyOption.REPLACE_EXISTING);
-            fileService.convertAndSave(origin,destination);
+            arquivoService.convertAndSave(origin,destination);
             return new Pair<>(client,destination);
         }catch (IOException e){
             log.error(e.getMessage());
@@ -98,23 +98,23 @@ public class IOUtils {
         try {
             criarDiretorios(finalFile.getParent());
             Files.move(file, finalFile, StandardCopyOption.REPLACE_EXISTING);
-            fileService.convertAndSave(file,finalFile);
+            arquivoService.convertAndSave(file,finalFile);
             return finalFile;
         }catch (IOException e){
-            fileService.saveError(file,finalFile,e.getMessage());
+            arquivoService.salvarErro(file,finalFile,e.getMessage());
             log.error(e.getMessage());
             return null;
         }
     }
     //buscar por ID nos 4 primeiros caracteres
-    public Optional<Path> searchFolderById(Cliente client, Set<Path> paths){
+    public Optional<Path> buscarPastaPorId(Cliente client, Set<Path> paths){
         return paths
                 .stream()
                 .filter(n->n.getFileName().toString().substring(0,4).equals(client.getIdFormatado()))
                 .findFirst();
     }
 
-    public boolean verifyIfExist(Path file){
+    public boolean verificarSeExiste(Path file){
         return Files.exists(file);
     }
 }

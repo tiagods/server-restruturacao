@@ -2,7 +2,6 @@ package com.tiagods.prolink.service;
 
 import com.tiagods.prolink.config.Regex;
 import com.tiagods.prolink.config.ServerFile;
-import com.tiagods.prolink.dto.ClientDefaultPathDTO;
 import com.tiagods.prolink.exception.StructureNotFoundException;
 import com.tiagods.prolink.model.Pair;
 import com.tiagods.prolink.model.Cliente;
@@ -94,7 +93,7 @@ public class ClienteIOService {
     //mapeamento de pastas
     private void mapClient(Cliente c, Set<Path> files, boolean organize) {
         log.info("Mapeando cliente: "+c.toString());
-        Optional<Path> file = ioUtils.searchFolderById(c, files);
+        Optional<Path> file = ioUtils.buscarPastaPorId(c, files);
         Optional<ClienteDTO> opt = clientDTOList.stream().filter(f-> f.getApelido().equals(c.getId())).findFirst();
         //verificar se ja foi criado
         boolean isCreated = opt.map(ClienteDTO::isFolderCreate).orElse(true);
@@ -117,9 +116,12 @@ public class ClienteIOService {
         //criar pasta apenas em condicao de que deva ser criado, principalmente em novos clientes
         else if (!isCreated) {
             //criar pasta oficial caso não exista
-            if (c.getStatus().equalsIgnoreCase("Desligada")) pair = montarEstruturaNoCliente(c,destinoDesligada);
-            else pair = montarEstruturaNoCliente(c, destinoAtiva);
-
+            if (c.getStatus().equalsIgnoreCase("Desligada")) {
+                pair = montarEstruturaNoCliente(c,destinoDesligada);
+            }
+            else {
+                pair = montarEstruturaNoCliente(c, destinoAtiva);
+            }
             Optional<ClienteDTO> dtoOptional = clientService.findOne(c.getId());
             if(dtoOptional.isPresent()){
                 ClienteDTO cli = dtoOptional.get();
@@ -208,7 +210,7 @@ public class ClienteIOService {
         model = Paths.get(serverFile.getModel());
         log.info("Verificando se pastas padroes se existem");
         try {
-            if (!ioUtils.verifyIfExist(base))
+            if (!ioUtils.verificarSeExiste(base))
                 throw new StructureNotFoundException("Base de arquivos não existe");
             ioUtils.criarDiretorio(shutdown);
             ioUtils.criarDiretorio(model);

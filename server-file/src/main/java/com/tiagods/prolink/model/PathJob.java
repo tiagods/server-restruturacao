@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 public class PathJob {
     @NotNull
     @Structure
-    private String structure;
+    private String estrutura;
     @PathLocation
     private String dirForJob;
 }

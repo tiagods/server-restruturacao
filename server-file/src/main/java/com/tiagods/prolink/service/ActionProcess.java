@@ -30,7 +30,7 @@ public class ActionProcess {
     private ClienteIOService clientIOService;
 
     @Autowired
-    private FileService fileService;
+    private ArquivoService arquivoService;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -40,7 +40,7 @@ public class ActionProcess {
         //Path path = Paths.get("c:/job");
         //Path novaEstrutura = Paths.get("GERAL","SAC");
         Path job = Paths.get(pathJob.getDirForJob());
-        Path structure = Paths.get(pathJob.getStructure());
+        Path structure = Paths.get(pathJob.getEstrutura());
 
         clientIOService.verficarDiretoriosBaseECriar();
 
@@ -77,7 +77,7 @@ public class ActionProcess {
                     Path basePath = clientIOService.searchClientPathBaseAndCreateIfNotExists(cli);
                     if (basePath != null) {
                         try {
-                            processByFolder(basePath, Files.list(p).iterator(), structure);
+                            processarPorPasta(basePath, Files.list(p).iterator(), structure);
                         } catch (IOException e) {
                             log.error("Falha ao abrir pasta ".concat(p.toString()));
                         }
@@ -96,12 +96,12 @@ public class ActionProcess {
 
     }
     //inicia processo, vai percorrer todas as pastar e ira mover conteudo para um novo diretorio
-    private void processByFolder(Path basePath, Iterator<Path> files, Path parent){
+    private void processarPorPasta(Path basePath, Iterator<Path> files, Path parent){
         while (files.hasNext()) {
             Path file  = files.next();
             if(Files.isDirectory(file)){
                 try {
-                    processByFolder(basePath, Files.list(file).iterator(), parent.resolve(file.getFileName()));
+                    processarPorPasta(basePath, Files.list(file).iterator(), parent.resolve(file.getFileName()));
                 } catch (IOException e) {
                     log.error(e.getMessage());
                 }
