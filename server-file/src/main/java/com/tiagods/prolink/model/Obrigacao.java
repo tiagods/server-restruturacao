@@ -16,7 +16,7 @@ public class Obrigacao {
     private Obrigacao.Tipo tipo;
     private Year ano;
     private Month mes;
-    private int cliente;
+    private Long cliente;
     @PathLocation
     private String dirForJob;
 

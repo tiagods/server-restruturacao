@@ -2,10 +2,7 @@ package com.tiagods.prolink.utils;
 
 import com.tiagods.prolink.model.Pair;
 import com.tiagods.prolink.model.Cliente;
-import com.tiagods.prolink.service.ArquivoService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
 
 import java.io.IOException;
@@ -14,15 +11,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Component
 @Slf4j
 public class IOUtils {
 
-    @Autowired
-    private ArquivoService arquivoService;
-
     //criar diretorio para o cliente
-    public Pair<Cliente, Path> criarDiretorioCliente(Cliente client, Path destino){
+    public static Pair<Cliente, Path> criarDiretorioCliente(Cliente client, Path destino){
         try {
             if (Files.notExists(destino)) Files.createDirectory(destino);
             return new Pair<>(client,destino);
@@ -33,15 +26,15 @@ public class IOUtils {
         }
     }
     //verificar e criar estrutura de modelo
-    public void criarDiretorios(Path path) throws IOException {
+    public static void criarDiretorios(Path path) throws IOException {
         if (Files.notExists(path)) Files.createDirectories(path);
     }
     //criar um diretorio
-    public void criarDiretorio(Path path) throws IOException {
+    public static void criarDiretorio(Path path) throws IOException {
        if (Files.notExists(path)) Files.createDirectory(path);
     }
    //deletar de forma recursiva
-    public void deletarPastaSeVazioRecursivo(Path path) throws IOException {
+    public static void deletarPastaSeVazioRecursivo(Path path) throws IOException {
         if(Files.isDirectory(path)){
 
             try {
@@ -60,7 +53,7 @@ public class IOUtils {
         }
     }
 
-    private void deletarPastaSeVazio(Path path) throws IOException{
+    private static void deletarPastaSeVazio(Path path) throws IOException{
         long q = Files.list(path).count();
         if(q == 0) {
 //            Runtime.getRuntime().exec("cmd /c rmdir \"" + path.toString() + "\" /Q");
@@ -68,53 +61,28 @@ public class IOUtils {
         }
     }
     //listar diretorios e por regex
-    public Set<Path> filtrarPorDiretorioERegex(Path path, String regex) throws IOException{
+    public static Set<Path> filtrarPorDiretorioERegex(Path path, String regex) throws IOException{
         return Files.list(path)
                 .filter(f->Files.isDirectory(f) && f.getFileName().toString().matches(regex))
                 .collect(Collectors.toSet());
     }
     //listar diretorios e trazer o map<diretorio, clienteApelido>
-    public Map<Path,String> listByDirectoryDefaultToMap(Path path, String regex) throws IOException{
+    public static Map<Path,String> listByDirectoryDefaultToMap(Path path, String regex) throws IOException{
         Set<Path> paths = filtrarPorDiretorioERegex(path, regex);
         Map<Path,String> parentMap = new HashMap<>();
         paths.forEach(c-> parentMap.put(c,c.getFileName().toString().substring(0,4)));
         return parentMap;
     }
-    //tentar mover, se nao conseguir usar o diretorio de origem
-    public Pair<Cliente, Path> mover(Cliente client, Path origin, Path destination){
-        try{
-            Files.move(origin, destination, StandardCopyOption.REPLACE_EXISTING);
-            arquivoService.convertAndSave(origin,destination);
-            return new Pair<>(client,destination);
-        }catch (IOException e){
-            log.error(e.getMessage());
-            return new Pair<>(client,origin);
-        }
-    }
-    //mover arquivo com estrutura pre estabelecida
-    public Path mover(Path file, Path pathCli, Path structure){
-        Path newStructureFile = structure.resolve(file.getFileName());
-        Path finalFile = pathCli.resolve(newStructureFile);
-        try {
-            criarDiretorios(finalFile.getParent());
-            Files.move(file, finalFile, StandardCopyOption.REPLACE_EXISTING);
-            arquivoService.convertAndSave(file,finalFile);
-            return finalFile;
-        }catch (IOException e){
-            arquivoService.salvarErro(file,finalFile,e.getMessage());
-            log.error(e.getMessage());
-            return null;
-        }
-    }
+
     //buscar por ID nos 4 primeiros caracteres
-    public Optional<Path> buscarPastaPorId(Cliente client, Set<Path> paths){
+    public static Optional<Path> buscarPastaPorId(Cliente client, Set<Path> paths){
         return paths
                 .stream()
                 .filter(n->n.getFileName().toString().substring(0,4).equals(client.getIdFormatado()))
                 .findFirst();
     }
 
-    public boolean verificarSeExiste(Path file){
+    public static boolean verificarSeExiste(Path file){
         return Files.exists(file);
     }
 }

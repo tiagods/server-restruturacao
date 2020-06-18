@@ -1,9 +1,7 @@
 package com.tiagods.prolink.job;
 
 import com.tiagods.prolink.model.Cliente;
-import com.tiagods.prolink.service.ClienteIOService;
-import com.tiagods.prolink.utils.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.tiagods.prolink.service.ClienteService;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -14,10 +12,7 @@ import java.util.*;
 
 public class MoverArquivoComPeriodo {
 
-    @Autowired
-    IOUtils ioUtils;
-
-    ClienteIOService clientIOService;
+    ClienteService clientIOService;
 
     private static Set<String> meses = new HashSet<>();
 

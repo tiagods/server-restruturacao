@@ -1,7 +1,7 @@
 package com.tiagods.prolink.controller;
 
 import com.tiagods.prolink.exception.StructureNotFoundException;
-import com.tiagods.prolink.service.ClienteIOService;
+import com.tiagods.prolink.service.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +17,7 @@ import java.util.Optional;
 public class ClienteController {
 
     @Autowired
-    private ClienteIOService ioService;
+    private ClienteService ioService;
     @GetMapping("/{nickName}/path")
 
     //@ApiResponse(code = 404 , message = "A pasta do cliente solicitado não existe" )

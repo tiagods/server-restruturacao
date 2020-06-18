@@ -1,9 +1,7 @@
 package com.tiagods.prolink.job;
 
 import com.tiagods.prolink.model.Cliente;
-import com.tiagods.prolink.service.ClienteIOService;
-import com.tiagods.prolink.utils.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.tiagods.prolink.service.ClienteService;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -19,11 +17,7 @@ public class MoverArquivo {
 
     private Path novaEstrutura;
 
-
-    @Autowired
-    IOUtils ioUtils;
-
-    ClienteIOService clientIOService;
+    ClienteService clientIOService;
 
     private void iniciar(){
         Path path = Paths.get("\\\\PLKSERVER\\Obrigacoes\\contabil\\Contabil\\SPED CONTÁBIL");

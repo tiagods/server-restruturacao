@@ -30,7 +30,7 @@ public class UtilsValidatorTest {
         new UtilsValidatorTest().moverPorTipo(obrigacao);
     }
 
-    public void moverPorTipo(@Valid Obrigacao obrigacao) throws ParametroNotFoundException, PathInvalidException {
+    public void moverPorTipo(Obrigacao obrigacao) throws ParametroNotFoundException, PathInvalidException {
         //montar url
         ObrigacaoContrato contrato = validar(obrigacao);
         //validando por obrigação
