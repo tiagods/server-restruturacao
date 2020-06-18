@@ -27,7 +27,7 @@ public class ObrigacaoFactoryTest {
         obrigacao.setMes(Month.AUGUST);
         obrigacao.setDirForJob("c:\\Temp\\PROLINK DIGITAL");
         obrigacao.setTipo(Obrigacao.Tipo.PROLINKDIGITAL);
-        obrigacao.setCliente(2045);
+        obrigacao.setCliente(2045L);
     }
 
     @Test

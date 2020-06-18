@@ -8,7 +8,7 @@ import com.tiagods.prolink.model.Obrigacao;
 import com.tiagods.prolink.obrigacao.ObrigacaoContrato;
 import com.tiagods.prolink.obrigacao.ObrigacaoFactory;
 import com.tiagods.prolink.obrigacao.Periodo;
-import com.tiagods.prolink.service.ActionProcess;
+import com.tiagods.prolink.service.ObrigacaoPreparedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ public class ArquivoController {
     private Logger log = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    private ActionProcess moverpastas;
+    private ObrigacaoPreparedService moverpastas;
 
     @GetMapping("/obrigacoes")
     public ResponseEntity<?> listarObrigacoes() throws Exception {
@@ -52,7 +52,7 @@ public class ArquivoController {
     public ResponseEntity<?> moverPorTipo(@RequestBody @Valid Obrigacao obrigacao) throws Exception {
         ObrigacaoContrato contrato = validar(obrigacao);
         if(contrato!=null) {
-            moverpastas.moverObrigacao(contrato, obrigacao);
+            moverpastas.iniciarMovimentacaoPorObrigacao(contrato, obrigacao);
         } else {
             return ResponseEntity.badRequest().build();
         }
@@ -62,16 +62,20 @@ public class ArquivoController {
         ObrigacaoContrato ob = ObrigacaoFactory.get(obrigacao);
         Obrigacao.Tipo tipo = obrigacao.getTipo();
         Path dirForJob = Paths.get(obrigacao.getDirForJob());
-
         if(!dirForJob.getFileName().toString().equals(tipo.getDescricao())) {
-            throw new PathInvalidException("O diretorio informado é invalido");
+            String message = "O diretorio informado é invalido para essa obrigação";
+            log.error(message);
+            throw new PathInvalidException(message);
         }
         if(obrigacao.getAno()==null && ob.contains(Periodo.ANO)) {
-            throw new ParametroNotFoundException("O parametro ano é obrigatório para essa obrigação");
+            String message = "O parametro ano é obrigatório para essa obrigação";
+            log.error(message);
+            throw new ParametroNotFoundException(message);
         }
-        //if(obrigacao.getMes()==null && ob.contains(Periodo.MES)) {
-        //    throw new ParametroNotFoundException("O parametro mês é obrigatório para essa obrigação");
-        // }
+        if(obrigacao.getMes()==null && ob.contains(Periodo.MES)) {
+            log.info("Mes não informado para uma obrigação mensal");
+            //throw new ParametroNotFoundException("O parametro mês é obrigatório para essa obrigação");
+        }
         return ob;
     }
 }
