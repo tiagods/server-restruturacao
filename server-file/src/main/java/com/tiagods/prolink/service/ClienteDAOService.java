@@ -23,7 +23,7 @@ public class ClienteDAOService {
         return clienteRepository.findAll();
     }
 
-    public List<ClienteDTO> findAllByFolderCreateFalse() {
+    public List<ClienteDTO> listarPorPastasNaoCriadas() {
         return clienteRepository.findByFolderCreateFalse();
     }
 
@@ -31,7 +31,7 @@ public class ClienteDAOService {
         return clienteRepository.findByApelido(apelido);
     }
 
-    public List<ClientDefaultPathDTO> getPathsForClient(){
+    public List<ClientDefaultPathDTO> listarPastasPadroes(){
         return pathRepository.findAll();
     }
 

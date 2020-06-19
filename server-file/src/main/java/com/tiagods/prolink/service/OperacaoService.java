@@ -25,12 +25,14 @@ public class OperacaoService {
 
     public void moverPasta(Path pastaBaseScannear, Path estrutura, String nickName, boolean travarEstrutura) {
         try {
-            log.info("Iniciando movimentação de arquivos");
-            clienteService.verifyStructureInModel(estrutura);
+            log.info("Iniciando movimentação de arquivos=[" +pastaBaseScannear+"]");
+            log.info("Apelido selecionado=[" +pastaBaseScannear+"]");
+            clienteService.verificarEstruturaNoModelo(estrutura);
             Optional<String> optionalS = Optional.ofNullable(nickName);
             String newRegex = "";
             if(optionalS.isPresent()) {
-                newRegex = regex.getInitByIdReplaceNickName().replace("nickName", nickName);
+                newRegex = nickName;
+                //newRegex = regex.getInitByIdReplaceNickName().replace("nickName", nickName);
             } else {
                 newRegex = regex.getInitById();
             }
@@ -54,7 +56,7 @@ public class OperacaoService {
                     Cliente cli = mapPath.get(p);
                     clienteService.addFolderToJob(p);
                     log.info(estrutura.toString() + " - Processando Item=["+i+"]de["+total+"] Cliente=[" + cli.getIdFormatado()+"]");
-                    Path basePath = clienteService.searchClientPathBaseAndCreateIfNotExists(cli);
+                    Path basePath = clienteService.buscarPastaDoClienteECriarSeNaoExistir(cli);
                     if (basePath != null) {
                         try {
                             processarPorPasta(cli, true, basePath, Files.list(p).iterator(), estrutura, travarEstrutura);

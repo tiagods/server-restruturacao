@@ -1,6 +1,5 @@
-package com.tiagods.springbootfile.config;
+package com.tiagods.prolink.config;
 
-import com.tiagods.prolink.config.Regex;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,4 +43,27 @@ public class RegexTest {
         Assert.assertFalse("067545KADES".matches(regex.getInitById()));
         Assert.assertFalse("06754".matches(regex.getInitById()));
     }
+
+    @Test
+    public void validByInitNickNameReplace() {
+        Assert.assertTrue("2222".matches(getRegexReplace("2222")));
+        Assert.assertTrue("2222 ".matches(getRegexReplace("2222")));
+        Assert.assertTrue("2222-".matches(getRegexReplace("2222")));
+        Assert.assertTrue("2222L ".matches(getRegexReplace("2222")));
+        Assert.assertFalse("22223".matches(getRegexReplace("2222")));
+        Assert.assertTrue("2222 - Teste".matches(getRegexReplace("2222")));
+        Assert.assertTrue("2222 Teste".matches(getRegexReplace("2222")));
+        Assert.assertTrue("2222 - 555Teste".matches(getRegexReplace("2222")));
+        Assert.assertTrue("2222 555Teste".matches(getRegexReplace("2222")));
+        Assert.assertTrue("0677 - ssaq545KADES".matches(getRegexReplace("0677")));
+        Assert.assertTrue("0677".matches(getRegexReplace("0677")));
+        Assert.assertTrue("0677 545KADES".matches(getRegexReplace("0677")));
+        Assert.assertFalse("067545KADES".matches(getRegexReplace("0675")));
+        Assert.assertFalse("06754".matches(getRegexReplace("06775")));
+    }
+
+    String getRegexReplace(String value){
+        return regex.getInitByIdReplaceNickName().replace("nickName", value);
+    }
+
 }

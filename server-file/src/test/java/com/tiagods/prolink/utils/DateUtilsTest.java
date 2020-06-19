@@ -1,6 +1,5 @@
-package com.tiagods.springbootfile.utils;
+package com.tiagods.prolink.utils;
 
-import com.tiagods.prolink.utils.DateUtils;
 import org.junit.Assert;
 import org.junit.Test;
 

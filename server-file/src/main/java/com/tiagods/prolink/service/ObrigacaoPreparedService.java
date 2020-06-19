@@ -34,9 +34,7 @@ import java.util.stream.Collectors;
 public class ObrigacaoPreparedService {
 
     @Autowired private ClienteService clientIOService;
-//    @Autowired private IOService ioService;
     @Autowired private OperacaoService operacaoService;
-
 
     //mover por pastas
     @Async
@@ -66,45 +64,41 @@ public class ObrigacaoPreparedService {
 
             capturarPastasPeriodo(job, Periodo.ANO, pastaAnoObrigatoria)
                     .forEach(folderAno -> {
-                        log.info("Listando pasta: ");
+                        String nomePasta = folderAno.getFileName().toString();
+                        log.info("Nome da pasta ano=[" + nomePasta + "]=Origem=[" + folderAno.toString() + "]");
+                        //pegar o nome do diretorio e remover qualquer outro adicional do nome para pegar o periodo mes ou ano
+                        try {
+                            String ano = contrato.getMesOuAno(Periodo.ANO, nomePasta);
+                            log.info("Ano da pasta=[" + ano + "]");
+                            Path estrutura = Paths.get(tipo.getEstrutura(), ano);
+                            log.info("Nome da estrutura=[" + estrutura + "]");
 
-                            String nomePasta = folderAno.getFileName().toString();
-                            log.info("Nome da pasta ano=[" + nomePasta + "]=Origem=[" + folderAno.toString() + "]");
-                            //pegar o nome do diretorio e remover qualquer outro adicional do nome para pegar o periodo mes ou ano
-                            try {
-                                String ano = contrato.getMesOuAno(Periodo.ANO, nomePasta);
-                                log.info("Ano da pasta=[" + ano + "]");
-                                Path estrutura = Paths.get(tipo.getEstrutura(), ano);
-                                log.info("Nome da estrutura=[" + estrutura + "]");
-
-                                if (contrato.contains(Periodo.MES)) {
-                                    capturarPastasPeriodo(folderAno, Periodo.MES, pastaMesObrigatoria)
-                                            .forEach(folderMes -> {
-                                                String mes = folderMes.getFileName().toString();
-                                                try {
-                                                    mes = contrato.getMesOuAno(Periodo.MES, mes);
-                                                    log.info("Nome da pasta mes: " + mes + "\t" + folderMes.toString());
-                                                    log.info("Mes da pasta=[" + mes + "]");
-                                                    Path novaEstrutura = estrutura.resolve(mes);
-                                                    log.info("Estrutura pasta mes=[" + novaEstrutura + "]");
-                                                    Files.list(folderMes).forEach(c -> {
-                                                        operacaoService.moverPasta(c, novaEstrutura, clienteApelido, true);
-                                                    });
-                                                } catch (ParametroNotFoundException e) {
-                                                    log.error(e.getMessage());
-                                                } catch (ParametroIncorretoException | IOException e) {
-                                                    log.error(e.getMessage());
-                                                }
-                                            });
-                                } else {
-                                    //se no contrato não houver MES, ira mover sob um nivel acima ANO
-                                    operacaoService.moverPasta(folderAno, estrutura, clienteApelido, true);
-                                }
-                            } catch (ParametroNotFoundException e) {
-                                log.error(e.getMessage());
-                            } catch (ParametroIncorretoException e) {
-                                log.error(e.getMessage());
+                            if (contrato.contains(Periodo.MES)) {
+                                capturarPastasPeriodo(folderAno, Periodo.MES, pastaMesObrigatoria)
+                                        .forEach(folderMes -> {
+                                            String mes = folderMes.getFileName().toString();
+                                            try {
+                                                mes = contrato.getMesOuAno(Periodo.MES, mes);
+                                                log.info("Nome da pasta mes: " + mes + "\t" + folderMes.toString());
+                                                log.info("Mes da pasta=[" + mes + "]");
+                                                Path novaEstrutura = estrutura.resolve(mes);
+                                                log.info("Estrutura pasta mes=[" + novaEstrutura + "]");
+                                                operacaoService.moverPasta(folderMes, novaEstrutura, clienteApelido, true);
+                                            } catch (ParametroNotFoundException e) {
+                                                log.error(e.getMessage());
+                                            } catch (ParametroIncorretoException e) {
+                                                log.error(e.getMessage());
+                                            }
+                                        });
+                            } else {
+                                //se no contrato não houver MES, ira mover sob um nivel acima ANO
+                                operacaoService.moverPasta(folderAno, estrutura, clienteApelido, true);
                             }
+                        } catch (ParametroNotFoundException e) {
+                            log.error(e.getMessage());
+                        } catch (ParametroIncorretoException e) {
+                            log.error(e.getMessage());
+                        }
 
                     });
         }

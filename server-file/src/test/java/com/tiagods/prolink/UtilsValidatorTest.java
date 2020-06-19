@@ -1,4 +1,4 @@
-package com.tiagods.springbootfile;
+package com.tiagods.prolink;
 
 import com.tiagods.prolink.exception.ParametroIncorretoException;
 import com.tiagods.prolink.exception.ParametroNotFoundException;
@@ -9,7 +9,6 @@ import com.tiagods.prolink.obrigacao.ObrigacaoFactory;
 import com.tiagods.prolink.obrigacao.Periodo;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.validation.Valid;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

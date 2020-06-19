@@ -25,7 +25,7 @@ public class MoverArquivo {
 
         try {
             Iterator<Path> files = Files.list(path).iterator();
-            clientIOService.verifyStructureInModel(novaEstrutura);
+            clientIOService.verificarEstruturaNoModelo(novaEstrutura);
 
             processar(files, OrdemBusca.ID,null,1);
             //processar(files, OrdemBusca.CNPJ,null,1);
@@ -66,7 +66,7 @@ public class MoverArquivo {
         if(ordemV1.equals(OrdemV1.INICIO)) {
             String cnpj = arquivo.getFileName().toString().substring(0,14);
             Optional<Cliente> cliente = clienteSet.stream().filter(c -> c.isCnpjValido() && c.getCnpjFormatado().equals(cnpj)).findAny();
-            return cliente.isPresent()? clientIOService.searchClientPathBaseAndCreateIfNotExists(cliente.get()) : null;
+            return cliente.isPresent()? clientIOService.buscarPastaDoClienteECriarSeNaoExistir(cliente.get()) : null;
         }
         else return null;
     }
@@ -81,7 +81,7 @@ public class MoverArquivo {
              }
              String valor =  arquivo.getFileName().toString().substring(0,4);
              Optional<Cliente> cliente = clienteSet.stream().filter(c -> c.getIdFormatado().equals(valor)).findAny();
-             return cliente.isPresent() ? clientIOService.searchClientPathBaseAndCreateIfNotExists(cliente.get()) : null;
+             return cliente.isPresent() ? clientIOService.buscarPastaDoClienteECriarSeNaoExistir(cliente.get()) : null;
          }
          else{
             String nome = arquivo.getFileName().toString();
@@ -97,7 +97,7 @@ public class MoverArquivo {
                     //nao fazer nada
                 }
                 Optional<Cliente> cliente = clienteSet.stream().filter(c -> c.getIdFormatado().equals(array[index])).findAny();
-                return cliente.isPresent() ? clientIOService.searchClientPathBaseAndCreateIfNotExists(cliente.get()) : null;
+                return cliente.isPresent() ? clientIOService.buscarPastaDoClienteECriarSeNaoExistir(cliente.get()) : null;
             }
             else return null;
          }

@@ -1,11 +1,8 @@
-package com.tiagods.springbootfile.obrigacao;
+package com.tiagods.prolink.obrigacao;
 
 import com.tiagods.prolink.exception.ParametroIncorretoException;
 import com.tiagods.prolink.exception.ParametroNotFoundException;
 import com.tiagods.prolink.model.Obrigacao;
-import com.tiagods.prolink.obrigacao.ObrigacaoContrato;
-import com.tiagods.prolink.obrigacao.ObrigacaoFactory;
-import com.tiagods.prolink.obrigacao.Periodo;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;

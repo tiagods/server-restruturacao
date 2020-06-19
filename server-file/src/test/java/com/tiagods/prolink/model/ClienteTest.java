@@ -1,6 +1,5 @@
-package com.tiagods.springbootfile.model;
+package com.tiagods.prolink.model;
 
-import com.tiagods.prolink.model.Cliente;
 import org.junit.Assert;
 import org.junit.Test;
 

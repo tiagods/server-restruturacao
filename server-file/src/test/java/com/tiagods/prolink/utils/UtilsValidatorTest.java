@@ -1,7 +1,5 @@
-package com.tiagods.springbootfile.utils;
+package com.tiagods.prolink.utils;
 
-import com.tiagods.prolink.utils.MyStringUtils;
-import com.tiagods.prolink.utils.UtilsValidator;
 import org.junit.Assert;
 import org.junit.Test;
 

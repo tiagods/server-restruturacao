@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 @Service
@@ -134,8 +133,9 @@ public class ClienteService {
         Pair<Cliente, Path> pair = IOUtils.criarDiretorioCliente(c, path);
         log.info("Criado pasta: "+path.toString());
         if(Files.exists(path)) {
-            //usado para criar uma estrutura basica de um novo cliente
-            List<ClientDefaultPathDTO> paths = clienteDAOService.getPathsForClient();
+            // usado para criar uma estrutura basica
+            // de um novo cliente com pastas basicas como GERAL, FISCAL, CONTABIL
+            List<ClientDefaultPathDTO> paths = clienteDAOService.listarPastasPadroes();
             for (ClientDefaultPathDTO pathDTO : paths) {
                 try{
                     Path p = path.resolve(pathDTO.getValue());
@@ -155,8 +155,8 @@ public class ClienteService {
             return ioService.mover(c, file, destino);
         } else return new Pair<>(c, destino);
     }
-
-    public Path searchClientPathBaseAndCreateIfNotExists(Cliente c) {
+    
+    public Path buscarPastaDoClienteECriarSeNaoExistir(Cliente c) {
         iniciarlizarSeVazio();
         Optional<Path> result = Optional.ofNullable(cliMap.get(c));
         if(result.isPresent()) return result.get();
@@ -184,7 +184,7 @@ public class ClienteService {
 
     private Path searchClientPathBaseByIdAndCreate(Long id) {
         return findMapClientById(id)
-                .map(this::searchClientPathBaseAndCreateIfNotExists).get();
+                .map(this::buscarPastaDoClienteECriarSeNaoExistir).get();
     }
 
     public Optional<Cliente> findMapClientById(long id){
@@ -196,8 +196,8 @@ public class ClienteService {
                 .findFirst();
     }
     //verificar e criar estrutura de modelo
-    public void verifyStructureInModel(Path structure) throws IOException {
-        Path path = getModel().resolve(structure);
+    public void verificarEstruturaNoModelo(Path estrutura) throws IOException {
+        Path path = getModel().resolve(estrutura);
         IOUtils.criarDiretorios(path);
     }
 

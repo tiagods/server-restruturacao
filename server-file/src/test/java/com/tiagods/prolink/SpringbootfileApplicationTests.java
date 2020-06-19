@@ -1,8 +1,6 @@
-package com.tiagods.springbootfile;
+package com.tiagods.prolink;
 
 import org.junit.Assert;
-import org.junit.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
 import java.nio.file.Files;
