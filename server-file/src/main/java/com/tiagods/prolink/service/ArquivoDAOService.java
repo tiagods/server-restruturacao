@@ -45,9 +45,9 @@ public class ArquivoDAOService {
         errorDto.setData(new Date());
         errorDto.setCause(error);
         errorDto.setOrigem(file.toString());
-        errorDto.setDestino(finalFile.toString());
+        errorDto.setDestino(finalFile!=null?finalFile.toString():null);
         errorDto.setStatus(status);
-        errorDto.setCliente(cliente.getIdFormatado());
+        errorDto.setCliente(cliente!=null?cliente.getIdFormatado():null);
         erroRepository.save(errorDto);
     }
 
