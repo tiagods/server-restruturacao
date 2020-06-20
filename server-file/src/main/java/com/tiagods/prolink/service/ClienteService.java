@@ -41,7 +41,6 @@ public class ClienteService {
 
     private Set<Path> foldersConcurrentJobs = Collections.synchronizedSet(new HashSet<>());
 
-
     private void iniciarlizarSeVazio(){
         if(clientSet.isEmpty() || cliMap.isEmpty()) inicializarPathClientes(false);
     }
@@ -54,7 +53,7 @@ public class ClienteService {
     }
 
     @Async
-    public synchronized void inicializarPathClientes(boolean organize) throws StructureNotFoundException{
+    public synchronized void inicializarPathClientes(boolean organizar) throws StructureNotFoundException{
         destroyAll();
         //carregar e converter lista de clientes
         clientDTOList = clienteDAOService.list();
@@ -66,7 +65,7 @@ public class ClienteService {
         log.info("Iniciando mapeamento de clientes");
         Set<Path> set = buscarClientesPath();
         clientSet.forEach(c -> {
-            mapClient(c,set,organize);
+            mapClient(c, set, organizar);
         });
         log.info("Concluido mapeamento: "+cliMap.values().size()+" pastas de clientes mapeadas");
     }
@@ -128,6 +127,7 @@ public class ClienteService {
         else pair = new Pair<>(c, null);
         cliMap.put(pair.getCliente(), pair.getPath());
     }
+
     //criar estrutura no cliente com base nos parametros passados
     private Pair<Cliente, Path> montarEstruturaNoCliente(Cliente c, Path path){
         Pair<Cliente, Path> pair = IOUtils.criarDiretorioCliente(c, path);
@@ -171,6 +171,7 @@ public class ClienteService {
                 throw new StructureNotFoundException("Não foi possivel criar o diretorio: " + p.toString());
         }
     }
+
     public Path buscarPastaBaseCliente(Cliente c) {
         iniciarlizarSeVazio();
         return cliMap.get(c);
@@ -190,6 +191,7 @@ public class ClienteService {
                 .filter(c -> c.getId().equals(id))
                 .findFirst();
     }
+
     //verificar e criar estrutura de modelo
     public void verificarEstruturaNoModelo(Path estrutura) throws IOException {
         Path path = getModel().resolve(estrutura);

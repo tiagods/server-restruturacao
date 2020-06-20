@@ -15,6 +15,7 @@ import java.util.Date;
 public class ArquivoDTO implements Serializable {
     @Id
     private String id;
+    private String cliente;
     private String nome;
     private String origem;
     private String novoNome;

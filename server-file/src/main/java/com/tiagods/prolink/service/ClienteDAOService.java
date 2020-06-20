@@ -13,11 +13,8 @@ import java.util.Optional;
 
 @Service
 public class ClienteDAOService {
-    @Autowired
-    private ClienteRepository clienteRepository;
-
-    @Autowired
-    private ClientDefaultPathRepository pathRepository;
+    @Autowired private ClienteRepository clienteRepository;
+    @Autowired private ClientDefaultPathRepository pathRepository;
 
     public List<ClienteDTO> list() {
         return clienteRepository.findAll();

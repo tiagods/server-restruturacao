@@ -13,6 +13,7 @@ import java.util.Date;
 public class ArquivoErroDTO {
     @Id
     private String id;
+    private String cliente;
     private String origem;
     private String destino;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)

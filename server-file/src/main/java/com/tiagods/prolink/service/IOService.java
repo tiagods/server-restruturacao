@@ -21,17 +21,16 @@ public class IOService {
     @Autowired private ArquivoDAOService arquivoDAOService;
     @Autowired private Regex regex;
 
-
     //tentar mover, se nao conseguir usar o diretorio de origem
-    public Pair<Cliente, Path> mover(Cliente client, Path origin, Path destination){
+    public Pair<Cliente, Path> mover(Cliente cliente, Path origin, Path destination){
         try{
             log.info("Movendo ["+origin+"] para ["+destination+"]");
             Files.move(origin, destination, StandardCopyOption.REPLACE_EXISTING);
-            arquivoDAOService.convertAndSave(origin,destination);
-            return new Pair<>(client,destination);
+            arquivoDAOService.convertAndSave(origin, destination, cliente);
+            return new Pair<>(cliente, destination);
         }catch (IOException e){
             log.error(e.getMessage());
-            return new Pair<>(client,origin);
+            return new Pair<>(cliente, origin);
         }
     }
 
@@ -46,10 +45,10 @@ public class IOService {
             IOUtils.criarDiretorios(finalFile.getParent());
             log.info("Movendo ["+file.toString()+"] para ["+finalFile.toString()+"]");
             Files.move(file, finalFile, StandardCopyOption.REPLACE_EXISTING);
-            arquivoDAOService.convertAndSave(file,finalFile);
+            arquivoDAOService.convertAndSave(file,finalFile, cli);
             return finalFile;
         }catch (IOException e){
-            arquivoDAOService.salvarErro(file,finalFile,e.getMessage(), ArquivoErroDTO.Status.ERROR);
+            arquivoDAOService.salvarErro(file,finalFile,e.getMessage(), ArquivoErroDTO.Status.ERROR, cli);
             log.error(e.getMessage());
             return null;
         }
@@ -60,7 +59,8 @@ public class IOService {
         boolean matcher1 = valor.matches(regex.getInitById());
         boolean matcher2 = valor.matches(regex.getInitByIdReplaceNickName().replace("nickName", idFormatado));
         if(matcher1 && !matcher2) {//pode iniciar com o id de outro cliente
-            arquivoDAOService.salvarErro(file,null, ArquivoErroDTO.Status.WARN.getDescricao(), ArquivoErroDTO.Status.ERROR);
+            Cliente cliente = new Cliente(Long.parseLong(valor), "", "", "");
+            arquivoDAOService.salvarErro(file,null, ArquivoErroDTO.Status.WARN.getDescricao(), ArquivoErroDTO.Status.ERROR, cliente);
         }
         return matcher2;
     }

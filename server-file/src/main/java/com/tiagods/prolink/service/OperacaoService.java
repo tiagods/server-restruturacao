@@ -73,6 +73,7 @@ public class OperacaoService {
             log.info("Movimentação cancelada por erro");
         }
     }
+
     // travar estrutura = evitar criação de subspastas e usar diretorio fixo C:/CLIENTE/OBRIGAGACAO/ANO/MES
     //inicia processo, vai percorrer todas as pastar e ira mover conteudo para um novo diretorio
     private void processarPorPasta(Cliente cli, boolean renomearSemId, Path basePath, Iterator<Path> files, Path estrutura, boolean travarEstrutura){

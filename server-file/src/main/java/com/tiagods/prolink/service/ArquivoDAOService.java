@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.tiagods.prolink.dto.ArquivoDTO;
 import com.tiagods.prolink.dto.ArquivoErroDTO;
+import com.tiagods.prolink.model.Cliente;
 import com.tiagods.prolink.repository.ArquivoErroRepository;
 import com.tiagods.prolink.repository.ArquivoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,32 +22,32 @@ import java.util.Date;
 @Service
 public class ArquivoDAOService {
 
-    @Autowired
-    private ArquivoRepository arquivoRepository;
-
-    @Autowired
-    private ArquivoErroRepository erroRepository;
+    @Autowired private ArquivoRepository arquivoRepository;
+    @Autowired private ArquivoErroRepository erroRepository;
 
     public ArquivoDTO save(ArquivoDTO arquivo){
         return arquivoRepository.save(arquivo);
     }
 
-    public void convertAndSave(Path file, Path finalFile){
+    public void convertAndSave(Path file, Path finalFile, Cliente cliente){
         ArquivoDTO arquivoDTO = new ArquivoDTO();
         arquivoDTO.setData(new Date());
         arquivoDTO.setDestino(finalFile.toString());
         arquivoDTO.setNovoNome(finalFile.getFileName().toString());
         arquivoDTO.setOrigem(file.toString());
         arquivoDTO.setNome(file.getFileName().toString());
+        arquivoDTO.setCliente(cliente.getIdFormatado());
         save(arquivoDTO);
     }
-    public void salvarErro(Path file, Path finalFile, String error, ArquivoErroDTO.Status status) {
+
+    public void salvarErro(Path file, Path finalFile, String error, ArquivoErroDTO.Status status, Cliente cliente) {
         ArquivoErroDTO errorDto = new ArquivoErroDTO();
         errorDto.setData(new Date());
         errorDto.setCause(error);
         errorDto.setOrigem(file.toString());
         errorDto.setDestino(finalFile.toString());
         errorDto.setStatus(status);
+        errorDto.setCliente(cliente.getIdFormatado());
         erroRepository.save(errorDto);
     }
 

@@ -25,14 +25,17 @@ public class IOUtils {
             return null;
         }
     }
+
     //verificar e criar estrutura de modelo
     public static void criarDiretorios(Path path) throws IOException {
         if (Files.notExists(path)) Files.createDirectories(path);
     }
+
     //criar um diretorio
     public static void criarDiretorio(Path path) throws IOException {
        if (Files.notExists(path)) Files.createDirectory(path);
     }
+
    //deletar de forma recursiva
     public static void deletarPastaSeVazioRecursivo(Path path) throws IOException {
         if(Files.isDirectory(path)){
@@ -60,12 +63,14 @@ public class IOUtils {
             FileSystemUtils.deleteRecursively(path);
         }
     }
+
     //listar diretorios e por regex
     public static Set<Path> filtrarPorDiretorioERegex(Path path, String regex) throws IOException{
         return Files.list(path)
                 .filter(f->Files.isDirectory(f) && f.getFileName().toString().matches(regex))
                 .collect(Collectors.toSet());
     }
+
     //listar diretorios e trazer o map<diretorio, clienteApelido>
     public static Map<Path,String> listByDirectoryDefaultToMap(Path path, String regex) throws IOException{
         Set<Path> paths = filtrarPorDiretorioERegex(path, regex);
