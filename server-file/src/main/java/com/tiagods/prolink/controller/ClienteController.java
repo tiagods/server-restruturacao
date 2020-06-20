@@ -1,6 +1,6 @@
 package com.tiagods.prolink.controller;
 
-import com.tiagods.prolink.exception.StructureNotFoundException;
+import com.tiagods.prolink.exception.EstruturaNotFoundException;
 import com.tiagods.prolink.service.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +24,7 @@ public class ClienteController {
     public ResponseEntity<?> getDir(@PathVariable Long nickName){
         Optional<Path> optional = Optional.ofNullable(ioService.buscarPastaBaseClientePorId(nickName));
         if(optional.isPresent()) return ResponseEntity.ok().body(optional.get().toString());
-        else throw new StructureNotFoundException("A pasta do cliente solicitado não existe");
+        else throw new EstruturaNotFoundException("A pasta do cliente solicitado não existe");
     }
     @GetMapping("/organizar")
     public ResponseEntity<?> organizeFoldersClients(){

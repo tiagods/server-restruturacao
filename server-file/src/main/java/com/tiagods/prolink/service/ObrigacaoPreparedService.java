@@ -28,21 +28,21 @@ import java.util.stream.Collectors;
 @Service
 public class ObrigacaoPreparedService {
 
-    @Autowired private ClienteService clientIOService;
+    @Autowired private ClienteService clienteService;
     @Autowired private OperacaoService operacaoService;
 
-    //mover por pastas
     @Async
-    public void iniciarMovimentacaoPorPasta(PathJob pathJob, String nickName) throws FolderCuncurrencyJob {
+    public void iniciarMovimentacaoPorPasta(PathJob pathJob, String nickName) {
         Path job = Paths.get(pathJob.getDirForJob());
         Path estrutura = Paths.get(pathJob.getEstrutura());
-        clientIOService.verficarDiretoriosBaseECriar();
+        clienteService.verficarDiretoriosBaseECriar();
         operacaoService.moverPasta(job, estrutura, nickName, false);
         log.info("Concluido movimentação em=["+job.toString()+"]");
     }
 
+    @Async
     public void iniciarMovimentacaoPorObrigacao(ObrigacaoContrato contrato, Obrigacao obrigacao) throws ParametroNotFoundException, PathInvalidException {
-        clientIOService.verficarDiretoriosBaseECriar();
+        clienteService.verficarDiretoriosBaseECriar();
         Obrigacao.Tipo tipo = obrigacao.getTipo();
         Path job = Paths.get(obrigacao.getDirForJob());
         Month mesJob = obrigacao.getMes();
@@ -99,6 +99,7 @@ public class ObrigacaoPreparedService {
     }
 
     public ObrigacaoContrato validarObrigacao(Obrigacao obrigacao) throws ParametroNotFoundException, PathInvalidException, ParametroIncorretoException {
+        log.info("Pushed: "+obrigacao);
         ObrigacaoContrato ob = ObrigacaoFactory.get(obrigacao);
         Obrigacao.Tipo tipo = obrigacao.getTipo();
         Path dirForJob = Paths.get(obrigacao.getDirForJob());

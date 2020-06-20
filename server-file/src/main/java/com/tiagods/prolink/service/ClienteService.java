@@ -3,7 +3,7 @@ package com.tiagods.prolink.service;
 import com.tiagods.prolink.config.Regex;
 import com.tiagods.prolink.config.ServerFile;
 import com.tiagods.prolink.dto.ClientDefaultPathDTO;
-import com.tiagods.prolink.exception.StructureNotFoundException;
+import com.tiagods.prolink.exception.EstruturaNotFoundException;
 import com.tiagods.prolink.model.Pair;
 import com.tiagods.prolink.model.Cliente;
 import com.tiagods.prolink.utils.IOUtils;
@@ -53,7 +53,7 @@ public class ClienteService {
     }
 
     @Async
-    public synchronized void inicializarPathClientes(boolean organizar) throws StructureNotFoundException{
+    public synchronized void inicializarPathClientes(boolean organizar) throws EstruturaNotFoundException {
         destroyAll();
         //carregar e converter lista de clientes
         clientDTOList = clienteDAOService.list();
@@ -71,7 +71,7 @@ public class ClienteService {
     }
 
     //listar todos os clientes ativos, inativos e suas pastas
-    private synchronized Set<Path> buscarClientesPath() throws StructureNotFoundException{
+    private synchronized Set<Path> buscarClientesPath() throws EstruturaNotFoundException {
         verficarDiretoriosBaseECriar();
         try {
             //listando todos os arquivos e corrigir nomes se necessarios
@@ -82,7 +82,7 @@ public class ClienteService {
             files.addAll(shutdowns);
             return files;
         } catch (IOException e) {
-            throw new StructureNotFoundException("Nao foi possivel listar os arquivos dos clientes", e.getCause());
+            throw new EstruturaNotFoundException("Nao foi possivel listar os arquivos dos clientes", e.getCause());
         }
     }
 
@@ -167,7 +167,7 @@ public class ClienteService {
                 return result2.get().getPath();
             }
             else
-                throw new StructureNotFoundException("Não foi possivel criar o diretorio: " + p.toString());
+                throw new EstruturaNotFoundException("Não foi possivel criar o diretorio: " + p.toString());
         }
     }
 
@@ -204,13 +204,13 @@ public class ClienteService {
         log.info("Verificando se pastas padroes se existem");
         try {
             if (!IOUtils.verificarSeExiste(base))
-                throw new StructureNotFoundException("Base de arquivos não existe");
+                throw new EstruturaNotFoundException("Base de arquivos não existe");
             IOUtils.criarDiretorio(shutdown);
             IOUtils.criarDiretorio(model);
             log.info("Concluindo verificação");
         } catch (IOException e) {
             log.error("Falha ao verificar/criar diretorios");
-            throw new StructureNotFoundException("Pasta's importantes não fora encontradas: "
+            throw new EstruturaNotFoundException("Pasta's importantes não fora encontradas: "
                     + e.getMessage(), e.getCause());
         }
     }
@@ -222,9 +222,7 @@ public class ClienteService {
     public void addFolderToJob(Path dirForJob) {
         this.foldersConcurrentJobs.add(dirForJob);
     }
-    public void removeFolderToJob(Path job) {
-        this.foldersConcurrentJobs.remove(job);
-    }
+    public void removeFolderToJob(Path job) { this.foldersConcurrentJobs.remove(job); }
     public boolean containsFolderToJob(Path job) {
         return this.foldersConcurrentJobs.contains(job);
     }
