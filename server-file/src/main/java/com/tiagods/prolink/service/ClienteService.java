@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -33,16 +34,16 @@ public class ClienteService {
     private Path model;
 
     //cliente e sua localizacao
-    private Map<Cliente, Path> cliMap = new HashMap<>();
+    private Map<Cliente, Path> cliMap = new LinkedHashMap<>();
 
-    private Set<Cliente> clientSet = new HashSet<>();
+    private Set<Cliente> clientSet = new LinkedHashSet<>();
 
-    private List<ClienteDTO> clientDTOList = new ArrayList<>();
+    private List<ClienteDTO> clientDTOList = new LinkedList<>();
 
     private Set<Path> foldersConcurrentJobs = Collections.synchronizedSet(new HashSet<>());
 
     private void iniciarlizarSeVazio(){
-        if(clientSet.isEmpty() || cliMap.isEmpty()) inicializarPathClientes(false);
+        if(clientSet.isEmpty() || cliMap.isEmpty()) inicializarPathClientes(null, false);
     }
 
     void destroyAll() {
@@ -52,11 +53,14 @@ public class ClienteService {
         foldersConcurrentJobs.clear();
     }
 
-    @Async
-    public synchronized void inicializarPathClientes(boolean organizar) throws EstruturaNotFoundException {
+    public synchronized void inicializarPathClientes(ClienteDTO cliente, boolean organizar) throws EstruturaNotFoundException {
         destroyAll();
         //carregar e converter lista de clientes
-        clientDTOList = clienteDAOService.list();
+        if(cliente!=null) {
+            clientDTOList.add(cliente);
+        } else {
+            clientDTOList = clienteDAOService.list();
+        }
         clientDTOList.forEach(c -> {
             clientSet.add(
                     new Cliente(c.getApelido(), c.getNome(), c.getStatus(), c.getCnpj())
@@ -180,6 +184,12 @@ public class ClienteService {
         Optional<Path> optional = buscarClienteEmMapPorId(id)
                 .map(this::buscarPastaBaseCliente);
         return optional.orElse(null);
+    }
+
+    public Set<Path> listarDiretorios(Path path) throws IOException{
+        return Files.list(path)
+                .filter(Files::isDirectory)
+                .collect(Collectors.toSet());
     }
 
     public Optional<Cliente> buscarClienteEmMapPorId(long id){

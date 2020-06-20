@@ -21,8 +21,8 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(ClientNotFoundException.class)
-    public ResponseEntity<?> clientNotFoundException(ClientNotFoundException ex, HttpServletResponse response) {
+    @ExceptionHandler(ClienteNotFoundException.class)
+    public ResponseEntity<?> clientNotFoundException(ClienteNotFoundException ex, HttpServletResponse response) {
         return buildResponseEntity(HttpStatus.NOT_FOUND, Arrays.asList(ex.getMessage()));
     }
 
