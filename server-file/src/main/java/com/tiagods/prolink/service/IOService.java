@@ -59,8 +59,8 @@ public class IOService {
         boolean matcher1 = valor.matches(regex.getInitById());
         boolean matcher2 = valor.matches(regex.getInitByIdReplaceNickName().replace("nickName", idFormatado));
         if(matcher1 && !matcher2) {//pode iniciar com o id de outro cliente
-            Cliente cliente = new Cliente(Long.parseLong(valor), "", "", "");
-            arquivoDAOService.salvarErro(file,null, ArquivoErroDTO.Status.WARN.getDescricao(), ArquivoErroDTO.Status.ERROR, cliente);
+            //Cliente cliente = new Cliente(Long.parseLong(valor), "", "", "");
+            arquivoDAOService.salvarErro(file,null, ArquivoErroDTO.Status.WARN.getDescricao(), ArquivoErroDTO.Status.ERROR, null);
         }
         return matcher2;
     }

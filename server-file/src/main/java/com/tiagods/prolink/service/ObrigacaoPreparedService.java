@@ -1,21 +1,16 @@
 package com.tiagods.prolink.service;
 
-import com.tiagods.prolink.config.Regex;
 import com.tiagods.prolink.exception.FolderCuncurrencyJob;
 import com.tiagods.prolink.exception.ParametroIncorretoException;
 import com.tiagods.prolink.exception.ParametroNotFoundException;
 import com.tiagods.prolink.exception.PathInvalidException;
-import com.tiagods.prolink.model.Cliente;
 import com.tiagods.prolink.model.Obrigacao;
 import com.tiagods.prolink.model.PathJob;
 import com.tiagods.prolink.obrigacao.ObrigacaoContrato;
 import com.tiagods.prolink.obrigacao.ObrigacaoFactory;
 import com.tiagods.prolink.obrigacao.Periodo;
-import com.tiagods.prolink.utils.IOUtils;
 import com.tiagods.prolink.utils.MyStringUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -39,8 +34,6 @@ public class ObrigacaoPreparedService {
     //mover por pastas
     @Async
     public void iniciarMovimentacaoPorPasta(PathJob pathJob, String nickName) throws FolderCuncurrencyJob {
-        //Path path = Paths.get("c:/job");
-        //Path novaEstrutura = Paths.get("GERAL","SAC");
         Path job = Paths.get(pathJob.getDirForJob());
         Path estrutura = Paths.get(pathJob.getEstrutura());
         clientIOService.verficarDiretoriosBaseECriar();
@@ -48,7 +41,7 @@ public class ObrigacaoPreparedService {
         log.info("Concluido movimentação em=["+job.toString()+"]");
     }
 
-    public void iniciarMovimentacaoPorObrigacao(ObrigacaoContrato contrato, Obrigacao obrigacao) {
+    public void iniciarMovimentacaoPorObrigacao(ObrigacaoContrato contrato, Obrigacao obrigacao) throws ParametroNotFoundException, PathInvalidException {
         clientIOService.verficarDiretoriosBaseECriar();
         Obrigacao.Tipo tipo = obrigacao.getTipo();
         Path job = Paths.get(obrigacao.getDirForJob());
@@ -103,6 +96,31 @@ public class ObrigacaoPreparedService {
                     });
         }
         log.info("Concluido movimentação em=["+job.toString()+"]");
+    }
+
+    public ObrigacaoContrato validarObrigacao(Obrigacao obrigacao) throws ParametroNotFoundException, PathInvalidException, ParametroIncorretoException {
+        ObrigacaoContrato ob = ObrigacaoFactory.get(obrigacao);
+        Obrigacao.Tipo tipo = obrigacao.getTipo();
+        Path dirForJob = Paths.get(obrigacao.getDirForJob());
+        if(!dirForJob.getFileName().toString().equals(tipo.getDescricao())) {
+            String message = "O diretorio informado é invalido para essa obrigação";
+            log.error(message);
+            throw new PathInvalidException(message);
+        }
+        if(obrigacao.getAno()==null && ob.contains(Periodo.ANO)) {
+            String message = "O parametro ano é obrigatório para essa obrigação";
+            log.error(message);
+            throw new ParametroNotFoundException(message);
+        }
+        if(obrigacao.getMes()!=null && !ob.contains(Periodo.MES)) {
+            log.error("Mes informado para uma obrigação anual");
+            throw new ParametroIncorretoException("Obrigação "+tipo.getDescricao()+" é anual e o mês não deve ser informado");
+        }
+//        if(obrigacao.getMes()==null && ob.contains(Periodo.MES)) {
+//            log.info("Mes não informado para uma obrigação mensal");
+//            throw new ParametroNotFoundException("O parametro mês é obrigatório para essa obrigação");
+//        }
+        return ob;
     }
 
     Set<Path> capturarPastasPeriodo(Path job, Periodo periodo, String nomeObrigatorioPasta) {

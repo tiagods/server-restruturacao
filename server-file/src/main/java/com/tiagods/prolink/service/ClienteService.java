@@ -88,7 +88,6 @@ public class ClienteService {
 
     //mapeamento de pastas
     private void mapClient(Cliente c, Set<Path> files, boolean organizar) {
-        log.info("Mapeando cliente= "+c.toString());
         Optional<Path> file = IOUtils.buscarPastaPorId(c, files);
         Optional<ClienteDTO> opt = clientDTOList.stream().filter(f-> f.getApelido().equals(c.getId())).findFirst();
         //verificar se ja foi criado
