@@ -43,7 +43,7 @@ public class OperacaoService {
             Map<Path, Cliente> mapPath = new HashMap<>();
             mapClientes.keySet().forEach(c->{
                 Long l = Long.parseLong(mapClientes.get(c));
-                clienteService.findMapClientById(l)
+                clienteService.buscarClienteEmMapPorId(l)
                         .ifPresent(r->mapPath.put(c,r));
             });
             //vai mover apenas os arquivos de dentro das pastas, as pastas irao continuar

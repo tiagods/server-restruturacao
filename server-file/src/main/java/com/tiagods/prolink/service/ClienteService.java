@@ -155,7 +155,7 @@ public class ClienteService {
             return ioService.mover(c, file, destino);
         } else return new Pair<>(c, destino);
     }
-    
+
     public Path buscarPastaDoClienteECriarSeNaoExistir(Cliente c) {
         iniciarlizarSeVazio();
         Optional<Path> result = Optional.ofNullable(cliMap.get(c));
@@ -171,23 +171,18 @@ public class ClienteService {
                 throw new StructureNotFoundException("Não foi possivel criar o diretorio: " + p.toString());
         }
     }
-    public Path searchClientPathBase(Cliente c) {
+    public Path buscarPastaBaseCliente(Cliente c) {
         iniciarlizarSeVazio();
         return cliMap.get(c);
     }
 
-    public Path searchClientPathBaseById(Long id) {
-        Optional<Path> optional = findMapClientById(id)
-                .map(this::searchClientPathBase);
+    public Path buscarPastaBaseClientePorId(Long id) {
+        Optional<Path> optional = buscarClienteEmMapPorId(id)
+                .map(this::buscarPastaBaseCliente);
         return optional.orElse(null);
     }
 
-    private Path searchClientPathBaseByIdAndCreate(Long id) {
-        return findMapClientById(id)
-                .map(this::buscarPastaDoClienteECriarSeNaoExistir).get();
-    }
-
-    public Optional<Cliente> findMapClientById(long id){
+    public Optional<Cliente> buscarClienteEmMapPorId(long id){
         iniciarlizarSeVazio();
         return cliMap
                 .keySet()
