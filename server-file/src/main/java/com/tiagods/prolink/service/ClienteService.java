@@ -40,7 +40,7 @@ public class ClienteService {
 
     private List<ClienteDTO> clientDTOList = new LinkedList<>();
 
-    private Set<Path> foldersConcurrentJobs = Collections.synchronizedSet(new HashSet<>());
+    private Set<Path> foldersConcurrentJobs = Collections.synchronizedSet(new LinkedHashSet<>());
 
     private void iniciarlizarSeVazio(){
         if(clientSet.isEmpty() || cliMap.isEmpty()) inicializarPathClientes(null, false, false);
@@ -68,9 +68,12 @@ public class ClienteService {
         });
         log.info("Iniciando mapeamento de clientes");
         Set<Path> set = buscarClientesPath();
-        clientSet.forEach(c -> {
-            mapClient(c, set, organizar, forcarCriacao);
-        });
+
+        synchronized (cliMap) {
+            clientSet.forEach(c -> {
+                mapClient(c, set, organizar, forcarCriacao);
+            });
+        }
         log.info("Concluido mapeamento: "+cliMap.values().size()+" pastas de clientes mapeadas");
     }
 
