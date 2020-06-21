@@ -11,6 +11,6 @@ public class ClientesJob {
 
     //realizar as segundas, quartas e sextas
     public void organizarCliente(){
-        clienteService.inicializarPathClientes(null,true);
+        clienteService.inicializarPathClientes(null,true, false);
     }
 }

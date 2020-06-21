@@ -43,7 +43,7 @@ public class ClienteService {
     private Set<Path> foldersConcurrentJobs = Collections.synchronizedSet(new HashSet<>());
 
     private void iniciarlizarSeVazio(){
-        if(clientSet.isEmpty() || cliMap.isEmpty()) inicializarPathClientes(null, false);
+        if(clientSet.isEmpty() || cliMap.isEmpty()) inicializarPathClientes(null, false, false);
     }
 
     void destroyAll() {
@@ -53,7 +53,7 @@ public class ClienteService {
         foldersConcurrentJobs.clear();
     }
 
-    public synchronized void inicializarPathClientes(ClienteDTO cliente, boolean organizar) throws EstruturaNotFoundException {
+    public synchronized void inicializarPathClientes(ClienteDTO cliente, boolean organizar, boolean forcarCriacao) throws EstruturaNotFoundException {
         destroyAll();
         //carregar e converter lista de clientes
         if(cliente!=null) {
@@ -69,7 +69,7 @@ public class ClienteService {
         log.info("Iniciando mapeamento de clientes");
         Set<Path> set = buscarClientesPath();
         clientSet.forEach(c -> {
-            mapClient(c, set, organizar);
+            mapClient(c, set, organizar, forcarCriacao);
         });
         log.info("Concluido mapeamento: "+cliMap.values().size()+" pastas de clientes mapeadas");
     }
@@ -91,7 +91,7 @@ public class ClienteService {
     }
 
     //mapeamento de pastas
-    private void mapClient(Cliente c, Set<Path> files, boolean organizar) {
+    private void mapClient(Cliente c, Set<Path> files, boolean organizar, boolean forcarCreate) {
         Optional<Path> file = IOUtils.buscarPastaPorId(c, files);
         Optional<ClienteDTO> opt = clientDTOList.stream().filter(f-> f.getApelido().equals(c.getId())).findFirst();
         //verificar se ja foi criado
@@ -113,7 +113,7 @@ public class ClienteService {
             else pair = new Pair<>(c,file.get());
         }
         //criar pasta apenas em condicao de que deva ser criado, principalmente em novos clientes
-        else if (!isCreated) {
+        else if (forcarCreate || !isCreated) {
             //criar pasta oficial caso não exista
             if (c.getStatus().equalsIgnoreCase("Desligada")) {
                 pair = montarEstruturaNoCliente(c,destinoDesligada);
@@ -187,9 +187,12 @@ public class ClienteService {
     }
 
     public Set<Path> listarDiretorios(Path path) throws IOException{
-        return Files.list(path)
-                .filter(Files::isDirectory)
-                .collect(Collectors.toSet());
+        Set<Path> list = new LinkedHashSet<>();
+        list.add(path);
+        Files.list(path)
+//                .filter(Files::isDirectory)
+                .forEach(list::add);
+        return list;
     }
 
     public Optional<Cliente> buscarClienteEmMapPorId(long id){
