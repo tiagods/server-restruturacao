@@ -66,6 +66,12 @@
 			<artifactId>springfox-swagger-ui</artifactId>
 			<version>2.9.2</version>
 		</dependency>
+		<dependency>
+			<groupId>com.jupiter-tools</groupId>
+			<artifactId>spring-test-mongo</artifactId>
+			<version>0.14</version>
+			<scope>test</scope>
+		</dependency>
 		<!-- https://mvnrepository.com/artifact/io.reactivex/rxjava -->
 		<dependency>
 			<groupId>io.reactivex</groupId>

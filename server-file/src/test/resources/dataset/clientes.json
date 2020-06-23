@@ -1,0 +1,40 @@
+{
+"com.tiagods.prolink.dto.ClienteDTO": [
+  {
+  "id": "55f3ed00b1375a48e618300a",
+  "apelido": 9,
+  "nome": "EMPRESA TESTE ME",
+  "status": "DESLIGADA",
+  "cnpj": "",
+  "folderCreate": true,
+  "data": "2020-04-12T11:04:23.694Z"
+  },
+{
+"id": "55f3ed00b1375a48e618300b",
+"apelido": 27,
+"nome": "EMPRESA TESTE SA",
+"status": "PRATA",
+"cnpj": "01.123.100/0001-03",
+"folderCreate": true,
+"data": "2020-04-12T11:04:23.694Z"
+},
+{
+"id": "55f3ed00b1375a48e618300c",
+"apelido": 105,
+"nome": "EMPRESA TESTE LTDA",
+"status": "OURO",
+"cnpj": "01.123.100/0001-02",
+"folderCreate": true,
+"data": "2020-04-12T11:04:23.694Z"
+},
+{
+"id": "55f3ed00b1375a48e618300d",
+"apelido": 2223,
+"nome": "EMPRESA TESTE 2 ME",
+"status": "BRONZE",
+"cnpj": "01.123.100/0001-01",
+"folderCreate": true,
+"data": "2020-04-12T11:04:23.694Z"
+}
+]
+}

@@ -4,13 +4,13 @@ import com.tiagods.prolink.config.Regex;
 import com.tiagods.prolink.config.ServerFile;
 import com.tiagods.prolink.dto.ClientDefaultPathDTO;
 import com.tiagods.prolink.exception.EstruturaNotFoundException;
+import com.tiagods.prolink.io.IOService;
 import com.tiagods.prolink.model.Pair;
 import com.tiagods.prolink.model.Cliente;
 import com.tiagods.prolink.utils.IOUtils;
 import com.tiagods.prolink.dto.ClienteDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -18,7 +18,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j

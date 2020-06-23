@@ -1,9 +1,10 @@
-package com.tiagods.prolink.service;
+package com.tiagods.prolink.io;
 
 import com.tiagods.prolink.config.Regex;
 import com.tiagods.prolink.dto.ArquivoErroDTO;
 import com.tiagods.prolink.model.Cliente;
 import com.tiagods.prolink.model.Pair;
+import com.tiagods.prolink.service.ArquivoDAOService;
 import com.tiagods.prolink.utils.IOUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

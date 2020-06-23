@@ -1,6 +1,10 @@
 package com.tiagods.prolink.services;
 
+import com.jupiter.tools.spring.test.mongo.annotation.ExportMongoDataSet;
+import com.jupiter.tools.spring.test.mongo.annotation.MongoDataSet;
+import com.jupiter.tools.spring.test.mongo.junit4.BaseMongoIT;
 import com.tiagods.prolink.config.ServerFile;
+import com.tiagods.prolink.dto.ClienteDTO;
 import com.tiagods.prolink.exception.ParametroIncorretoException;
 import com.tiagods.prolink.exception.ParametroNotFoundException;
 import com.tiagods.prolink.exception.PathInvalidException;
@@ -9,6 +13,7 @@ import com.tiagods.prolink.obrigacao.ObrigacaoContrato;
 import com.tiagods.prolink.obrigacao.Periodo;
 import com.tiagods.prolink.repository.ArquivoErroRepository;
 import com.tiagods.prolink.repository.ArquivoRepository;
+import com.tiagods.prolink.repository.ClienteRepository;
 import com.tiagods.prolink.service.ClienteDAOService;
 import com.tiagods.prolink.service.ClienteService;
 import com.tiagods.prolink.service.ObrigacaoPreparedService;
@@ -16,12 +21,10 @@ import com.tiagods.prolink.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
@@ -36,25 +39,51 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+/*
+Documentação spring boot with mongo test
+Nrcessario de docker
+https://github.com/jupiter-tools/spring-test-mongo#introduction
+ */
+
 @ActiveProfiles("dev")
 @Slf4j
-public class ObrigacaoPreparedServiceTest{
+public class ObrigacaoPreparedServiceTest extends BaseMongoIT {
 
     List<String> clientesJob = Arrays.asList("0009","0027","0105","2223");
 
     List<Obrigacao> obrigacoesMapeadas = new ArrayList<>();
 
     @Autowired private ClienteService clienteService;
-    @Autowired private ClienteDAOService clienteDAOService;
     @Autowired private ServerFile serverFile;
     @Autowired private ObrigacaoPreparedService obrigacaoService;
+
+    @Autowired private ClienteDAOService clienteDAOService;
+
+    @Autowired private ClienteRepository clienteRepository;
     @Autowired private ArquivoRepository arquivoRepository;
     @Autowired private ArquivoErroRepository erroRepository;
 
+    static List<ClienteDTO> lista;
+
+    @BeforeClass
+    public static void init() {
+        lista = Arrays.asList(
+                new ClienteDTO("1234qwer", 9L, "Empresa Teste ME", "OURO", "01.000.111/0001-00", new Date(), false),
+                new ClienteDTO("1234qwer1", 27L, "Empresa Teste SA", "OURO", "01.000.111/0001-00", new Date(), false),
+                new ClienteDTO("1234qwer12", 105L, "Empresa Teste LTDA", "OURO", "01.000.111/0001-00", new Date(), false),
+                new ClienteDTO("1234qwer23", 2223L, "Empresa Teste", "OURO", "01.000.111/0001-00", new Date(), false)
+        );
+    }
+
     @Test
-    public void listarClientes() {
+    @ExportMongoDataSet(outputFile = "target/dataset/export.json")
+    public void salvarLote(){
+        clienteRepository.saveAll(lista);
+    }
+
+    @Test
+    @MongoDataSet(value = "/dataset/clientes.json")
+    public void listarClientes() throws Exception{
         Assert.assertTrue(clienteDAOService.list().size()>0);
     }
 
@@ -78,6 +107,7 @@ public class ObrigacaoPreparedServiceTest{
         return criarObrigacao(tipo, null, null, null, job.toString());
     }
 
+    @MongoDataSet(value = "/dataset/clientes.json")
     public void moverPastaClientesEValidar(Obrigacao obrigacao) throws IOException, ParametroNotFoundException, PathInvalidException, ParametroIncorretoException {
         arquivoRepository.deleteAll();
         erroRepository.deleteAll();
