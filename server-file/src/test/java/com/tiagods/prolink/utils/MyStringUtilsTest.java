@@ -29,5 +29,4 @@ public class MyStringUtilsTest {
         Assert.assertEquals("0501", MyStringUtils.novoApelido(501L));
         Assert.assertEquals("1519", MyStringUtils.novoApelido(1519L));
     }
-
 }

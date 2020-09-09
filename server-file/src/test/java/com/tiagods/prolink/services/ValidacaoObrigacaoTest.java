@@ -16,7 +16,8 @@ public class ValidacaoObrigacaoTest extends ObrigacaoPreparedServiceTest {
         Obrigacao obrigacao = montarObrigacaoFakeAnoMesCliente(Obrigacao.Tipo.IRPF);
         obrigacao.setAno(null);
         try {
-            moverPastaClientesEValidar(obrigacao);
+            String cid = "cid-test";
+            moverPastaClientesEValidar(cid, obrigacao);
         } catch (IOException | ParametroIncorretoException | PathInvalidException e) {
             Assert.fail();
         } catch (ParametroNotFoundException ex){
@@ -28,7 +29,8 @@ public class ValidacaoObrigacaoTest extends ObrigacaoPreparedServiceTest {
     public void testarComMesNaoNecesario() {
         Obrigacao obrigacao = montarObrigacaoFakeAnoMesCliente(Obrigacao.Tipo.IRPF);
         try {
-            moverPastaClientesEValidar(obrigacao);
+            String cid = "cid-test";
+            moverPastaClientesEValidar(cid, obrigacao);
         } catch (IOException | ParametroNotFoundException | PathInvalidException e) {
             Assert.fail();
         } catch (ParametroIncorretoException ex){
@@ -41,7 +43,8 @@ public class ValidacaoObrigacaoTest extends ObrigacaoPreparedServiceTest {
         Obrigacao obrigacao = montarObrigacaoFakeAnoMesCliente(Obrigacao.Tipo.PROLINKDIGITAL);
         obrigacao.setDirForJob("c:/Temp/asdfjalsdj");
         try {
-            moverPastaClientesEValidar(obrigacao);
+            String cid = "cid-test";
+            moverPastaClientesEValidar(cid, obrigacao);
         } catch (IOException | ParametroNotFoundException | ParametroIncorretoException e) {
             Assert.fail();
         } catch (PathInvalidException ex) {

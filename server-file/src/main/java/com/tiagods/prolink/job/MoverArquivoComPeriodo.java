@@ -20,7 +20,8 @@ public class MoverArquivoComPeriodo {
     public static void main(String[] args) {
         String[] m = new String[]{"01","02","03","04","05","06","07","08","09","10","11","12"};
         meses.addAll(Arrays.asList(m));
-        new MoverArquivoComPeriodo().iniciar();
+        String cid = UUID.randomUUID().toString();
+        new MoverArquivoComPeriodo().iniciar(cid);
 
         ObrigacaoV1 o = new ObrigacaoV1("Obrigacao/Documento");
         List<ObrigacaoV1> obrigacaoSet = new ArrayList<>();
@@ -58,8 +59,7 @@ public class MoverArquivoComPeriodo {
         obrigacaoSet.add(new ObrigacaoV1("DECLAN-IPM"));
 
     }
-    private void iniciar(){
-
+    private void iniciar(String cid) {
         String ano = "2019";
         Path path = Paths.get("\\\\PLKSERVER\\Obrigacoes\\contabil\\Contabil\\SPED ICMS IPI",ano);
         try {
@@ -70,10 +70,10 @@ public class MoverArquivoComPeriodo {
                     Path estrutura = Paths.get("Obrigacoes", "SPED ICMS IPI", ano);
                     Path novaEstrutura = estrutura.resolve(p.getFileName());
                     clientIOService.verificarEstruturaNoModelo(novaEstrutura);
-                    processar(novaEstrutura,Files.list(p).iterator(), OrdemBusca.CNPJ,null,1);
-                    processar(novaEstrutura,Files.list(p).iterator(), OrdemBusca.ID, null, 1);
-                    processar(novaEstrutura,Files.list(p).iterator(), OrdemBusca.CNPJ,"-",1);
-                    processar(novaEstrutura,Files.list(p).iterator(), OrdemBusca.ID, "_", 1);
+                    processar(cid, novaEstrutura,Files.list(p).iterator(), OrdemBusca.CNPJ,null,1);
+                    processar(cid, novaEstrutura,Files.list(p).iterator(), OrdemBusca.ID, null, 1);
+                    processar(cid, novaEstrutura,Files.list(p).iterator(), OrdemBusca.CNPJ,"-",1);
+                    processar(cid, novaEstrutura,Files.list(p).iterator(), OrdemBusca.ID, "_", 1);
 
                 }
                 else System.out.println("Ignorando "+ p);
@@ -88,14 +88,14 @@ public class MoverArquivoComPeriodo {
         }
     }
 
-    private void processar(Path estrutura, Iterator<Path> files, OrdemBusca ordemBusca,String regex,int index) throws IOException{
+    private void processar(String cid, Path estrutura, Iterator<Path> files, OrdemBusca ordemBusca,String regex,int index) throws IOException{
         while (files.hasNext()) {
             Path arquivo  = files.next();
             if(Files.isDirectory(arquivo)){
-                processar(estrutura,Files.list(arquivo).iterator(), ordemBusca,regex,index);
+                processar(cid, estrutura,Files.list(arquivo).iterator(), ordemBusca,regex,index);
             }
             else {
-                Path pathCli =buscarIdOrCnpj(arquivo,clienteSet,ordemBusca,regex,index);
+                Path pathCli = buscarIdOrCnpj(cid, arquivo,clienteSet,ordemBusca,regex,index);
                 if(pathCli != null) mover(estrutura,arquivo,pathCli);
 //                if(ordemBusca.equals(OrdemBusca.CNPJ)) {
 //                    Path pathCli = buscarPorCnpj(arquivo, clienteSet, Ordem.INICIO);
@@ -149,7 +149,7 @@ public class MoverArquivoComPeriodo {
         fw.flush();
         fw.close();
     }
-    private Path buscarIdOrCnpj(Path arquivo, Set<Cliente> clientes, OrdemBusca order, String regex, int index){
+    private Path buscarIdOrCnpj(String cid, Path arquivo, Set<Cliente> clientes, OrdemBusca order, String regex, int index){
         int size = order.equals(OrdemBusca.CNPJ)?14:4;//se cnpj = 14 ou se id =4
         String valor = "";
         if (arquivo.getFileName().toString().trim().length() < size) return null;
@@ -183,24 +183,24 @@ public class MoverArquivoComPeriodo {
         final String result = valor;
         if(order.equals(OrdemBusca.ID)) {
             Optional<Cliente> cliente = clientes.stream().filter(c -> c.getIdFormatado().equals(result)).findAny();
-            return cliente.isPresent() ? clientIOService.buscarPastaDoClienteECriarSeNaoExistir(cliente.get()) : null;
+            return cliente.isPresent() ? clientIOService.buscarPastaDoClienteECriarSeNaoExistir(cid, cliente.get()) : null;
         }
         else if(order.equals((OrdemBusca.CNPJ))){
             Optional<Cliente> cliente = clientes.stream().filter(c -> c.isCnpjValido() && c.getCnpjFormatado().equals(result)).findAny();
-            return cliente.isPresent() ? clientIOService.buscarPastaDoClienteECriarSeNaoExistir(cliente.get()) : null;
+            return cliente.isPresent() ? clientIOService.buscarPastaDoClienteECriarSeNaoExistir(cid, cliente.get()) : null;
         }
         return null;
     }
-    private Path buscarPorCnpj(Path arquivo, Set<Cliente> clienteSet, OrdemV1 ordemV1){
+    private Path buscarPorCnpj(String cid, Path arquivo, Set<Cliente> clienteSet, OrdemV1 ordemV1){
         if(arquivo.getFileName().toString().trim().length()<14) return null;
         if(ordemV1.equals(OrdemV1.INICIO)) {
             String cnpj = arquivo.getFileName().toString().substring(0,14);
             Optional<Cliente> cliente = clienteSet.stream().filter(c -> c.isCnpjValido() && c.getCnpjFormatado().equals(cnpj)).findAny();
-            return cliente.isPresent()? clientIOService.buscarPastaDoClienteECriarSeNaoExistir(cliente.get()) : null;
+            return cliente.isPresent()? clientIOService.buscarPastaDoClienteECriarSeNaoExistir(cid, cliente.get()) : null;
         }
         else return null;
     }
-    private Path buscarPorId(Path arquivo, Set<Cliente> clienteSet,String regex,int index){
+    private Path buscarPorId(String cid, Path arquivo, Set<Cliente> clienteSet,String regex,int index){
         if(arquivo.getFileName().toString().trim().length()<4) return null;
 
         if(regex==null){
@@ -211,7 +211,7 @@ public class MoverArquivoComPeriodo {
             }
             String valor =  arquivo.getFileName().toString().substring(0,4);
             Optional<Cliente> cliente = clienteSet.stream().filter(c -> c.getIdFormatado().equals(valor)).findAny();
-            return cliente.isPresent() ? clientIOService.buscarPastaDoClienteECriarSeNaoExistir(cliente.get()) : null;
+            return cliente.isPresent() ? clientIOService.buscarPastaDoClienteECriarSeNaoExistir(cid, cliente.get()) : null;
         }
         else{
             String nome = arquivo.getFileName().toString();
@@ -227,7 +227,7 @@ public class MoverArquivoComPeriodo {
                     //nao fazer nada
                 }
                 Optional<Cliente> cliente = clienteSet.stream().filter(c -> c.getIdFormatado().equals(array[index])).findAny();
-                return cliente.isPresent() ? clientIOService.buscarPastaDoClienteECriarSeNaoExistir(cliente.get()) : null;
+                return cliente.isPresent() ? clientIOService.buscarPastaDoClienteECriarSeNaoExistir(cid, cliente.get()) : null;
             }
             else return null;
         }

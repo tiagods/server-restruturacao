@@ -41,19 +41,29 @@ public class ClienteService {
 
     private Set<Path> foldersConcurrentJobs = Collections.synchronizedSet(new LinkedHashSet<>());
 
-    private void iniciarlizarSeVazio(){
-        if(clientSet.isEmpty() || cliMap.isEmpty()) inicializarPathClientes(null, false, false);
+    private void iniciarlizarSeVazio(String cid){
+        if(clientSet.isEmpty() || cliMap.isEmpty()) inicializarPathClientes(cid, null, false, false);
     }
 
-    void destroyAll() {
+    void destroyAll(String cid) {
+        log.info("Correlation:[{}] Limpando listas", cid);
         clientSet.clear();
         clientDTOList.clear();
         cliMap.clear();
         foldersConcurrentJobs.clear();
     }
 
-    public synchronized void inicializarPathClientes(ClienteDTO cliente, boolean organizar, boolean forcarCriacao) throws EstruturaNotFoundException {
-        destroyAll();
+    public synchronized void inicializarPathClientes(String cid, ClienteDTO cliente, boolean organizar, boolean forcarCriacao) throws EstruturaNotFoundException {
+        destroyAll(cid);
+
+        Map<String, Object> parametros = new HashMap<>(){{
+            put("cliente", cliente!=null?cliente.getId():null);
+            put("organizar",organizar);
+            put("forcarCriacao", forcarCriacao);
+        }};
+
+        log.info("Correlation:[{}] Inicializando mapeamento de clientes. Parametros : {}", cid, parametros);
+
         //carregar e converter lista de clientes
         if(cliente!=null) {
             clientDTOList.add(cliente);
@@ -65,39 +75,49 @@ public class ClienteService {
                     new Cliente(c.getApelido(), c.getNome(), c.getStatus(), c.getCnpj())
             );
         });
+        log.info("Correlation:[{}] Inicializando mapeamento de clientes. Parametros : {}", cid, parametros);
+
         log.info("Iniciando mapeamento de clientes");
-        Set<Path> set = buscarClientesPath();
+        Set<Path> set = listarPastasNaBase(cid);
 
         synchronized (cliMap) {
             clientSet.forEach(c -> {
-                mapClient(c, set, organizar, forcarCriacao);
+                mapearClientePastas(cid, c, set, organizar, forcarCriacao);
             });
         }
-        log.info("Concluido mapeamento: "+cliMap.values().size()+" pastas de clientes mapeadas");
+        log.info("Correlation: {}. Concluido mapeamento: de pastas de clientes", cid);
     }
 
     //listar todos os clientes ativos, inativos e suas pastas
-    private synchronized Set<Path> buscarClientesPath() throws EstruturaNotFoundException {
-        verficarDiretoriosBaseECriar();
+    private synchronized Set<Path> listarPastasNaBase(String cid) throws EstruturaNotFoundException {
+        verficarDiretoriosBaseECriar(cid);
         try {
             //listando todos os arquivos e corrigir nomes se necessarios
             Set<Path> actives = IOUtils.filtrarPorDiretorioERegex(base, regex.getInitById());
+            log.info("Correlation:[{}] Listando diretorios na pasta ativos. Listagem: {}", cid, actives.size());
             Set<Path> shutdowns = IOUtils.filtrarPorDiretorioERegex(shutdown, regex.getInitById());
+            log.info("Correlation:[{}] Listando diretorios na pasta inativos. Listagem: {}", cid, shutdowns.size());
             Set<Path> files = new HashSet<>();
             files.addAll(actives);
             files.addAll(shutdowns);
+            log.info("Correlation:[{}]. Total de pastas: {}", cid, files.size());
             return files;
         } catch (IOException e) {
-            throw new EstruturaNotFoundException("Nao foi possivel listar os arquivos dos clientes", e.getCause());
+            log.error("Correlation:[{}]. Não foi possivel listas pastas dos clientes. ex=({})", cid, e.getMessage());
+            throw new EstruturaNotFoundException("Nao foi possivel listar as pastas dos clientes", e.getCause());
         }
     }
 
     //mapeamento de pastas
-    private void mapClient(Cliente c, Set<Path> files, boolean organizar, boolean forcarCreate) {
+    private void mapearClientePastas(String cid, Cliente c, Set<Path> files, boolean organizar, boolean forcarCreate) {
         Optional<Path> file = IOUtils.buscarPastaPorId(c, files);
+
+        log.info("Correlation:[{}]. Buscando pasta para o cliente: {}, pasta encontrada=({})", cid, c.getIdFormatado(), file);
+
         Optional<ClienteDTO> opt = clientDTOList.stream().filter(f-> f.getApelido().equals(c.getId())).findFirst();
         //verificar se ja foi criado
-        boolean isCreated = opt.map(ClienteDTO::isFolderCreate).orElse(true);
+        boolean isCriado = opt.map(ClienteDTO::isFolderCreate).orElse(true);
+        log.info("Correlation:[{}]. Pasta do cliente: {} ja foi criada? {}", cid, c.getIdFormatado(), isCriado);
 
         Pair<Cliente, Path> pair;
         Path destinoDesligada = shutdown.resolve(c.toString());
@@ -105,23 +125,32 @@ public class ClienteService {
 
         if (file.isPresent()) {
             //verificar nome do arquivo se esta de acordo com a norma
-            boolean correctName = file.get().getFileName().toString().equals(c.toString());
+            boolean nomeCorreto = file.get().getFileName().toString().equals(c.toString());
+            log.info("Correlation:[{}]. Pasta do cliente: {} Encontrada:({}): Esta com o nome correto? {}",
+                    cid, c.getIdFormatado(), file.get(), nomeCorreto);
+
             //caminho do diretorio
             if(organizar) {
                 if (c.getStatus().equalsIgnoreCase("Desligada"))
-                    pair = moverPastaCliente(c, file.get(), shutdown, correctName, destinoDesligada);
-                else pair = moverPastaCliente(c, file.get(), base, correctName, destinoAtiva);
+                    pair = moverPastaCliente(cid, c, file.get(), shutdown, nomeCorreto, destinoDesligada);
+                else pair = moverPastaCliente(cid, c, file.get(), base, nomeCorreto, destinoAtiva);
+
+                log.info("Correlation:[{}]. Pasta do cliente: {} foi renomeada de ({}) para ({})",
+                        cid, c.getIdFormatado(), file.get(), pair.getPath());
             }
             else pair = new Pair<>(c,file.get());
         }
+
         //criar pasta apenas em condicao de que deva ser criado, principalmente em novos clientes
-        else if (forcarCreate || !isCreated) {
+        else if (forcarCreate || !isCriado) {
             //criar pasta oficial caso não exista
             if (c.getStatus().equalsIgnoreCase("Desligada")) {
-                pair = montarEstruturaNoCliente(c,destinoDesligada);
+                pair = montarEstruturaNoCliente(cid, c,destinoDesligada);
             } else {
-                pair = montarEstruturaNoCliente(c, destinoAtiva);
+                pair = montarEstruturaNoCliente(cid, c, destinoAtiva);
             }
+            log.info("Correlation:[{}]. Pasta do cliente: {}. Pasta criada {}", cid, c.getIdFormatado(), pair.getPath());
+
             Optional<ClienteDTO> dtoOptional = clienteDAOService.findOne(c.getId());
             if(dtoOptional.isPresent()){
                 ClienteDTO cli = dtoOptional.get();
@@ -134,9 +163,9 @@ public class ClienteService {
     }
 
     //criar estrutura no cliente com base nos parametros passados
-    private Pair<Cliente, Path> montarEstruturaNoCliente(Cliente c, Path path){
+    private Pair<Cliente, Path> montarEstruturaNoCliente(String cid, Cliente c, Path path){
         Pair<Cliente, Path> pair = IOUtils.criarDiretorioCliente(c, path);
-        log.info("Criado pasta: "+path.toString());
+        log.info("Correlation:[{}]. Cliente:{}. Criado pasta: {}", cid, c.getIdFormatado(), path);
         if(Files.exists(path)) {
             // usado para criar uma estrutura basica
             // de um novo cliente com pastas basicas como GERAL, FISCAL, CONTABIL
@@ -146,23 +175,24 @@ public class ClienteService {
                     Path p = path.resolve(pathDTO.getValue());
                     IOUtils.criarDiretorios(p);
                 }catch (IOException e){
-                    log.error("Falha ao criar estrutura basica "+e.getMessage());
+                    log.error("Correlation:[{}]. Cliente: ({}). Falha ao criar estrutura basica {}, ex=({})", cid, c.getIdFormatado(), pathDTO.getValue(), e.getMessage());
                 }
             }
         }
         return pair;
     }
 
-    private Pair<Cliente, Path> moverPastaCliente(Cliente c, Path file, Path base, boolean nomeCorreto, Path destino){
+    private Pair<Cliente, Path> moverPastaCliente(String cid, Cliente c, Path file, Path base,
+                                                  boolean nomeCorreto, Path destino){
         boolean localCorreto = file.getParent().equals(base);
         if (!localCorreto || !nomeCorreto) {
-            log.info("Movendo cliente: [" + c.getIdFormatado() + "] de: [" + file.toString() + "] para: [" + destino.toString()+"]");
+            log.info("Correlation:[{}]. Movendo cliente:{}. Criado pasta: {} de ({}) para ({})", cid, c.getIdFormatado(), file.toString(), destino.toString());
             return ioService.mover(c, file, destino);
         } else return new Pair<>(c, destino);
     }
 
-    public Path buscarPastaDoClienteECriarSeNaoExistir(Cliente c) {
-        iniciarlizarSeVazio();
+    public Path buscarPastaDoClienteECriarSeNaoExistir(String cid, Cliente c) {
+        iniciarlizarSeVazio(cid);
         Optional<Path> result = Optional.ofNullable(cliMap.get(c));
         if(result.isPresent()) return result.get();
         else {
@@ -172,19 +202,23 @@ public class ClienteService {
                 cliMap.put(c, result2.get().getPath());
                 return result2.get().getPath();
             }
-            else
+            else {
+                log.error("Correlation:[{}]. Falha ao criar o diretorio {}", cid, p.toString());
                 throw new EstruturaNotFoundException("Não foi possivel criar o diretorio: " + p.toString());
+            }
         }
     }
 
-    public Path buscarPastaBaseCliente(Cliente c) {
-        iniciarlizarSeVazio();
+    public Path buscarPastaBaseCliente(String cid, Cliente c) {
+        iniciarlizarSeVazio(cid);
         return cliMap.get(c);
     }
 
-    public Path buscarPastaBaseClientePorId(Long id) {
-        Optional<Path> optional = buscarClienteEmMapPorId(id)
-                .map(this::buscarPastaBaseCliente);
+    public Path buscarPastaBaseClientePorId(String cid, Long id) {
+        log.info("Correlation:[{}] buscando pasta base do apelido {}", cid, id);
+        Optional<Path> optional = buscarClienteEmMapPorId(cid, id)
+                .map(c-> buscarPastaBaseCliente(cid, c));
+
         return optional.orElse(null);
     }
 
@@ -197,13 +231,16 @@ public class ClienteService {
         return list;
     }
 
-    public Optional<Cliente> buscarClienteEmMapPorId(long id){
-        iniciarlizarSeVazio();
-        return cliMap
+    public Optional<Cliente> buscarClienteEmMapPorId(String cid, long id){
+        iniciarlizarSeVazio(cid);
+
+        Optional<Cliente> result = cliMap
                 .keySet()
                 .stream()
                 .filter(c -> c.getId().equals(id))
                 .findFirst();
+        log.info("Correlation:[{}] Encontrado cliente com o apelido {} ? {}", cid, id, result.isPresent());
+        return result;
     }
 
     //verificar e criar estrutura de modelo
@@ -212,20 +249,23 @@ public class ClienteService {
         IOUtils.criarDiretorios(path);
     }
 
-    public void verficarDiretoriosBaseECriar() {
+    public void verficarDiretoriosBaseECriar(String cid) {
+        log.info("Correlation:[{}] Iniciando verificação de diretorios base", cid);
+
         base = Paths.get(serverFile.getBase());
         shutdown = Paths.get(serverFile.getShutdown());
         model = Paths.get(serverFile.getModel());
-        log.info("Verificando se pastas padroes se existem");
         try {
-            if (!IOUtils.verificarSeExiste(base))
+            if (!IOUtils.verificarSeExiste(base)) {
+                log.error("Correlation:[{}] Pasta {} não existe", cid, base);
                 throw new EstruturaNotFoundException("Base de arquivos não existe");
+            }
             IOUtils.criarDiretorio(shutdown);
             IOUtils.criarDiretorio(model);
-            log.info("Concluindo verificação");
+            log.info("Correlation:[{}] Concluindo verificação de pastas base", cid);
         } catch (IOException e) {
-            log.error("Falha ao verificar/criar diretorios");
-            throw new EstruturaNotFoundException("Pasta's importantes não fora encontradas: "
+            log.error("Correlation:[{}] Falha ao criar pastas ex=({})", cid, e.getMessage());
+            throw new EstruturaNotFoundException("Pasta's importantes não foram encontradas: "
                     + e.getMessage(), e.getCause());
         }
     }

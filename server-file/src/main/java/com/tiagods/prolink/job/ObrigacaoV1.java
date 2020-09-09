@@ -3,7 +3,7 @@ package com.tiagods.prolink.job;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class ObrigacaoV1 implements Serializable{
+public class ObrigacaoV1 implements Serializable {
         private String nome;
 
         public ObrigacaoV1(String nome) {

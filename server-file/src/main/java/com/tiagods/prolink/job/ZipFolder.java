@@ -25,6 +25,7 @@ public class ZipFolder {
         zip.flush();
         zip.close();
     }
+
     private void addFileToZip(String path, String srcFile, ZipOutputStream zip)
             throws IOException {
         File folder = new File(srcFile);
@@ -40,6 +41,7 @@ public class ZipFolder {
             }
         }
     }
+
     private void addFolderToZip(String path, String srcFolder, ZipOutputStream zip)
             throws IOException {
         File folder = new File(srcFolder);

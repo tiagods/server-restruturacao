@@ -5,18 +5,23 @@ import com.tiagods.prolink.exception.ClienteNotFoundException;
 import com.tiagods.prolink.exception.EstruturaNotFoundException;
 import com.tiagods.prolink.service.ClienteDAOService;
 import com.tiagods.prolink.service.ClienteService;
+import com.tiagods.prolink.utils.ContextHeaders;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/clientes")
+@Slf4j
 public class ClienteController {
 
     @Autowired private ClienteService clienteService;
@@ -24,17 +29,26 @@ public class ClienteController {
 
     @GetMapping("/{apelido}/path")
     //@ApiResponse(code = 404 , message = "A pasta do cliente solicitado nao existe" )
-    public ResponseEntity<?> getDir(@PathVariable Long apelido){
-        Optional<Path> optional = Optional.ofNullable(clienteService.buscarPastaBaseClientePorId(apelido));
-        if(optional.isPresent()) return ResponseEntity.ok().body(optional.get().toString());
-        else throw new EstruturaNotFoundException("A pasta do cliente solicitado não existe");
+    public ResponseEntity<?> getDir(@RequestHeader MultiValueMap<String, String> headers, @PathVariable @Valid Long apelido){
+        String cid = ContextHeaders.getCid(headers);
+        log.info("Correlation=[{}] GET api/clientes/{}/path", cid, apelido);
+        Optional<Path> optional = Optional.ofNullable(clienteService.buscarPastaBaseClientePorId(cid, apelido));
+        if(optional.isPresent()) {
+            return ResponseEntity.ok().body(optional.get().toString());
+        }
+        else {
+            throw new EstruturaNotFoundException("A pasta do cliente solicitado não existe");
+        }
     }
     @GetMapping("/{apelido}/organizar")
-    public ResponseEntity<?> organizeFoldersClients(@PathVariable Long apelido) throws ClienteNotFoundException, IOException {
+    public ResponseEntity<?> organizeFoldersClients(@RequestHeader MultiValueMap<String, String> headers, @PathVariable @Valid Long apelido) throws ClienteNotFoundException, IOException {
+        String cid = ContextHeaders.getCid(headers);
+        log.info("Correlation=[{}] GET api/clientes/{}/organizar", cid, apelido);
+
         Optional<ClienteDTO> result = daoService.findOne(apelido);
         if (result.isPresent()) {
-            clienteService.inicializarPathClientes(result.get(), false, true);
-            Optional<Path> optional = Optional.ofNullable(clienteService.buscarPastaBaseClientePorId(apelido));
+            clienteService.inicializarPathClientes(cid, result.get(), false, true);
+            Optional<Path> optional = Optional.ofNullable(clienteService.buscarPastaBaseClientePorId(cid, apelido));
             if(optional.isPresent()){
                 return ResponseEntity.ok().body(
                         clienteService.listarDiretorios(optional.get())

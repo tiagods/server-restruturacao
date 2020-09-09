@@ -108,7 +108,7 @@ public class ObrigacaoPreparedServiceTest extends BaseMongoIT {
     }
 
     @MongoDataSet(value = "/dataset/clientes.json")
-    public void moverPastaClientesEValidar(Obrigacao obrigacao) throws IOException, ParametroNotFoundException, PathInvalidException, ParametroIncorretoException {
+    public void moverPastaClientesEValidar(String cid, Obrigacao obrigacao) throws IOException, ParametroNotFoundException, PathInvalidException, ParametroIncorretoException {
         arquivoRepository.deleteAll();
         erroRepository.deleteAll();
         Path job = Paths.get(obrigacao.getDirForJob());
@@ -119,14 +119,14 @@ public class ObrigacaoPreparedServiceTest extends BaseMongoIT {
 
         Files.createDirectory(base);
 
-        ObrigacaoContrato contrato = obrigacaoService.validarObrigacao(obrigacao);
+        ObrigacaoContrato contrato = obrigacaoService.validarObrigacao(cid, obrigacao);
         montarPastas(job, contrato, obrigacao);
-        obrigacaoService.iniciarMovimentacaoPorObrigacao(contrato, obrigacao);
-        validarResultado(obrigacao, contrato);
+        obrigacaoService.iniciarMovimentacaoPorObrigacao(cid, contrato, obrigacao);
+        validarResultado(cid, obrigacao, contrato);
         obrigacoesMapeadas.clear();
     }
 
-    private void validarResultado(Obrigacao obrigacao, ObrigacaoContrato contrato) {
+    private void validarResultado(String cid, Obrigacao obrigacao, ObrigacaoContrato contrato) {
         obrigacoesMapeadas.forEach(ob-> {
             boolean anoExiste = obrigacao.getAno()!=null;
             boolean mesExiste = obrigacao.getMes()!=null;
@@ -140,23 +140,23 @@ public class ObrigacaoPreparedServiceTest extends BaseMongoIT {
 
             if(anoExiste && mesExiste && clienteExiste) { //apenas um cliente de ano e mes definido
                 boolean deveSerVazio = ob.getAno().getValue() == obrigacao.getAno().getValue() && ob.getMes() == obrigacao.getMes() && ob.getCliente() == obrigacao.getCliente();
-                validacao(ob, deveSerVazio, estrutura);
+                validacao(cid, ob, deveSerVazio, estrutura);
             }
             else if(anoExiste && mesExiste) { //processar todos os clientes do ano e mes selecionado
                 boolean deveSerVazio = ob.getAno().getValue() == obrigacao.getAno().getValue() && ob.getMes() == obrigacao.getMes();
-                validacao(ob, deveSerVazio, estrutura);
+                validacao(cid, ob, deveSerVazio, estrutura);
             }
             else if(anoExiste) { // todos clientes do ano selecionado
                 boolean deveSerVazio = ob.getAno().getValue() == obrigacao.getAno().getValue();
-                validacao(ob, deveSerVazio, estrutura);
+                validacao(cid, ob, deveSerVazio, estrutura);
             }
         });
     }
-    void validacao(Obrigacao ob, boolean deveSerVazio, Path estrutura){
+    void validacao(String cid, Obrigacao ob, boolean deveSerVazio, Path estrutura){
         log.info("Pasta Origem: deve ser vazia:"+deveSerVazio);
         boolean origemVazio = seVazio(Paths.get(ob.getDirForJob()));//pasta do cliente origem
         log.info("Pasta Origem: esta vazia:"+origemVazio);
-        boolean clienteVazio = pastaClienteVazio(ob, estrutura);
+        boolean clienteVazio = pastaClienteVazio(cid, ob, estrutura);
         log.info("Pasta do cliente: esta vazia:"+clienteVazio);
 
         if(deveSerVazio != origemVazio || origemVazio == clienteVazio){
@@ -165,8 +165,8 @@ public class ObrigacaoPreparedServiceTest extends BaseMongoIT {
     }
 
     //Vai entrar na pasta de cada cliente destino, pasta da obrigação e validar se deve ficar vazio ou nao
-    boolean pastaClienteVazio(Obrigacao obrigacao, Path estrutura) {
-        final Path path = clienteService.buscarPastaBaseClientePorId(obrigacao.getCliente());
+    boolean pastaClienteVazio(String cid, Obrigacao obrigacao, Path estrutura) {
+        final Path path = clienteService.buscarPastaBaseClientePorId(cid, obrigacao.getCliente());
         log.info("Buscando cliente na base=["+path+"]");
         if(path==null) return true;
         Path pastaObrigacaoCliente = path.resolve(estrutura);

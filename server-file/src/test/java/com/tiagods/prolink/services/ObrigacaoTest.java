@@ -15,7 +15,8 @@ public class ObrigacaoTest extends ObrigacaoPreparedServiceTest {
     public void testarProlinkDigitalAnoMesCliente() {
         Obrigacao obrigacao = montarObrigacaoFakeAnoMesCliente(Obrigacao.Tipo.PROLINKDIGITAL);
         try {
-            moverPastaClientesEValidar(obrigacao);
+            String cid = "cid-test";
+            moverPastaClientesEValidar(cid, obrigacao);
         } catch (IOException | ParametroNotFoundException | PathInvalidException | ParametroIncorretoException e) {
             Assert.fail();
         }
@@ -26,7 +27,8 @@ public class ObrigacaoTest extends ObrigacaoPreparedServiceTest {
         Obrigacao obrigacao = montarObrigacaoFakeAnoMesCliente(Obrigacao.Tipo.PROLINKDIGITAL);
         obrigacao.setCliente(null);
         try {
-            moverPastaClientesEValidar(obrigacao);
+            String cid = "cid-test";
+            moverPastaClientesEValidar(cid, obrigacao);
         } catch (IOException | ParametroNotFoundException | PathInvalidException | ParametroIncorretoException e) {
             Assert.fail();
         }
@@ -38,7 +40,8 @@ public class ObrigacaoTest extends ObrigacaoPreparedServiceTest {
         obrigacao.setCliente(null);
         obrigacao.setMes(null);
         try {
-            moverPastaClientesEValidar(obrigacao);
+            String cid = "cid-test";
+            moverPastaClientesEValidar(cid, obrigacao);
         } catch (IOException | ParametroNotFoundException | PathInvalidException | ParametroIncorretoException e) {
             Assert.fail();
         }

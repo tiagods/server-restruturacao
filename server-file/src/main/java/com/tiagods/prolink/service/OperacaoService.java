@@ -24,7 +24,7 @@ public class OperacaoService {
     @Autowired private ClienteService clienteService;
     @Autowired private IOService ioService;
 
-    public void moverPasta(Path pastaBaseScannear, Path estrutura, String nickName, boolean travarEstrutura) {
+    public void moverPasta(String cid, Path pastaBaseScannear, Path estrutura, String nickName, boolean travarEstrutura) {
         try {
             log.info("Iniciando movimentação de arquivos=[" +pastaBaseScannear+"]");
             log.info("Apelido selecionado=[" +pastaBaseScannear+"]");
@@ -44,7 +44,7 @@ public class OperacaoService {
             Map<Path, Cliente> mapPath = new HashMap<>();
             mapClientes.keySet().forEach(c->{
                 Long l = Long.parseLong(mapClientes.get(c));
-                clienteService.buscarClienteEmMapPorId(l)
+                clienteService.buscarClienteEmMapPorId(cid, l)
                         .ifPresent(r->mapPath.put(c,r));
             });
             //vai mover apenas os arquivos de dentro das pastas, as pastas irao continuar
@@ -57,7 +57,7 @@ public class OperacaoService {
                     Cliente cli = mapPath.get(p);
                     clienteService.addFolderToJob(p);
                     log.info(estrutura.toString() + " - Processando Item=["+i+"]de["+total+"] Cliente=[" + cli.getIdFormatado()+"]");
-                    Path basePath = clienteService.buscarPastaDoClienteECriarSeNaoExistir(cli);
+                    Path basePath = clienteService.buscarPastaDoClienteECriarSeNaoExistir(cid, cli);
                     if (basePath != null) {
                         try {
                             processarPorPasta(cli, true, basePath, Files.list(p).iterator(), estrutura, travarEstrutura);

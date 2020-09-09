@@ -9,7 +9,7 @@ public class UtilsValidatorTest {
     public void testCnpj() {
         String cnpj = "01.000.394/0001-91";
         Assert.assertTrue(UtilsValidator.validarCnpj(cnpj));
-        Assert.assertFalse(UtilsValidator.validarCnpj(cnpj+" "));
+        Assert.assertFalse(UtilsValidator.validarCnpj(cnpj+"1"));
     }
 
     @Test
