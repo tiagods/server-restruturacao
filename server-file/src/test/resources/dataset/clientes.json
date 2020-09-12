@@ -33,7 +33,7 @@
 "nome": "EMPRESA TESTE 2 ME",
 "status": "BRONZE",
 "cnpj": "01.123.100/0001-01",
-"folderCreate": true,
+"folderCreate": false,
 "data": "2020-04-12T11:04:23.694Z"
 }
 ]

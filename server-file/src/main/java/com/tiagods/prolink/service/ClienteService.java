@@ -71,7 +71,9 @@ public class ClienteService {
         } else {
             clientDTOList = clienteDAOService.list();
         }
+        log.info("Correlation: [{}]. Carregando lista de clientes: ({})", cid, clientDTOList.size());
         clientDTOList.forEach(c -> {
+            log.warn("Lendo cliente "+c.getApelido());
             clientSet.add(
                     new Cliente(c.getApelido(), c.getNome(), c.getStatus(), c.getCnpj())
             );

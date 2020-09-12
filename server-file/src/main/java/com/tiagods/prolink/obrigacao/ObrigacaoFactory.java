@@ -26,6 +26,10 @@ public abstract class ObrigacaoFactory {
             return new ObrigacaoContratoImpl(obrigacao, Map.of(Periodo.ANO, IGUAL),
                     Pair.of("", ""), Pair.of("",""), year, month);
         }
+        else if(tipo.equals(Obrigacao.Tipo.DIRF)){
+            return new ObrigacaoContratoImpl(obrigacao, Map.of(Periodo.ANO, IGUAL, Periodo.MES, IGUAL),
+                    Pair.of("", ""), Pair.of("",""), year, month);
+        }
         throw new ObrigacaoNotFoundException("Recurso nao implementado para esse tipo de obrigação");
     }
 }

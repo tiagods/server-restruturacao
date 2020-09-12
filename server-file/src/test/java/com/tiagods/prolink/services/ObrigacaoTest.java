@@ -30,6 +30,7 @@ public class ObrigacaoTest extends ObrigacaoPreparedServiceTest {
             String cid = "cid-test";
             moverPastaClientesEValidar(cid, obrigacao);
         } catch (IOException | ParametroNotFoundException | PathInvalidException | ParametroIncorretoException e) {
+            e.printStackTrace();
             Assert.fail();
         }
     }
@@ -37,6 +38,43 @@ public class ObrigacaoTest extends ObrigacaoPreparedServiceTest {
     @Test
     public void testarProlinkDigitalAno() {
         Obrigacao obrigacao = montarObrigacaoFakeAnoMesCliente(Obrigacao.Tipo.PROLINKDIGITAL);
+        obrigacao.setCliente(null);
+        obrigacao.setMes(null);
+        try {
+            String cid = "cid-test";
+            moverPastaClientesEValidar(cid, obrigacao);
+        } catch (IOException | ParametroNotFoundException | PathInvalidException | ParametroIncorretoException e) {
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void testarDirfAnoMesCliente() {
+        Obrigacao obrigacao = montarObrigacaoFakeAnoMesCliente(Obrigacao.Tipo.DIRF);
+        try {
+            String cid = "cid-test";
+            moverPastaClientesEValidar(cid, obrigacao);
+        } catch (IOException | ParametroNotFoundException | PathInvalidException | ParametroIncorretoException e) {
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void testarDirfAnoMes() {
+        Obrigacao obrigacao = montarObrigacaoFakeAnoMesCliente(Obrigacao.Tipo.DIRF);
+        obrigacao.setCliente(null);
+        try {
+            String cid = "cid-test";
+            moverPastaClientesEValidar(cid, obrigacao);
+        } catch (IOException | ParametroNotFoundException | PathInvalidException | ParametroIncorretoException e) {
+            e.printStackTrace();
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void testarDirfAno() {
+        Obrigacao obrigacao = montarObrigacaoFakeAnoMesCliente(Obrigacao.Tipo.DIRF);
         obrigacao.setCliente(null);
         obrigacao.setMes(null);
         try {
