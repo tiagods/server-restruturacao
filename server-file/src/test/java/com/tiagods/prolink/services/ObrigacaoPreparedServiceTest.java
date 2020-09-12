@@ -5,10 +5,9 @@ import com.jupiter.tools.spring.test.mongo.annotation.MongoDataSet;
 import com.jupiter.tools.spring.test.mongo.junit4.BaseMongoIT;
 import com.tiagods.prolink.config.ServerFile;
 import com.tiagods.prolink.dto.ClienteDTO;
-import com.tiagods.prolink.exception.ParametroIncorretoException;
-import com.tiagods.prolink.exception.ParametroNotFoundException;
-import com.tiagods.prolink.exception.PathInvalidException;
+import com.tiagods.prolink.exception.*;
 import com.tiagods.prolink.model.Obrigacao;
+import com.tiagods.prolink.model.TipoArquivo;
 import com.tiagods.prolink.obrigacao.ObrigacaoContrato;
 import com.tiagods.prolink.obrigacao.Periodo;
 import com.tiagods.prolink.repository.ArquivoErroRepository;
@@ -18,6 +17,7 @@ import com.tiagods.prolink.dao.ClienteDAOService;
 import com.tiagods.prolink.service.ClienteService;
 import com.tiagods.prolink.service.ObrigacaoPreparedService;
 import com.tiagods.prolink.utils.DateUtils;
+import com.tiagods.prolink.utils.MyStringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
@@ -49,7 +49,7 @@ https://github.com/jupiter-tools/spring-test-mongo#introduction
 @Slf4j
 public class ObrigacaoPreparedServiceTest extends BaseMongoIT {
 
-    List<String> clientesJob = Arrays.asList("0009","0027","0105","2223");
+    final List<String> clientesJob = Arrays.asList("0009","0027","0105","2223");
 
     List<Obrigacao> obrigacoesMapeadas = new ArrayList<>();
 
@@ -92,25 +92,29 @@ public class ObrigacaoPreparedServiceTest extends BaseMongoIT {
         return criarObrigacao(tipo, Year.of(2018), Month.AUGUST, 105L, job.toString());
     }
 
-    Obrigacao montarObrigacaoFakeAnoMes(Obrigacao.Tipo tipo) {
-        Path job = Paths.get("c:/Temp", tipo.getDescricao());
-        return criarObrigacao(tipo, Year.of(2018), Month.AUGUST, null, job.toString());
-    }
-
-    Obrigacao montarObrigacaoFakeAno(Obrigacao.Tipo tipo) {
-        Path job = Paths.get("c:/Temp", tipo.getDescricao());
-        return criarObrigacao(tipo, Year.of(2018), null, null, job.toString());
-    }
-
-    Obrigacao montarObrigacaoFake(Obrigacao.Tipo tipo) {
-        Path job = Paths.get("c:/Temp", tipo.getDescricao());
-        return criarObrigacao(tipo, null, null, null, job.toString());
-    }
-
+    /*
+    Esse teste vai validar o processo de movimentação de arquivos,
+    depois que movimentar os arquivos, ele vai verificar se os arquivos foram movidos,
+    caso afirmativo ele fará um comparativo de pastas vazias na origem (obrigacao) e destino (cliente),
+    a condição é que a primeira esteja varia se atender os criterios do contrato (ano, mes, cliente)
+    caso contrario a pasta de de origem tera arquivos e a de destino estara vazia
+    a validação estabelece a validação da estrutura correta para onde foi encaminhado o arquivo
+    prevendo a correta movimentação dele para onde deveria estar, evitando validação de outras obrigações
+     */
     @MongoDataSet(value = "/dataset/clientes.json")
     public void moverPastaClientesEValidar(String cid, Obrigacao obrigacao) throws IOException, ParametroNotFoundException, PathInvalidException, ParametroIncorretoException {
         arquivoRepository.deleteAll();
         erroRepository.deleteAll();
+
+        if(clienteRepository.findAll().isEmpty()) {
+            clienteRepository.saveAll(lista);
+        }
+        if(clienteDAOService.list().size() > 0){
+            log.info("Total de clientes cadastrados: {}", clienteDAOService.list().size());
+        } else {
+            Assert.fail();
+        }
+
         Path job = Paths.get(obrigacao.getDirForJob());
         Path base = Paths.get(serverFile.getBase());
 
@@ -135,18 +139,22 @@ public class ObrigacaoPreparedServiceTest extends BaseMongoIT {
             log.info("Monitorando a pasta:"+ob.getDirForJob());
 
             Path estrutura = Paths.get(ob.getTipo().getEstrutura(),
-                    contrato.getPastaNome(Periodo.ANO, ob.getAno(), ob.getMes()),
-                    DateUtils.mesString(ob.getMes()));
+                    contrato.getPastaNome(Periodo.ANO, ob.getAno(), ob.getMes()));
+
+            if(ob.getMes()!=null){
+                estrutura = estrutura.resolve(DateUtils.mesString(ob.getMes()));
+            }
 
             if(anoExiste && mesExiste && clienteExiste) { //apenas um cliente de ano e mes definido
                 boolean deveSerVazio = ob.getAno().getValue() == obrigacao.getAno().getValue() && ob.getMes() == obrigacao.getMes() && ob.getCliente() == obrigacao.getCliente();
                 validacao(cid, ob, deveSerVazio, estrutura);
-            }
-            else if(anoExiste && mesExiste) { //processar todos os clientes do ano e mes selecionado
+            } else if(anoExiste && mesExiste) { //processar todos os clientes do ano e mes selecionado
                 boolean deveSerVazio = ob.getAno().getValue() == obrigacao.getAno().getValue() && ob.getMes() == obrigacao.getMes();
                 validacao(cid, ob, deveSerVazio, estrutura);
-            }
-            else if(anoExiste) { // todos clientes do ano selecionado
+            } else if(anoExiste && clienteExiste){
+                boolean deveSerVazio = ob.getAno().getValue() == obrigacao.getAno().getValue() && ob.getCliente() == obrigacao.getCliente();
+                validacao(cid, ob, deveSerVazio, estrutura);
+            } else if(anoExiste) { // todos clientes do ano selecionado
                 boolean deveSerVazio = ob.getAno().getValue() == obrigacao.getAno().getValue();
                 validacao(cid, ob, deveSerVazio, estrutura);
             }
@@ -154,13 +162,15 @@ public class ObrigacaoPreparedServiceTest extends BaseMongoIT {
     }
 
     void validacao(String cid, Obrigacao ob, boolean deveSerVazio, Path estrutura){
-        log.info("Pasta Origem: deve ser vazia:"+deveSerVazio);
-        boolean origemVazio = seVazio(Paths.get(ob.getDirForJob()));//pasta do cliente origem
-        log.info("Pasta Origem: esta vazia:"+origemVazio);
-        boolean clienteVazio = pastaClienteVazio(cid, ob, estrutura);
-        log.info("Pasta do cliente: esta vazia:"+clienteVazio);
+        boolean origemVazio = seVazio(Paths.get(ob.getDirForJob()), true, ob);//pasta do cliente origem, obrigacao
 
-        if(deveSerVazio != origemVazio || origemVazio == clienteVazio){
+        log.info("Pasta Origem:{} deve ser vazia? ({}) .Esta vazia? ({})", ob.getDirForJob(), deveSerVazio, origemVazio);
+        boolean clienteVazio = pastaClienteVazio(cid, ob, estrutura);
+        log.info("Pasta do cliente: esta vazia?{}. Deveria estar vazia? {}", clienteVazio, !deveSerVazio);
+
+        if(deveSerVazio != origemVazio || clienteVazio == deveSerVazio){
+            log.error("Pasta:[{}] Pasta origem vazia? {} . Deveria ser vazia? {}. Pasta do cliente vazia? {}. Deveria ser vazio: {}",
+                    ob.getDirForJob(), origemVazio, deveSerVazio, clienteVazio, !deveSerVazio);
             Assert.fail();
         }
     }
@@ -173,22 +183,22 @@ public class ObrigacaoPreparedServiceTest extends BaseMongoIT {
         Path pastaObrigacaoCliente = path.resolve(estrutura);
         if(Files.notExists(pastaObrigacaoCliente)) return true;
         log.info("Validando pasta do cliente=["+pastaObrigacaoCliente+"]");
-        return seVazio(pastaObrigacaoCliente);
+        return seVazio(pastaObrigacaoCliente, false, null);
     }
 
-    boolean validandoSeVazioOuNao(Path pasta, boolean deveSerVazio) {
-        boolean vazio = seVazio(pasta);
-        if(deveSerVazio == vazio) {
-            log.info(vazio? "Não " :""+"Existe arquivos na pasta=["+pasta.toString()+"]");
+    private boolean seVazio(Path path, boolean origem, Obrigacao obrigacao) {
+        if(origem && obrigacao.getTipo().getTipoArquivo().equals(TipoArquivo.ARQUIVO)){
+            try {
+                //verificar se existe arquivos do cliente
+                return Files.walk(path).filter(f -> !Files.isDirectory(f) &&
+                        f.getFileName().toString().startsWith(MyStringUtils.novoApelido(obrigacao.getCliente()))
+                ).count() == 0;
+            }catch (IOException ex){
+                ex.printStackTrace();
+                Assert.fail();
+            }
         }
-        else {
-            log.info("A pasta=["+pasta.toString()+"] "+(vazio?"": "Não ")+"deveria estar vazia");
-            Assert.fail();
-        }
-        return vazio;
-    }
 
-    private boolean seVazio(Path path) {
         File[] files = path.toFile().listFiles();
         log.info("Verificando arquivos da pasta=["+path.toString()+"] Quantidade=["+files.length+"]");
         return  files.length == 0;
@@ -236,26 +246,30 @@ public class ObrigacaoPreparedServiceTest extends BaseMongoIT {
         );
     }
 
-    private void criarArquivosTemporarios(Path path, Obrigacao obrigacao) {
+    private void criarArquivosTemporarios(Path pastaAnoOuMes, Obrigacao obrigacao) {
         clientesJob.forEach(cli -> {
-            Path cliPath = path.resolve(cli);
+            boolean tipoPasta = obrigacao.getTipo().getTipoArquivo().equals(TipoArquivo.PASTA);
+            Path pegarOrigem = tipoPasta ? pastaAnoOuMes.resolve(cli) : pastaAnoOuMes;
+            Path origem = pegarOrigem;//se for do tipo obrigacao/ano/mes/pastacliente/arquivos
             Obrigacao b = obrigacao;
-            b.setDirForJob(cliPath.toString());
+            b.setDirForJob(origem.toString());
             b.setCliente(Long.parseLong(cli));
 
-            if(obrigacoesMapeadas.stream()
-                    .filter(pre-> pre.getDirForJob().equalsIgnoreCase(cliPath.toString()))
+            if(tipoPasta && obrigacoesMapeadas.stream()
+                    .filter(pre-> pre.getDirForJob().equalsIgnoreCase(origem.toString()))
                     .findFirst().isEmpty()) {
+                obrigacoesMapeadas.add(obrigacao);
+            } else if(!tipoPasta){
                 obrigacoesMapeadas.add(obrigacao);
             }
 
             Stream.iterate(1, n -> n + 1)
                     .limit(1)
                     .forEach(fileName -> {
-
-                        Path pathFile = cliPath.resolve(fileName + ".txt");
+                        String arquivoNome ="fakename"+fileName+".txt";
+                        Path pathFile = origem.resolve(tipoPasta? arquivoNome : cli+ "-" +arquivoNome);
                         try {
-                            if (Files.notExists(cliPath)) Files.createDirectories(cliPath);
+                            if (Files.notExists(pathFile.getParent())) Files.createDirectories(pathFile.getParent());
                             FileUtils.write(pathFile.toFile(), "qualquer coisa", Charset.defaultCharset());
                         } catch (IOException e) {
                             e.printStackTrace();

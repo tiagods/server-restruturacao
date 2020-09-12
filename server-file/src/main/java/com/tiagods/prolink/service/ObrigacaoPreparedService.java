@@ -34,14 +34,13 @@ public class ObrigacaoPreparedService {
     public void iniciarMovimentacaoPorPasta(String cid, PathJob pathJob, String nickName) {
         Path job = Paths.get(pathJob.getDirForJob());
         Path estrutura = Paths.get(pathJob.getEstrutura());
-        clienteService.verficarDiretoriosBaseECriar(cid);
-        operacaoService.moverPasta(cid, job, estrutura, nickName, false);
+        clienteService.verificarDiretoriosBaseECriar(cid);
+        operacaoService.moverPasta(cid, nickName,  job, estrutura, false);
         log.info("Correlation: [{}]. Concluindo movimentacao {}", cid, job.toString());
     }
 
-    @Async
     public void iniciarMovimentacaoPorObrigacao(String cid, ObrigacaoContrato contrato, Obrigacao obrigacao) throws ParametroNotFoundException, PathInvalidException {
-        clienteService.verficarDiretoriosBaseECriar(cid);
+        clienteService.verificarDiretoriosBaseECriar(cid);
         Obrigacao.Tipo tipo = obrigacao.getTipo();
         Path job = Paths.get(obrigacao.getDirForJob());
         Month mesJob = obrigacao.getMes();
@@ -51,8 +50,8 @@ public class ObrigacaoPreparedService {
             String pastaAnoObrigatoria = anoJob == null ? null : contrato.getPastaNome(Periodo.ANO, anoJob, mesJob);
             String pastaMesObrigatoria = mesJob == null ? null : contrato.getPastaNome(Periodo.MES, anoJob, mesJob);
             String clienteApelido = obrigacao.getCliente()!=null ? MyStringUtils.novoApelido(obrigacao.getCliente()) : null;
-            log.info("Correlation: [{}]. Pasta ano informada? ", cid, pastaAnoObrigatoria);
-            log.info("Correlation: [{}]. Pasta mes informada? ", cid, pastaMesObrigatoria);
+            log.info("Correlation: [{}]. Pasta ano informada? {}", cid, pastaAnoObrigatoria);
+            log.info("Correlation: [{}]. Pasta mes informada? {}", cid, pastaMesObrigatoria);
 
             capturarPastasPeriodo(cid, job, Periodo.ANO, pastaAnoObrigatoria)
                     .forEach(folderAno -> {
@@ -75,7 +74,7 @@ public class ObrigacaoPreparedService {
                                                 log.info("Mes da pasta=[" + mes + "]");
                                                 Path novaEstrutura = estrutura.resolve(mes);
                                                 log.info("Estrutura pasta mes=[" + novaEstrutura + "]");
-                                                operacaoService.moverPasta(cid, folderMes, novaEstrutura, clienteApelido, true);
+                                                operacaoService.moverPastaOuArquivo(cid, folderMes, novaEstrutura, clienteApelido, true, tipo.getTipoArquivo());
                                             } catch (ParametroNotFoundException e) {
                                                 log.error(e.getMessage());
                                             } catch (ParametroIncorretoException e) {
@@ -84,7 +83,7 @@ public class ObrigacaoPreparedService {
                                         });
                             } else {
                                 //se no contrato não houver MES, ira mover sob um nivel acima ANO
-                                operacaoService.moverPasta(cid, folderAno, estrutura, clienteApelido, true);
+                                operacaoService.moverPastaOuArquivo(cid, folderAno, estrutura, clienteApelido, true, tipo.getTipoArquivo());
                             }
                         } catch (ParametroNotFoundException e) {
                             log.error(e.getMessage());
@@ -135,6 +134,4 @@ public class ObrigacaoPreparedService {
         }
         return files;
     }
-
-
 }

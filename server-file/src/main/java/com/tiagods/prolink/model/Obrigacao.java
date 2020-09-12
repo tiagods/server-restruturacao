@@ -22,14 +22,17 @@ public class Obrigacao {
 
     @Getter
     public enum Tipo {
-        PROLINKDIGITAL("PROLINK DIGITAL", "Geral/PROLINK DIGITAL"),
-        IRPF("IRPF", "Geral/IRPF");
+        PROLINKDIGITAL("PROLINK DIGITAL", "Geral/PROLINK DIGITAL", TipoArquivo.PASTA),
+        IRPF("IRPF", "Obrigacao/IRPF", TipoArquivo.ARQUIVO),
+        DIRF("DIRF", "Obrigacao/DIRF", TipoArquivo.ARQUIVO);
         private String descricao;
         private String estrutura;
+        private TipoArquivo tipoArquivo;
 
-        Tipo(String descricao, String estrutura){
+        Tipo(String descricao, String estrutura, TipoArquivo tipoArquivo){
             this.descricao = descricao;
             this.estrutura = estrutura;
+            this.tipoArquivo = tipoArquivo;
         }
     }
 
