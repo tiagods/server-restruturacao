@@ -139,18 +139,22 @@ public class ObrigacaoPreparedServiceTest extends BaseMongoIT {
             log.info("Monitorando a pasta:"+ob.getDirForJob());
 
             Path estrutura = Paths.get(ob.getTipo().getEstrutura(),
-                    contrato.getPastaNome(Periodo.ANO, ob.getAno(), ob.getMes()),
-                    DateUtils.mesString(ob.getMes()));
+                    contrato.getPastaNome(Periodo.ANO, ob.getAno(), ob.getMes()));
+
+            if(ob.getMes()!=null){
+                estrutura = estrutura.resolve(DateUtils.mesString(ob.getMes()));
+            }
 
             if(anoExiste && mesExiste && clienteExiste) { //apenas um cliente de ano e mes definido
                 boolean deveSerVazio = ob.getAno().getValue() == obrigacao.getAno().getValue() && ob.getMes() == obrigacao.getMes() && ob.getCliente() == obrigacao.getCliente();
                 validacao(cid, ob, deveSerVazio, estrutura);
-            }
-            else if(anoExiste && mesExiste) { //processar todos os clientes do ano e mes selecionado
+            } else if(anoExiste && mesExiste) { //processar todos os clientes do ano e mes selecionado
                 boolean deveSerVazio = ob.getAno().getValue() == obrigacao.getAno().getValue() && ob.getMes() == obrigacao.getMes();
                 validacao(cid, ob, deveSerVazio, estrutura);
-            }
-            else if(anoExiste) { // todos clientes do ano selecionado
+            } else if(anoExiste && clienteExiste){
+                boolean deveSerVazio = ob.getAno().getValue() == obrigacao.getAno().getValue() && ob.getCliente() == obrigacao.getCliente();
+                validacao(cid, ob, deveSerVazio, estrutura);
+            } else if(anoExiste) { // todos clientes do ano selecionado
                 boolean deveSerVazio = ob.getAno().getValue() == obrigacao.getAno().getValue();
                 validacao(cid, ob, deveSerVazio, estrutura);
             }

@@ -9,6 +9,7 @@ import com.tiagods.prolink.service.ClienteService;
 import com.tiagods.prolink.utils.IOUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -43,7 +44,7 @@ public class IOService {
     public Path mover(String cid, Cliente cli, boolean renomearSemId, Path arquivo, Path pastaCliente, Path estrutura){
         String nome = arquivo.getFileName().toString();
         //renomeando path se necessario
-        String fileName = fileName = renomearSemId && !validarSeIniciaComId(arquivo, cli.getIdFormatado(), true) ?
+        String fileName = renomearSemId && !validarSeIniciaComId(arquivo, cli.getIdFormatado(), true) ?
                     cli.getIdFormatado() + "-" + nome : nome;
 
         log.info("Correlation: [{}]. Nome do arquivo: ({}) para ({})", cid, nome, fileName);

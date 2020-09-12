@@ -93,7 +93,7 @@ public class ClienteService {
 
     //listar todos os clientes ativos, inativos e suas pastas
     private synchronized Set<Path> listarPastasNaBase(String cid) throws EstruturaNotFoundException {
-        verficarDiretoriosBaseECriar(cid);
+        verificarDiretoriosBaseECriar(cid);
         try {
             //listando todos os arquivos e corrigir nomes se necessarios
             Set<Path> actives = IOUtils.filtrarPorDiretorioERegex(base, regex.getInitById());
@@ -256,7 +256,7 @@ public class ClienteService {
         IOUtils.criarDiretorios(path);
     }
 
-    public void verficarDiretoriosBaseECriar(String cid) {
+    public void verificarDiretoriosBaseECriar(String cid) {
         log.info("Correlation: [{}]. Iniciando verificação de diretorios base", cid);
 
         base = Paths.get(serverFile.getBase());

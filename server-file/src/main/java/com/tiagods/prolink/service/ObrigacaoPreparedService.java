@@ -34,14 +34,13 @@ public class ObrigacaoPreparedService {
     public void iniciarMovimentacaoPorPasta(String cid, PathJob pathJob, String nickName) {
         Path job = Paths.get(pathJob.getDirForJob());
         Path estrutura = Paths.get(pathJob.getEstrutura());
-        clienteService.verficarDiretoriosBaseECriar(cid);
+        clienteService.verificarDiretoriosBaseECriar(cid);
         operacaoService.moverPasta(cid, nickName,  job, estrutura, false);
         log.info("Correlation: [{}]. Concluindo movimentacao {}", cid, job.toString());
     }
 
-    @Async
     public void iniciarMovimentacaoPorObrigacao(String cid, ObrigacaoContrato contrato, Obrigacao obrigacao) throws ParametroNotFoundException, PathInvalidException {
-        clienteService.verficarDiretoriosBaseECriar(cid);
+        clienteService.verificarDiretoriosBaseECriar(cid);
         Obrigacao.Tipo tipo = obrigacao.getTipo();
         Path job = Paths.get(obrigacao.getDirForJob());
         Month mesJob = obrigacao.getMes();
@@ -135,6 +134,4 @@ public class ObrigacaoPreparedService {
         }
         return files;
     }
-
-
 }
