@@ -18,16 +18,25 @@ import java.util.Optional;
 
 @Slf4j
 @Service
-public class OperacaoService {
+public class ProcessarService {
 
     @Autowired private Regex regex;
     @Autowired private ClienteService clienteService;
     @Autowired private IOService ioService;
 
+    public void moverArquivo(String cid, Path pastaBaseScannear, Path estrutura, boolean travarEstrutura) {
+        log.info("Correlation: [{}]. Iniciando movimentação de arquivos: [{}]", cid, pastaBaseScannear);
+        try {
+            clienteService.verificarEstruturaNoModelo(estrutura);
+            //processarPorPasta(cid, null, false, basePath, Files.list(p).iterator(), estrutura, travarEstrutura);
+        } catch (IOException e) {
+            //log.error("Correlation: [{}]. Falha ao abrir pasta ({}).", cid, (p.toString()));
+        }
+    }
+
     public void moverPasta(String cid, Path pastaBaseScannear, Path estrutura, String nickName, boolean travarEstrutura) {
         try {
-            log.info("Iniciando movimentação de arquivos=[" +pastaBaseScannear+"]");
-            log.info("Apelido selecionado=[" +pastaBaseScannear+"]");
+            log.info("Correlation: [{}]. Iniciando movimentação de arquivos: [{}]", cid, pastaBaseScannear);
             clienteService.verificarEstruturaNoModelo(estrutura);
             Optional<String> optionalS = Optional.ofNullable(nickName);
             String newRegex = "";
@@ -39,8 +48,7 @@ public class OperacaoService {
             }
 
             Map<Path,String> mapClientes = IOUtils.listByDirectoryDefaultToMap(pastaBaseScannear, newRegex);
-            log.info("Clientes encontrados com o regex: ["+newRegex+"] = ["+mapClientes.size()+"]");
-
+            log.info("Correlation: [{}]. Clientes encontrados com o regex: [{}}]. Tamanho: [{}]", cid, newRegex, mapClientes.size());
             Map<Path, Cliente> mapPath = new HashMap<>();
             mapClientes.keySet().forEach(c->{
                 Long l = Long.parseLong(mapClientes.get(c));
@@ -56,13 +64,14 @@ public class OperacaoService {
                 } else {
                     Cliente cli = mapPath.get(p);
                     clienteService.addFolderToJob(p);
-                    log.info(estrutura.toString() + " - Processando Item=["+i+"]de["+total+"] Cliente=[" + cli.getIdFormatado()+"]");
-                    Path basePath = clienteService.buscarPastaDoClienteECriarSeNaoExistir(cid, cli);
-                    if (basePath != null) {
+                    log.info("Correlation: [{}]. Estrutura: ({}). Processando item=[{} de {}] do cliente: {}",
+                            cid, estrutura.toString(), i, total, cli.getIdFormatado());
+                    Path pastaDoCliente = clienteService.buscarPastaDoClienteECriarSeNaoExistir(cid, cli);
+                    if (pastaDoCliente != null) {
                         try {
-                            processarPorPasta(cli, true, basePath, Files.list(p).iterator(), estrutura, travarEstrutura);
+                            processarPorPasta(cid, cli, true, pastaDoCliente, Files.list(p).iterator(), estrutura, travarEstrutura);
                         } catch (IOException e) {
-                            log.error("Falha ao abrir pasta ".concat(p.toString()));
+                            log.error("Correlation: [{}]. Falha ao abrir pasta ({}).", cid, (p.toString()));
                         }
                     }
                     clienteService.removeFolderToJob(p);
@@ -70,29 +79,28 @@ public class OperacaoService {
                 i++;
             }
         }catch (IOException e){
-            log.error(e.getMessage());
-            log.info("Movimentação cancelada por erro");
+            log.error("Correlation: [{}]. Movimentação cancelada por erro: {}", cid, e.getMessage());
         }
     }
 
     // travar estrutura = evitar criação de subspastas e usar diretorio fixo C:/CLIENTE/OBRIGAGACAO/ANO/MES
     //inicia processo, vai percorrer todas as pastar e ira mover conteudo para um novo diretorio
-    private void processarPorPasta(Cliente cli, boolean renomearSemId, Path basePath, Iterator<Path> files, Path estrutura, boolean travarEstrutura){
+    private void processarPorPasta(String cid, Cliente cli, boolean renomearSemId, Path pastaCliente, Iterator<Path> files, Path estrutura, boolean travarEstrutura){
         while (files.hasNext()) {
             Path file  = files.next();
             if(Files.isDirectory(file)) {
                 try {
                     //impedir criacao de sucessivas subpastas
                     Path estruturaFinal = travarEstrutura ? estrutura : estrutura.resolve(file.getFileName());
-                    processarPorPasta(cli, renomearSemId, basePath, Files.list(file).iterator(), estruturaFinal, travarEstrutura);
+                    processarPorPasta(cid, cli, renomearSemId, pastaCliente, Files.list(file).iterator(), estruturaFinal, travarEstrutura);
                 } catch (IOException e) {
                     log.error(e.getMessage());
                 }
             }
             else {
                 //base - subpastas - arquivo
-                Path estruturaFinal = basePath.resolve(estrutura);
-                ioService.mover(cli, renomearSemId, file, basePath, estruturaFinal);
+                Path estruturaFinal = pastaCliente.resolve(estrutura);
+                ioService.mover(cid, cli, renomearSemId, file, pastaCliente, estrutura);
             }
         }
     }

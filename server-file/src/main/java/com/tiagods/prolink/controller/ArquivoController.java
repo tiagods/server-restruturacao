@@ -42,7 +42,7 @@ public class ArquivoController {
             put("pathJob", pathJob.getDirForJob());
             put("estrutura", pathJob.getEstrutura());
         }};
-        log.info("Correlation=[{}] GET api/files/moverpastas .Parametros: ({})", cid, parametros);
+        log.info("Correlation: [{}] GET api/files/moverpastas .Parametros: ({})", cid, parametros);
         moverpastas.iniciarMovimentacaoPorPasta(cid, pathJob,null);
         return ResponseEntity.noContent().build();
     }
@@ -55,7 +55,7 @@ public class ArquivoController {
             put("pathJob", pathJob.getDirForJob());
             put("estrutura", pathJob.getEstrutura());
         }};
-        log.info("Correlation=[{}] GET api/files/{}/moverpastas .Parametros: ({})", cid, apelido, parametros);
+        log.info("Correlation: [{}] GET api/files/{}/moverpastas .Parametros: ({})", cid, apelido, parametros);
 
         if(apelido.length()==4) {
             moverpastas.iniciarMovimentacaoPorPasta(cid, pathJob, apelido);
@@ -77,7 +77,7 @@ public class ArquivoController {
             put("mes", obrigacao.getMes());
         }};
 
-        log.info("Correlation=[{}] GET api/files/moverpastas/obrigacao .Parametros: ({})", cid, parametros);
+        log.info("Correlation: [{}] GET api/files/moverpastas/obrigacao .Parametros: ({})", cid, parametros);
 
         ObrigacaoContrato contrato = moverpastas.validarObrigacao(cid, obrigacao);
         if(contrato!=null) {

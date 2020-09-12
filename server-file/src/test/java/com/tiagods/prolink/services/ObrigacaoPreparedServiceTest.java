@@ -14,7 +14,7 @@ import com.tiagods.prolink.obrigacao.Periodo;
 import com.tiagods.prolink.repository.ArquivoErroRepository;
 import com.tiagods.prolink.repository.ArquivoRepository;
 import com.tiagods.prolink.repository.ClienteRepository;
-import com.tiagods.prolink.service.ClienteDAOService;
+import com.tiagods.prolink.dao.ClienteDAOService;
 import com.tiagods.prolink.service.ClienteService;
 import com.tiagods.prolink.service.ObrigacaoPreparedService;
 import com.tiagods.prolink.utils.DateUtils;
@@ -41,7 +41,7 @@ import java.util.stream.Stream;
 
 /*
 Documentação spring boot with mongo test
-Nrcessario de docker
+Necessario de docker
 https://github.com/jupiter-tools/spring-test-mongo#introduction
  */
 
@@ -152,6 +152,7 @@ public class ObrigacaoPreparedServiceTest extends BaseMongoIT {
             }
         });
     }
+
     void validacao(String cid, Obrigacao ob, boolean deveSerVazio, Path estrutura){
         log.info("Pasta Origem: deve ser vazia:"+deveSerVazio);
         boolean origemVazio = seVazio(Paths.get(ob.getDirForJob()));//pasta do cliente origem
@@ -216,7 +217,6 @@ public class ObrigacaoPreparedServiceTest extends BaseMongoIT {
                         criarArquivosTemporarios(pastaAno,b);
                     }
             });
-
         } else {
             Obrigacao b =  criarObrigacao(obrigacao.getTipo(), null, null, obrigacao.getCliente(), pathJob.toString());
             criarArquivosTemporarios(pathJob, b);

@@ -17,10 +17,12 @@ public class RegexTest {
     public void validStructurePath(){
         Assert.assertTrue("GERAL/SAC".matches(regex.getStructure()));
     }
+
     @Test
     public void validStructurePathMin3(){
         Assert.assertFalse("GE".matches(regex.getStructure()));
     }
+
     @Test
     public void validStructurePathMax20(){
         Assert.assertFalse("GERAL/MINHAPASTAEXEPLOTESTE/SAC".matches(regex.getStructure()));
@@ -32,7 +34,6 @@ public class RegexTest {
         Assert.assertTrue("2222 ".matches(regex.getInitById()));
         Assert.assertTrue("2222-".matches(regex.getInitById()));
         Assert.assertTrue("2222L ".matches(regex.getInitById()));
-        Assert.assertFalse("22223".matches(regex.getInitById()));
         Assert.assertTrue("2222 - Teste".matches(regex.getInitById()));
         Assert.assertTrue("2222 Teste".matches(regex.getInitById()));
         Assert.assertTrue("2222 - 555Teste".matches(regex.getInitById()));
@@ -40,6 +41,8 @@ public class RegexTest {
         Assert.assertTrue("0677 - ssaq545KADES".matches(regex.getInitById()));
         Assert.assertTrue("0677".matches(regex.getInitById()));
         Assert.assertTrue("0677 545KADES".matches(regex.getInitById()));
+        Assert.assertFalse("SSSS 0677".matches(regex.getInitById()));
+        Assert.assertFalse("22223".matches(regex.getInitById()));
         Assert.assertFalse("067545KADES".matches(regex.getInitById()));
         Assert.assertFalse("06754".matches(regex.getInitById()));
     }
@@ -65,5 +68,4 @@ public class RegexTest {
     String getRegexReplace(String value){
         return regex.getInitByIdReplaceNickName().replace("nickName", value);
     }
-
 }

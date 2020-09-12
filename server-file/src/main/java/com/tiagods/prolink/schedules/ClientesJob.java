@@ -18,6 +18,8 @@ public class ClientesJob {
     @Scheduled(cron = "  0 0 1 ? * MON,WED,FRI")
     public void organizarCliente(){
         String cid = UUID.randomUUID().toString();
+        log.info("Correlation: [{}]. Iniciando processo - organizacao de pastas de clientes", cid);
         clienteService.inicializarPathClientes(cid, null,true, false);
+        log.info("Correlation: [{}]. Processo de organizacao de pastas de cliente concluido.", cid);
     }
 }

@@ -1,6 +1,5 @@
 package com.tiagods.prolink.service;
 
-import com.tiagods.prolink.exception.FolderCuncurrencyJob;
 import com.tiagods.prolink.exception.ParametroIncorretoException;
 import com.tiagods.prolink.exception.ParametroNotFoundException;
 import com.tiagods.prolink.exception.PathInvalidException;
@@ -29,7 +28,7 @@ import java.util.stream.Collectors;
 public class ObrigacaoPreparedService {
 
     @Autowired private ClienteService clienteService;
-    @Autowired private OperacaoService operacaoService;
+    @Autowired private ProcessarService operacaoService;
 
     @Async
     public void iniciarMovimentacaoPorPasta(String cid, PathJob pathJob, String nickName) {
@@ -37,7 +36,7 @@ public class ObrigacaoPreparedService {
         Path estrutura = Paths.get(pathJob.getEstrutura());
         clienteService.verficarDiretoriosBaseECriar(cid);
         operacaoService.moverPasta(cid, job, estrutura, nickName, false);
-        log.info("Correlation [{}]. Concluindo movimentacao {}", cid, job.toString());
+        log.info("Correlation: [{}]. Concluindo movimentacao {}", cid, job.toString());
     }
 
     @Async
@@ -98,22 +97,20 @@ public class ObrigacaoPreparedService {
     }
 
     public ObrigacaoContrato validarObrigacao(String cid, Obrigacao obrigacao) throws ParametroNotFoundException, PathInvalidException, ParametroIncorretoException {
-        log.info("Correlation: [{}]. Pushed: ({})",cid, obrigacao);
+        log.info("Correlation: [{}]. Iniciando Validacao: ({})", cid, obrigacao);
         ObrigacaoContrato ob = ObrigacaoFactory.get(obrigacao);
         Obrigacao.Tipo tipo = obrigacao.getTipo();
         Path dirForJob = Paths.get(obrigacao.getDirForJob());
         if(!dirForJob.getFileName().toString().equals(tipo.getDescricao())) {
-            String message = "O diretorio informado é invalido para essa obrigação";
-            log.error(message);
-            throw new PathInvalidException(message);
+            log.error("Correlation: [{}]. O diretorio informado é invalido para essa obrigação. Dir: ({})", cid, dirForJob);
+            throw new PathInvalidException("O diretorio informado é invalido para essa obrigação");
         }
         if(obrigacao.getAno()==null && ob.contains(Periodo.ANO)) {
-            String message = "O parametro ano é obrigatório para essa obrigação";
-            log.error(message);
-            throw new ParametroNotFoundException(message);
+            log.error("Correlation: [{}]. O parametro ano é obrigatorio para essa obrigacao", cid);
+            throw new ParametroNotFoundException("O parametro ano é obrigatório para essa obrigação");
         }
         if(obrigacao.getMes()!=null && !ob.contains(Periodo.MES)) {
-            log.error("Mes informado para uma obrigação anual");
+            log.error("Correlation: [{}]. Mes informado para uma obrigação anual", cid);
             throw new ParametroIncorretoException("Obrigação "+tipo.getDescricao()+" é anual e o mês não deve ser informado");
         }
 //        if(obrigacao.getMes()==null && ob.contains(Periodo.MES)) {
@@ -124,7 +121,7 @@ public class ObrigacaoPreparedService {
     }
 
     Set<Path> capturarPastasPeriodo(String cid, Path job, Periodo periodo, String nomeObrigatorioPasta) {
-        log.info("Correlation: [{}].  Pasta do periodo informado:{} . Nome de pasta: ({})", cid, periodo, nomeObrigatorioPasta);
+        log.info("Correlation: [{}].  Pasta do periodo informado: ({}) . Nome de pasta: ({})", cid, periodo, nomeObrigatorioPasta);
         Set<Path> files = new LinkedHashSet<>();
         try {
             files = Files.list(job)
@@ -134,7 +131,7 @@ public class ObrigacaoPreparedService {
                     )
                     .collect(Collectors.toSet());
         } catch (IOException e) {
-            log.error("Correlation: [{}]. Erro ao carregar listagem da pasta={}", cid, job.toString());
+            log.error("Correlation: [{}]. Erro ao carregar listagem da pasta: ({})", cid, job.toString());
         }
         return files;
     }

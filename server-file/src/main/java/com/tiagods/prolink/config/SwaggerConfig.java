@@ -30,7 +30,7 @@ public class SwaggerConfig {
     }
     private List<ResponseMessage> responseMessageForGET()
     {
-        return new ArrayList<ResponseMessage>() {{
+        return new ArrayList<>() {{
             add(new ResponseMessageBuilder()
                     .code(500)
                     .message("500 message")

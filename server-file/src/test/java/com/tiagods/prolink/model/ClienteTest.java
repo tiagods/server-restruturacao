@@ -24,6 +24,5 @@ public class ClienteTest {
         Assert.assertEquals("0001",cliente.getIdFormatado());
         Assert.assertEquals("",cliente.getCnpjFormatado());
         Assert.assertEquals(false, cliente.isCnpjValido());
-
     }
 }

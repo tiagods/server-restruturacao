@@ -3,7 +3,7 @@ package com.tiagods.prolink.controller;
 import com.tiagods.prolink.dto.ClienteDTO;
 import com.tiagods.prolink.exception.ClienteNotFoundException;
 import com.tiagods.prolink.exception.EstruturaNotFoundException;
-import com.tiagods.prolink.service.ClienteDAOService;
+import com.tiagods.prolink.dao.ClienteDAOService;
 import com.tiagods.prolink.service.ClienteService;
 import com.tiagods.prolink.utils.ContextHeaders;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -31,7 +30,7 @@ public class ClienteController {
     //@ApiResponse(code = 404 , message = "A pasta do cliente solicitado nao existe" )
     public ResponseEntity<?> getDir(@RequestHeader MultiValueMap<String, String> headers, @PathVariable @Valid Long apelido){
         String cid = ContextHeaders.getCid(headers);
-        log.info("Correlation=[{}] GET api/clientes/{}/path", cid, apelido);
+        log.info("Correlation: [{}] GET api/clientes/{}/path", cid, apelido);
         Optional<Path> optional = Optional.ofNullable(clienteService.buscarPastaBaseClientePorId(cid, apelido));
         if(optional.isPresent()) {
             return ResponseEntity.ok().body(optional.get().toString());
@@ -43,7 +42,7 @@ public class ClienteController {
     @GetMapping("/{apelido}/organizar")
     public ResponseEntity<?> organizeFoldersClients(@RequestHeader MultiValueMap<String, String> headers, @PathVariable @Valid Long apelido) throws ClienteNotFoundException, IOException {
         String cid = ContextHeaders.getCid(headers);
-        log.info("Correlation=[{}] GET api/clientes/{}/organizar", cid, apelido);
+        log.info("Correlation: [{}] GET api/clientes/{}/organizar", cid, apelido);
 
         Optional<ClienteDTO> result = daoService.findOne(apelido);
         if (result.isPresent()) {

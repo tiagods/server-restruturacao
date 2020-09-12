@@ -4,7 +4,7 @@ import com.tiagods.prolink.config.Regex;
 import com.tiagods.prolink.dto.ArquivoErroDTO;
 import com.tiagods.prolink.model.Cliente;
 import com.tiagods.prolink.model.Pair;
-import com.tiagods.prolink.service.ArquivoDAOService;
+import com.tiagods.prolink.dao.ArquivoDAOService;
 import com.tiagods.prolink.utils.IOUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +23,9 @@ public class IOService {
     @Autowired private Regex regex;
 
     //tentar mover, se nao conseguir usar o diretorio de origem
-    public Pair<Cliente, Path> mover(Cliente cliente, Path origin, Path destination){
+    public Pair<Cliente, Path> mover(String cid, Cliente cliente, Path origin, Path destination){
         try{
-            log.info("Movendo ["+origin+"] para ["+destination+"]");
+            log.info("Correlation: [{}]. Movendo [{}] para [{}]", cid, origin, destination);
             Files.move(origin, destination, StandardCopyOption.REPLACE_EXISTING);
             arquivoDAOService.convertAndSave(origin, destination, cliente);
             return new Pair<>(cliente, destination);
@@ -36,31 +36,34 @@ public class IOService {
     }
 
     //mover arquivo com estrutura pre estabelecida
-    public Path mover(Cliente cli, boolean renomearSemId, Path file, Path baseCli, Path structure){
-        String nome = file.getFileName().toString();
+    public Path mover(String cid, Cliente cli, boolean renomearSemId, Path arquivo, Path pastaCliente, Path estrutura){
+        String nome = arquivo.getFileName().toString();
         //renomeando path se necessario
-        String fileName = renomearSemId && !validarSeIniciaComId(file, cli.getIdFormatado()) ? cli.getIdFormatado()+"-"+nome : nome;
-        Path newStructureFile = structure.resolve(fileName);
-        Path finalFile = baseCli.resolve(newStructureFile);
+        String fileName = renomearSemId && !validarSeIniciaComId(arquivo, cli.getIdFormatado(), true) ? cli.getIdFormatado()+"-"+nome : nome;
+        log.info("Correlation: [{}]. Nome do arquivo: ({}) para ({})", cid, nome, fileName);
+        Path newStructureFile = estrutura.resolve(fileName);
+        log.info("Correlation: [{}]. Nova estrutura de arquivo: ({})", cid, newStructureFile.toString());
+        Path finalFile = pastaCliente.resolve(newStructureFile);
+        log.info("Correlation: [{}]. Nova caminho de arquivo: ({})", cid, finalFile.toString());
         try {
             IOUtils.criarDiretorios(finalFile.getParent());
-            log.info("Movendo ["+file.toString()+"] para ["+finalFile.toString()+"]");
-            Files.move(file, finalFile, StandardCopyOption.REPLACE_EXISTING);
-            arquivoDAOService.convertAndSave(file,finalFile, cli);
+            log.info("Correlation: [{}]. Movendo ({}) para ({})",
+                    cid, arquivo.toString(), finalFile.toString());
+            Files.move(arquivo, finalFile, StandardCopyOption.REPLACE_EXISTING);
+            arquivoDAOService.convertAndSave(arquivo,finalFile, cli);
             return finalFile;
         }catch (IOException e){
-            arquivoDAOService.salvarErro(file,finalFile,e.getMessage(), ArquivoErroDTO.Status.ERROR, cli);
-            log.error(e.getMessage());
+            arquivoDAOService.salvarErro(arquivo,finalFile,e.getMessage(), ArquivoErroDTO.Status.ERROR, cli);
+            log.error("Correlation: [{}]. Falha ao mover arquivo: ({}), ex:{}", cid, arquivo.toString(), e.getMessage());
             return null;
         }
     }
 
-    public boolean validarSeIniciaComId(Path file, String idFormatado){
+    public boolean validarSeIniciaComId(Path file, String idFormatado, boolean salvarErro){
         String valor = file.getFileName().toString();
         boolean matcher1 = valor.matches(regex.getInitById());
         boolean matcher2 = valor.matches(regex.getInitByIdReplaceNickName().replace("nickName", idFormatado));
-        if(matcher1 && !matcher2) {//pode iniciar com o id de outro cliente
-            //Cliente cliente = new Cliente(Long.parseLong(valor), "", "", "");
+        if(matcher1 && !matcher2 && salvarErro) {//pode iniciar com o id de outro cliente
             arquivoDAOService.salvarErro(file,null, ArquivoErroDTO.Status.WARN.getDescricao(), ArquivoErroDTO.Status.ERROR, null);
         }
         return matcher2;

@@ -1,4 +1,4 @@
-package com.tiagods.prolink.service;
+package com.tiagods.prolink.dao;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonProcessingException;
