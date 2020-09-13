@@ -19,7 +19,7 @@
 	<groupId>com.prolink</groupId>
 	<artifactId>server-file</artifactId>
 	<name>server-file</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Aplicacao para transferencia de arquivos</description>
 	<version>2.0</version>
 
 	<dependencies>
@@ -87,6 +87,15 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt</artifactId>
+			<version>0.9.1</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.xml.bind</groupId>
