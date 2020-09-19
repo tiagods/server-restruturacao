@@ -10,6 +10,8 @@ import com.tiagods.prolink.dto.ArquivoErroDTO;
 import com.tiagods.prolink.model.Cliente;
 import com.tiagods.prolink.repository.ArquivoErroRepository;
 import com.tiagods.prolink.repository.ArquivoRepository;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +31,7 @@ public class ArquivoDAOService {
         return arquivoRepository.save(arquivo);
     }
 
-    public void convertAndSave(Path file, Path finalFile, Cliente cliente){
+    public void convertAndSave(String cid, Path file, Path finalFile, Cliente cliente){
         ArquivoDTO arquivoDTO = new ArquivoDTO();
         arquivoDTO.setData(new Date());
         arquivoDTO.setDestino(finalFile.toString());
@@ -37,10 +39,13 @@ public class ArquivoDAOService {
         arquivoDTO.setOrigem(file.toString());
         arquivoDTO.setNome(file.getFileName().toString());
         arquivoDTO.setCliente(cliente.getIdFormatado());
+        arquivoDTO.setCorrelation(cid);
+        String token = RandomStringUtils.random(50, true, true);
+        arquivoDTO.setToken(token);
         save(arquivoDTO);
     }
 
-    public void salvarErro(Path file, Path finalFile, String error, ArquivoErroDTO.Status status, Cliente cliente) {
+    public void salvarErro(String cid, Path file, Path finalFile, String error, ArquivoErroDTO.Status status, Cliente cliente) {
         ArquivoErroDTO errorDto = new ArquivoErroDTO();
         errorDto.setData(new Date());
         errorDto.setCause(error);
@@ -48,6 +53,7 @@ public class ArquivoDAOService {
         errorDto.setDestino(finalFile!=null?finalFile.toString():null);
         errorDto.setStatus(status);
         errorDto.setCliente(cliente!=null?cliente.getIdFormatado():null);
+        errorDto.setCorrelation(cid);
         erroRepository.save(errorDto);
     }
 

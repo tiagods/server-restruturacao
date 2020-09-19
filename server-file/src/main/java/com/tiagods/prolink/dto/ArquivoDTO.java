@@ -22,4 +22,6 @@ public class ArquivoDTO implements Serializable {
     private String destino;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private Date data;
+    private String correlation;
+    private String token;
 }

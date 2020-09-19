@@ -32,7 +32,7 @@ public class IOService {
         try{
             log.info("Correlation: [{}]. Movendo [{}] para [{}]", cid, origin, destination);
             Files.move(origin, destination, StandardCopyOption.REPLACE_EXISTING);
-            arquivoDAOService.convertAndSave(origin, destination, cliente);
+            arquivoDAOService.convertAndSave(cid, origin, destination, cliente);
             return new Pair<>(cliente, destination);
         }catch (IOException e){
             log.error(e.getMessage());
@@ -44,7 +44,7 @@ public class IOService {
     public Path mover(String cid, Cliente cli, boolean renomearSemId, Path arquivo, Path pastaCliente, Path estrutura){
         String nome = arquivo.getFileName().toString();
         //renomeando path se necessario
-        String fileName = renomearSemId && !validarSeIniciaComId(arquivo, cli.getIdFormatado(), true) ?
+        String fileName = renomearSemId && !validarSeIniciaComId(cid, arquivo, cli.getIdFormatado(), true) ?
                     cli.getIdFormatado() + "-" + nome : nome;
 
         log.info("Correlation: [{}]. Nome do arquivo: ({}) para ({})", cid, nome, fileName);
@@ -57,21 +57,21 @@ public class IOService {
             log.info("Correlation: [{}]. Movendo ({}) para ({})",
                     cid, arquivo.toString(), finalFile.toString());
             Files.move(arquivo, finalFile, StandardCopyOption.REPLACE_EXISTING);
-            arquivoDAOService.convertAndSave(arquivo,finalFile, cli);
+            arquivoDAOService.convertAndSave(cid, arquivo,finalFile, cli);
             return finalFile;
         }catch (IOException e){
-            arquivoDAOService.salvarErro(arquivo,finalFile,e.getMessage(), ArquivoErroDTO.Status.ERROR, cli);
+            arquivoDAOService.salvarErro(cid, arquivo,finalFile,e.getMessage(), ArquivoErroDTO.Status.ERROR, cli);
             log.error("Correlation: [{}]. Falha ao mover arquivo: ({}), ex:{}", cid, arquivo.toString(), e.getMessage());
             return null;
         }
     }
 
-    public boolean validarSeIniciaComId(Path file, String idFormatado, boolean salvarErro){
+    public boolean validarSeIniciaComId(String cid, Path file, String idFormatado, boolean salvarErro){
         String valor = file.getFileName().toString();
         boolean matcher1 = valor.matches(regex.getInitById());
         boolean matcher2 = valor.matches(regex.getInitByIdReplaceNickName().replace("nickName", idFormatado));
         if(matcher1 && !matcher2 && salvarErro) {//pode iniciar com o id de outro cliente
-            arquivoDAOService.salvarErro(file,null, ArquivoErroDTO.Status.WARN.getDescricao(), ArquivoErroDTO.Status.ERROR, null);
+            arquivoDAOService.salvarErro(cid, file,null, ArquivoErroDTO.Status.WARN.getDescricao(), ArquivoErroDTO.Status.ERROR, null);
         }
         return matcher2;
     }

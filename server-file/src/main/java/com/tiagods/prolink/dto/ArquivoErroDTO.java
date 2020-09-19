@@ -20,11 +20,15 @@ public class ArquivoErroDTO {
     private Date data;
     private String cause;
     private Status status = Status.ERROR;
+    private String correlation;
+
+    public String getCorrelation() {
+        return correlation;
+    }
 
     @Getter
     public enum Status {
         WARN("COM SUSPEITA DE NOME DE OUTRO CLIENTE"), ERROR("GERAL");
-
         private String descricao;
         Status(String descricao){
             this.descricao = descricao;
