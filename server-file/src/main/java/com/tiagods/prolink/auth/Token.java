@@ -1,8 +1,6 @@
 package com.tiagods.prolink.auth;
 
-import lombok.Data;
 import lombok.Getter;
-
 import java.io.Serializable;
 
 @Getter

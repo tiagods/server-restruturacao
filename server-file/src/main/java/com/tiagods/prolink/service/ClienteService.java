@@ -2,10 +2,10 @@ package com.tiagods.prolink.service;
 
 import com.tiagods.prolink.config.Regex;
 import com.tiagods.prolink.config.ServerFile;
-import com.tiagods.prolink.dao.ClienteDAOService;
+import com.tiagods.prolink.service.dao.ClienteDAOService;
 import com.tiagods.prolink.dto.ClientDefaultPathDTO;
 import com.tiagods.prolink.exception.EstruturaNotFoundException;
-import com.tiagods.prolink.io.IOService;
+import com.tiagods.prolink.service.io.IOService;
 import com.tiagods.prolink.model.Pair;
 import com.tiagods.prolink.model.Cliente;
 import com.tiagods.prolink.utils.IOUtils;

@@ -1,10 +1,10 @@
-package com.tiagods.prolink.dto;
+package com.tiagods.serverconsumer.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,6 +14,8 @@ import java.util.Date;
 
 @Data
 @Document(collection="arquivo")
+@JsonIgnoreProperties(ignoreUnknown = true)
+@ToString
 public class ArquivoDTO implements Serializable {
     @JsonIgnore
     @Id

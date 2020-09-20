@@ -1,4 +1,4 @@
-package com.tiagods.prolink.dao;
+package com.tiagods.prolink.service.dao;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -9,10 +9,12 @@ import com.tiagods.prolink.dto.ArquivoDTO;
 import com.tiagods.prolink.dto.ArquivoErroDTO;
 import com.tiagods.prolink.model.Cliente;
 import com.tiagods.prolink.repository.ArquivoErroRepository;
-import com.tiagods.prolink.repository.ArquivoRepository;
+import com.tiagods.prolink.service.SqsProducer;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
@@ -24,14 +26,20 @@ import java.util.Date;
 @Service
 public class ArquivoDAOService {
 
-    @Autowired private ArquivoRepository arquivoRepository;
     @Autowired private ArquivoErroRepository erroRepository;
+    @Autowired private SqsProducer sqsProducer;
 
+    /*
     public ArquivoDTO save(ArquivoDTO arquivo){
         return arquivoRepository.save(arquivo);
     }
-
+*/
     public void convertAndSave(String cid, Path file, Path finalFile, Cliente cliente){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String usuario = "robo";
+        if (authentication!=null && !(authentication instanceof AnonymousAuthenticationToken)) {
+            usuario = authentication.getName();
+        }
         ArquivoDTO arquivoDTO = new ArquivoDTO();
         arquivoDTO.setData(new Date());
         arquivoDTO.setDestino(finalFile.toString());
@@ -40,9 +48,11 @@ public class ArquivoDAOService {
         arquivoDTO.setNome(file.getFileName().toString());
         arquivoDTO.setCliente(cliente.getIdFormatado());
         arquivoDTO.setCorrelation(cid);
+        arquivoDTO.setUsuario(usuario);
         String token = RandomStringUtils.random(50, true, true);
         arquivoDTO.setToken(token);
-        save(arquivoDTO);
+        sqsProducer.sendArquivo(cid, arquivoDTO);
+//        save(arquivoDTO);
     }
 
     public void salvarErro(String cid, Path file, Path finalFile, String error, ArquivoErroDTO.Status status, Cliente cliente) {

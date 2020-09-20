@@ -1,7 +1,24 @@
+spring:
+  profiles: dev
 serverfile:
   root: C:\Temp\plkserver
   base: C:\Temp\clientes
   model: C:\Temp\clientes\_base
   shutdown: C:\Temp\clientes\_desligados_extintas
 server:
-  port: 0
+  port: 8082
+sqsurl:
+  arquivo: ${SQS_ARQUIVO:https://sqs:us-east-1:amazonaws:com/707372836079/Arquivo-dev}
+jwt:
+  secret: ${FILE_SECRET:mytoken}
+cloud:
+  aws:
+    credentials:
+      accessKey: ${aws_access_key_id:access_key}
+      secretKey: ${aws_secret_access_key:secret_key}
+      instanceProfile: true
+      useDefaultAwsCredentialsChain: true
+    region:
+      static: us-east-1
+    stack:
+      auto: false

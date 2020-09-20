@@ -6,7 +6,6 @@ import com.tiagods.prolink.model.Obrigacao;
 import com.tiagods.prolink.obrigacao.ObrigacaoContrato;
 import com.tiagods.prolink.service.ObrigacaoPreparedService;
 import com.tiagods.prolink.utils.ContextHeaders;
-import com.tiagods.prolink.validation.PathLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +16,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.time.Month;
-import java.time.Year;
 import java.util.HashMap;
 import java.util.Map;
 

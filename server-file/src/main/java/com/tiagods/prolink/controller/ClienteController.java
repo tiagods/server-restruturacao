@@ -3,7 +3,7 @@ package com.tiagods.prolink.controller;
 import com.tiagods.prolink.dto.ClienteDTO;
 import com.tiagods.prolink.exception.ClienteNotFoundException;
 import com.tiagods.prolink.exception.EstruturaNotFoundException;
-import com.tiagods.prolink.dao.ClienteDAOService;
+import com.tiagods.prolink.service.dao.ClienteDAOService;
 import com.tiagods.prolink.service.ClienteService;
 import com.tiagods.prolink.utils.ContextHeaders;
 import lombok.extern.slf4j.Slf4j;

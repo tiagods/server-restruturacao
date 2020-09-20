@@ -1,4 +1,4 @@
-package com.tiagods.prolink.dao;
+package com.tiagods.prolink.service.dao;
 
 import com.tiagods.prolink.dto.ClientDefaultPathDTO;
 import com.tiagods.prolink.dto.ClienteDTO;

@@ -1,7 +1,7 @@
 package com.tiagods.prolink.service;
 
 import com.tiagods.prolink.config.Regex;
-import com.tiagods.prolink.io.IOService;
+import com.tiagods.prolink.service.io.IOService;
 import com.tiagods.prolink.model.Cliente;
 import com.tiagods.prolink.model.TipoArquivo;
 import com.tiagods.prolink.utils.IOUtils;
@@ -15,7 +15,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 

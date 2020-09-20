@@ -13,7 +13,7 @@ import com.tiagods.prolink.obrigacao.Periodo;
 import com.tiagods.prolink.repository.ArquivoErroRepository;
 import com.tiagods.prolink.repository.ArquivoRepository;
 import com.tiagods.prolink.repository.ClienteRepository;
-import com.tiagods.prolink.dao.ClienteDAOService;
+import com.tiagods.prolink.service.dao.ClienteDAOService;
 import com.tiagods.prolink.service.ClienteService;
 import com.tiagods.prolink.service.ObrigacaoPreparedService;
 import com.tiagods.prolink.utils.DateUtils;
