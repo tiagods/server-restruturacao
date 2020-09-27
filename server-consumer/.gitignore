@@ -1,12 +1,11 @@
 HELP.md
 target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**
-!**/src/test/**
-
-### Security ###
-application.yaml
+*/out/
+*/.mvn/
 application.properties
+application.yml
+application-dev.yml
+application-prod.yml
 
 ### STS ###
 .apt_generated
