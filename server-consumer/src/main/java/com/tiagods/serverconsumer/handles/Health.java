@@ -16,6 +16,7 @@ public class Health {
 
     @GetMapping
     public ResponseEntity<?> health(){
+        repository.count();
         return ResponseEntity.ok().body("{\"message\":\"Application is running\"}");
     }
 
