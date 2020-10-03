@@ -8,10 +8,13 @@ import com.tiagods.gfip.model.Chave;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.sourceforge.tess4j.ITesseract;
+import net.sourceforge.tess4j.Tesseract;
+import net.sourceforge.tess4j.Tesseract1;
 import net.sourceforge.tess4j.TesseractException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -39,9 +42,6 @@ public class MapearGfip {
     Set<Path> arquivosEmBranco = new HashSet<>();
     Map<Path, Set<Path>> arquivosDaPasta = new HashMap<>();//sao arquivos que não tem clientes
 
-    @Autowired
-    ITesseract tesseract;
-
     @Getter boolean processoRodando = false;
 
     public synchronized void iniciarMapeamento() {
@@ -55,6 +55,8 @@ public class MapearGfip {
         Path path = Paths.get(serverFile.getGfip());
         if (Files.exists(path) && Files.isDirectory(path)) {
             processarPastas(path);
+        } else {
+            log.info("Correlation: [{}]. Pasta nao existe ({})", cid, path.toString());
         }
 
         List<Chave> chaves = arquivos.stream()
@@ -148,7 +150,7 @@ public class MapearGfip {
         if (stripper.getText(document).equals("")) {
             log.info("Arquivo em branco");
             try {
-                texto = tesseract.doOCR(pdf.toFile());
+                texto = tesseract().doOCR(pdf.toFile());
             } catch (TesseractException e) {
                 log.warn("Nao foi possivel executar o tesseract no arquivo: ({})", pdf.toString());
             }
@@ -158,6 +160,12 @@ public class MapearGfip {
             arquivosEmBranco.add(pdf);
             return true;
         } else return false;
+    }
+
+    private ITesseract tesseract() {
+        ITesseract instance = new Tesseract();
+        instance.setLanguage("por");//por,eng
+        return instance;
     }
 
     private void buscarCnpjNaPagina(Path arquivo, int pagina, String texto) {

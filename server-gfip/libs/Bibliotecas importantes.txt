@@ -1,0 +1,4 @@
+Instale a ultima versao do microsoft visual c++
+https://aka.ms/vs/16/release/VC_redist.x64.exe
+
+Para que funcione tbm o leitor de pdf é necessario o gsdll64.dll no pacote de bibliotecas do sistema (windows)

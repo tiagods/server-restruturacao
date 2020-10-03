@@ -1,16 +1,17 @@
 package com.tiagods.gfip.config;
 
 import net.sourceforge.tess4j.ITesseract;
+import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.Tesseract1;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
+//@Configuration
 public class WebConfig {
 
-    @Bean
+    //@Bean
     public ITesseract tesserac1t(){
-        ITesseract instance = new Tesseract1();
+        Tesseract instance = new Tesseract();
         instance.setLanguage("por");//por,eng
         return instance;
     }
