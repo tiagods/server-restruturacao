@@ -11,8 +11,7 @@ public class WebConfig {
     @Bean
     public ITesseract tesserac1t(){
         ITesseract instance = new Tesseract1();
-        instance.setLanguage("eng");
-        instance.setDatapath("tessdata");
+        instance.setLanguage("por");//por,eng
         return instance;
     }
 }
