@@ -69,6 +69,10 @@ public class MapearGfip {
             chaveRepository.save(chave);
 //            log.info("O cliente de cnpj: {}, foi encontrado no arquivo: {}, paginas: ({})", clienteCnpj, chave.getArquivo().getArquivo().toString(), chave.getPaginas());
         });
+
+        chaves.clear();
+        arquivos.clear();
+
         log.info("Correlation: [{}]. Concluindo arquivos gfip", cid);
         processoRodando = false;
     }

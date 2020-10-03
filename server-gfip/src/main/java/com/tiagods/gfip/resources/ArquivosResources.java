@@ -27,7 +27,7 @@ public class ArquivosResources {
     }
 
     @Async
-    @GetMapping("/mapear-gifp")
+    @GetMapping("/mapear-gfip")
     public ResponseEntity<?> iniciarMapeamento() {
         if(isProcessoRodando()){
             String message = "{\"message\":\"Ja existe outro processo executando essa analise\"}";
