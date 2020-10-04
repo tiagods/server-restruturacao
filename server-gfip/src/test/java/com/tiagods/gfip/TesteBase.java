@@ -27,7 +27,6 @@ public class TesteBase {
     public void testeBanco() {
         Arquivo arquivo = new Arquivo();
         arquivo.setDiretorio("fake");
-        arquivo.setObrigacao("");
         arquivo.setPeriodo(LocalDate.now());
         arquivoRepository.save(arquivo);
     }

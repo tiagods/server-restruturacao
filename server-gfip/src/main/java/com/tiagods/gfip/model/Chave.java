@@ -26,8 +26,7 @@ public class Chave implements Serializable {
     private String cnpjSoNumero;
     private LocalDate periodo;
     private String path;
-    @Transient
-    private Arquivo arquivo;
+    private String parent;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private Date data;
