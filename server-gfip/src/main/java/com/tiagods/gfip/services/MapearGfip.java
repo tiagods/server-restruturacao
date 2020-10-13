@@ -215,7 +215,7 @@ public class MapearGfip {
             Matcher matcherData = Pattern.compile("\\s(\\d{2}\\/\\d{4})\\s").matcher(texto);
             if(matcherData.find()) {
                 try {
-                    String valor = matcher.group().trim();
+                    String valor = matcherData.group().trim();
                     valor = "01/"+valor;
                     LocalDate localDate = LocalDate.from(DateTimeFormatter.ofPattern("dd/MM/yyyy")
                             .parse(valor));
