@@ -7,6 +7,7 @@ import com.tiagods.toolgfip.repository.ArquivoGfipRepository;
 import com.tiagods.toolgfip.repository.ChaveGfipRepository;
 import com.tiagods.toolgfip.repository.ClienteRepository;
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Observer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -42,29 +43,27 @@ public class GfipService {
     @Autowired
     ArquivoGfipRepository arquivoGfipRepository;
 
-    public Observable iniciarProcessamento(String apelido, String cnpj) {
-        Observable observable;
+    public void iniciarProcessamento(String apelido, String cnpj) {
+        Observable<String> observable;
 
         if(StringUtils.hasText(apelido)) {
-
-            Optional<Cliente> optionalCliente = clientes.findByApelido(Long.parseLong(apelido));
-            if (optionalCliente.isPresent()) {
-                cnpj = optionalCliente.get().getCnpj();
-                if (!validarCnpj(cnpj)) {
-                    return Observable.just(new RuntimeException("Cnpj invalido"));
-                }
-                processar(apelido, cnpj);
-            } else {
-                return Observable.just(new RuntimeException("Cliente não encontrado"));
-            }
-        } else if (StringUtils.hasText(cnpj)) {
-            if(validarCnpj(cnpj)) {
-                processar(apelido, cnpj);
-            } else {
-                return Observable.just(new RuntimeException("Cnpj invalido"));
-            }
+            observable = Observable.just(apelido)
+                    .flatMap(c->
+                        c.matches("^[\\d]+$") ? Observable.just(Long.parseLong(apelido)):
+                                Observable.error(new Exception("Apelido invalido"))
+                    )
+                    .flatMap(c-> Observable.just(clientes.findByApelido(c)))
+                    .flatMap(c-> c.isPresent() ? Observable.just(c.get().getCnpj()) :
+                            Observable.error(new Exception("Cliente não encontrado"))
+                    );
+        } else {
+            observable = Observable.just(cnpj);
         }
-        return Observable.just("Processed");
+        observable
+                .flatMap(this::validarCnpj)
+                .subscribe(c->
+                        processar(apelido, c)
+                );
     }
 
     private void processar(String apelido, String cnpj) {
@@ -123,9 +122,8 @@ public class GfipService {
 
     private Map<String, List<ChaveGfip>> pegarChaves(String cnpj){
         Map<String, List<ChaveGfip>> map = chaveGfipRepository
-                .findAll()
+                .findAllByCnpj(cnpj)
                 .stream()
-                .filter(c-> StringUtils.hasText(c.getCnpj()) && c.getCnpj().equals(cnpj))
                 .collect(groupingBy(ChaveGfip::getCnpj));
         return map;
     }

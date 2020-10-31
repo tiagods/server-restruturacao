@@ -1,6 +1,7 @@
 package com.tiagods.toolgfip;
 
 import com.tiagods.toolgfip.repository.ArquivoGfipRepository;
+import com.tiagods.toolgfip.services.GfipService;
 import io.reactivex.rxjava3.core.Observable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ public class ToolGfipApplication implements CommandLineRunner {
 	}
 
 	@Autowired
-	ArquivoGfipRepository arquivoGfipRepository;
+	GfipService gfipService;
 //
 //	public void run1(String... args) throws Exception {
 //		List<ChaveGfip> gfips = chaveGfipRepository.findAll()
@@ -39,15 +40,6 @@ public class ToolGfipApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		String apelido = "2436";
-//		gfipService.iniciarProcessamento(apelido, null);
-
-		Observable.fromArray(arquivoGfipRepository.findAll())
-				.flatMap(c-> Observable.just(c.size()))
-				.subscribe(c->
-			log.info("Total de registros encontrados: {}", c)
-		);
-//		arquivoGfipRepository.findAll().flatMap(c-> {return Flux})
-//		log.info("Total de registros encontrados: {}", result);
-//				.subscribe(c->log.info("Total de registros encontrados: {}", c));
+		gfipService.iniciarProcessamento(apelido, null);
 	}
 }
