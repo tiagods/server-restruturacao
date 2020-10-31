@@ -4,14 +4,18 @@ import com.tiagods.gfip.repository.ChaveRepository;
 import com.tiagods.gfip.config.ServerFile;
 import com.tiagods.gfip.model.Arquivo;
 import com.tiagods.gfip.model.Chave;
+import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Observable;
 import lombok.extern.slf4j.Slf4j;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
+import org.apache.commons.collections.list.TreeList;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -21,10 +25,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -38,7 +43,7 @@ public class MapearGfip {
     @Autowired ArquivoDAO arquivoDAO;
     @Autowired ChaveDAO chaveDAO;
 
-    final Map<Arquivo, List<Chave>> toSave = new ConcurrentHashMap<>();
+    Map<Arquivo, List<Chave>> toSave = new ConcurrentHashMap<>();
 
     boolean processoRodando = false;
 
@@ -46,52 +51,64 @@ public class MapearGfip {
         return (processoRodando && !toSave.isEmpty());
     }
 
-    public synchronized void iniciarMapeamento() {
+    public void iniciarMapeamento() {
         processoRodando = true;
 
         String cid = UUID.randomUUID().toString();
         log.info("Correlation: [{}]. Iniciando mapeamento de arquivos gfip", cid);
         Path path = Paths.get(serverFile.getGfip());
 
-        List<CompletableFuture> futuresList = new ArrayList<>();
+//        List<CompletableFuture> futuresList = new ArrayList<>();
 
-        CompletableFuture<String> future1 = CompletableFuture.supplyAsync(()-> runSave(cid));
+//        CompletableFuture save = CompletableFuture.runAsync(()->runSave(cid),
 //                CompletableFuture.delayedExecutor(30L, TimeUnit.SECONDS));
-        futuresList.add(future1);
+//        futuresList.add(future1);
 
-        if (Files.exists(path) && Files.isDirectory(path)) {
-            File[] files = path.toFile().listFiles();
-            for(File f : files) {
-                CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
-                    processarPastas(f.toPath());
-                    return "OnProcessor";
-                });
-                futuresList.add(future);
-            }
-        } else {
-            log.info("Correlation: [{}]. Pasta nao existe ({})", cid, path.toString());
-        }
+        Path path1 = path.resolve("SEM SISTEMA");
+        Path path2 = path.resolve("CONTROL");
+        Path path3 = path.resolve("CONTIMATIC");
 
-        CompletableFuture<Void> combinate = CompletableFuture
-                .allOf(futuresList.toArray(new CompletableFuture[futuresList.size()]));
+        CompletableFuture.supplyAsync(()-> runSave(cid));
+        CompletableFuture<String> future1 = CompletableFuture.supplyAsync(()->processarAssincrono(path1));
+        CompletableFuture<String> future2 = CompletableFuture.supplyAsync(()->processarAssincrono(path2));
+        CompletableFuture<String> future3 = CompletableFuture.supplyAsync(()->processarAssincrono(path3));
 
-        if(combinate.isDone()) {
+        CompletableFuture completableFuture = CompletableFuture.allOf(future1, future2, future3);
+        if(completableFuture.isDone()) {
             log.info("Correlation: [{}]. Concluindo arquivos gfip", cid);
             processoRodando = false;
+
         }
     }
 
+    @Async
     private String runSave(String cid) {
+        System.out.printf("calling MyBean#runTask() thread: %s%n",
+                Thread.currentThread().getName());
         while(processoRodando || !toSave.isEmpty()) {
+            if(processoRodando) {
+                try {
+                    Thread.sleep(10000);
+                }catch (InterruptedException e){}
+            }
             if(!toSave.isEmpty()){
-                Arquivo arquivo = toSave.keySet().stream().findFirst().get();
+                Map.Entry<Arquivo, List<Chave>> entry = toSave.entrySet().iterator().next();
+                Arquivo arquivo = entry.getKey();
                 log.info("Correlation: [{}]. Salvando chaves de ({}) e removendo do map", cid, arquivo.getDiretorio());
                 arquivoDAO.salvar(arquivo);
-                chaveDAO.salvar(toSave.get(arquivo));
+                chaveDAO.salvar(entry.getValue());
                 toSave.remove(arquivo);
             }
         }
         return "ToSave";
+    }
+
+    @Async
+    public String processarAssincrono(Path diretorio){
+        if(Files.exists(diretorio) && Files.isDirectory(diretorio)) {
+            processarPastas(diretorio);
+        }
+        return diretorio.getFileName().toString();
     }
 
     private void processarPastas(Path diretorio) {
@@ -99,7 +116,6 @@ public class MapearGfip {
                 .diretorio(diretorio.toString())
                 .data(new Date())
                 .build();
-
         try {
             List<Path> files = Files.list(diretorio).collect(Collectors.toList());
             List<Chave> chaves = new ArrayList<>();
@@ -117,7 +133,7 @@ public class MapearGfip {
         }
     }
 
-    public Optional<LocalDate> coletarData(List<Chave> chaves) {
+    Optional<LocalDate> coletarData(List<Chave> chaves) {
         if(chaves.isEmpty()) return Optional.empty();
 
         Map<LocalDate, Long> collect = chaves.stream().filter(c -> c.getPeriodo() != null)
@@ -147,6 +163,8 @@ public class MapearGfip {
                 String texto = stripper.getText(document);
                 if (i == 1 && isProtocolo(texto, pdf)) break;
 
+                final int page = i;
+
                 if (!texto.isEmpty()) {
                     Chave result = buscarCnpjNaPagina(pdf, i, texto);
                     chaves.stream()
@@ -155,7 +173,12 @@ public class MapearGfip {
                                     && f.getCnpjSoNumero().equals(result.getCnpjSoNumero())
                             )
                             .findFirst()
-                            .ifPresentOrElse(chave -> chave.getPaginas().addAll(result.getPaginas()), ()-> chaves.add(result));
+                            .ifPresentOrElse(chave -> {
+                                Set<Integer> paginas = new TreeSet<>();
+                                paginas.addAll(result.getPaginas());
+                                paginas.add(page);
+                                chave.setPaginas(new ArrayList<>(paginas));
+                            }, ()-> chaves.add(result));
                 }
             }
         } catch (IOException ex) {
@@ -188,7 +211,21 @@ public class MapearGfip {
             chave.setCnpj(cnpj);
             chave.setCnpjSoNumero(soNumeros);
             chave.setData(new Date());
+
+            Matcher matcherData = Pattern.compile("\\s(\\d{2}\\/\\d{4})\\s").matcher(texto);
+            if(matcherData.find()) {
+                try {
+                    String valor = matcherData.group().trim();
+                    valor = "01/"+valor;
+                    LocalDate localDate = LocalDate.from(DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                            .parse(valor));
+                    chave.setPeriodo(localDate);
+                }catch (DateTimeParseException ex){}
+            }
         }
+
+
+
         return chave;
     }
 
