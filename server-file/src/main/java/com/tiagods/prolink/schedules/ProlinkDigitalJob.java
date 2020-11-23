@@ -26,7 +26,7 @@ public class ProlinkDigitalJob {
     ServerFile serverFile;
 
     //rodar as 1:00, 2 e 3 do dia 1
-    @Scheduled(cron = "0 0 1,23 1 * ?")
+    //@Scheduled(cron = "0 0 1,23 1 * ?")
     public void agendarProlinkDigital() {
         String cid = UUID.randomUUID().toString();
         log.info("Correlation: [{}]. Iniciando processo - Movendo por agendamento", cid);
@@ -42,7 +42,7 @@ public class ProlinkDigitalJob {
 
         if(Files.exists(origem)) {
             try {
-                TempUtils.createFileTemp(origem, true);
+                //TempUtils.createFileTemp(origem, true);
                 FileUtils.moveDirectoryToDirectory(origem.toFile(), destino.toFile(), true);
                 log.info("Correlation: [{}]. Conclusao de movimentacao de arquivos de prolink digital em faturamento", cid, destino.toString());
             } catch (IOException e) {
@@ -52,6 +52,5 @@ public class ProlinkDigitalJob {
             log.warn("Correlation: [{}]. Nao foi possivel mover pasta: ({}) para: ({}). A pasta de origem nao existe",
                     cid, origem, destino);
         }
-
     }
 }

@@ -109,34 +109,47 @@ public class ProcessarService {
                     log.error(e.getMessage());
                 }
             } else {
+                Path fileResult = file;
+                String fileName = fileResult.getFileName().toString();
+                Matcher matcher = Pattern.compile(regex.getInitByCnpj()).matcher(fileName);
+                Matcher matcher2 = Pattern.compile(regex.getExtractCnpj()).matcher(fileName);
+
+                //verificando se o arquivo contem um cnpj
+                if(matcher.find() && matcher2.find()) {
+                    Optional<Cliente> cliente = clienteService.buscarClienteEmMapPorCnpj(cid, matcher2.group());
+                    cliente.ifPresent(c-> {
+                        if(apelido == null || c.getIdFormatado().equals(apelido)) {
+                            Path p = clienteService.buscarPastaBaseCliente(cid, c);
+                            ioService.mover(cid, c, true, fileResult, p, estrutura);
+                        }
+                    });
+                }
                 //processar quando não for enviado cliente, entende-se que é para descobrir o cliente de cada arquivo
-                if(cli == null && pastaCliente == null) {
-                    String fileName = file.getFileName().toString();
-                    if(apelido!=null){//mover arquivo pelo apelido
-                        Matcher matcher = Pattern.compile(regex.getInitByIdReplaceNickName()
+                else if (cli == null && pastaCliente == null) {
+                    if(apelido!=null) {//mover arquivo pelo apelido
+                        Matcher matcher3 = Pattern.compile(regex.getInitByIdReplaceNickName()
                                 .replace("nickName", apelido)).matcher(fileName);
-                        if(matcher.find()){
+                        if(matcher3.find()){
                             Optional<Cliente> cliente = clienteService.buscarClienteEmMapPorId(cid, Long.parseLong(apelido));
                             cliente.ifPresent(c-> {
                                 Path p = clienteService.buscarPastaBaseCliente(cid, c);
-                                ioService.mover(cid, c, false, file, p, estrutura);
+                                ioService.mover(cid, c, false, fileResult, p, estrutura);
                             });
                         }
-                    }
-                    else {
-                        Matcher matcher = Pattern.compile(regex.getInitById()).matcher(fileName);
-                        Matcher matcher2 = Pattern.compile(regex.getExtractId()).matcher(fileName);
-                        if (matcher.find() && matcher2.find()) {
-                            Optional<Cliente> cliente = clienteService.buscarClienteEmMapPorId(cid, Long.parseLong(matcher2.group()));
+                    } else {
+                        Matcher matcher3 = Pattern.compile(regex.getInitById()).matcher(fileName);
+                        Matcher matcher4 = Pattern.compile(regex.getExtractId()).matcher(fileName);
+                        if (matcher3.find() && matcher4.find()) {
+                            Optional<Cliente> cliente = clienteService.buscarClienteEmMapPorId(cid, Long.parseLong(matcher4.group()));
                             cliente.ifPresent(c -> {
                                 Path p = clienteService.buscarPastaBaseCliente(cid, c);
-                                ioService.mover(cid, c, false, file, p, estrutura);
+                                ioService.mover(cid, c, false, fileResult, p, estrutura);
                             });
                         }
                     }
                 } else {
                     //base - subpastas - arquivo
-                    ioService.mover(cid, cli, renomearSemId, file, pastaCliente, estrutura);
+                    ioService.mover(cid, cli, renomearSemId, fileResult, pastaCliente, estrutura);
                 }
             }
         });

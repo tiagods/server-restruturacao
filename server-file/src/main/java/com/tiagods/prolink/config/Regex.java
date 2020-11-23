@@ -17,5 +17,7 @@ public class Regex {
     private String initById;
     private String extractId;
     private String initByIdReplaceNickName;
+    private String initByCnpj;
+    private String extractCnpj;
     private String structure;
 }

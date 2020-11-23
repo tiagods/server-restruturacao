@@ -73,7 +73,6 @@ public class ClienteService {
         }
         log.info("Correlation: [{}]. Carregando lista de clientes: ({})", cid, clientDTOList.size());
         clientDTOList.forEach(c -> {
-            log.warn("Lendo cliente "+c.getApelido());
             clientSet.add(
                     new Cliente(c.getApelido(), c.getNome(), c.getStatus(), c.getCnpj())
             );
@@ -247,6 +246,18 @@ public class ClienteService {
                 .filter(c -> c.getId().equals(id))
                 .findFirst();
         log.info("Correlation: [{}]. Encontrado cliente com o apelido {} ? {}", cid, id, result.isPresent());
+        return result;
+    }
+
+    public Optional<Cliente> buscarClienteEmMapPorCnpj(String cid, String cnpj){
+        iniciarlizarSeVazio(cid);
+
+        Optional<Cliente> result = cliMap
+                .keySet()
+                .stream()
+                .filter(c -> c.getCnpjFormatado().equals(cnpj))
+                .findFirst();
+        log.info("Correlation: [{}]. Encontrado cliente com o cnpj {} ? {}", cid, cnpj, result.isPresent());
         return result;
     }
 

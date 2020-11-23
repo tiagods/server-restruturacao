@@ -22,9 +22,11 @@ public class Obrigacao {
 
     @Getter
     public enum Tipo {
-        PROLINKDIGITAL("PROLINK DIGITAL", "Geral/PROLINK DIGITAL", TipoArquivo.PASTA),
+        PROLINKDIGITAL("PROLINK DIGITAL_FISCAL", "Geral/PROLINK DIGITAL", TipoArquivo.PASTA),
         IRPF("IRPF", "Obrigacao/IRPF", TipoArquivo.ARQUIVO),
-        DIRF("DIRF", "Obrigacao/DIRF", TipoArquivo.ARQUIVO);
+        DIRF("DIRF", "Obrigacao/DIRF", TipoArquivo.ARQUIVO),
+        DCTF("DCTF", "Obrigacao/DCTF", TipoArquivo.ARQUIVO);
+
         private String descricao;
         private String estrutura;
         private TipoArquivo tipoArquivo;

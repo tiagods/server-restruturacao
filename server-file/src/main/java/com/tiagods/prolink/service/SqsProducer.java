@@ -6,6 +6,7 @@ import com.tiagods.prolink.dto.ArquivoDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.aws.messaging.core.QueueMessagingTemplate;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -23,7 +24,7 @@ public class SqsProducer {
     public void sendArquivo(String cid, ArquivoDTO arquivoDTO) {
         ObjectMapper Obj = new ObjectMapper();
         try {
-            log.info("Correlation [{}]. Enviando mensagem para: {}, parametros: ({}  )", cid, sqs.getArquivo(), arquivoDTO);
+            log.info("Correlation [{}]. Enviando mensagem para: {}, parametros: ({})", cid, sqs.getArquivo(), arquivoDTO);
             String jsonStr = Obj.writeValueAsString(arquivoDTO);
             messagingTemplate.convertAndSend(sqs.getArquivo(), jsonStr);
         } catch (IOException e) {

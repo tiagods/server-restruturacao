@@ -17,16 +17,17 @@ public abstract class ObrigacaoFactory {
         Year year = obrigacao.getAno();
         Month month = obrigacao.getMes();
 
-        if(tipo.equals(Obrigacao.Tipo.PROLINKDIGITAL)){
+        if(tipo.equals(Obrigacao.Tipo.PROLINKDIGITAL)) {
             Pair<String, String> pairMes = Pair.of("PROLINK DIGITAL ","-{ANO}");
             return new ObrigacaoContratoImpl(obrigacao, Map.of(Periodo.ANO, IGUAL, Periodo.MES, MEIO),
                     Pair.of("", ""), pairMes, year, month);
-        }
-        else if(tipo.equals(Obrigacao.Tipo.IRPF)){
+        } else if(tipo.equals(Obrigacao.Tipo.IRPF)) {
             return new ObrigacaoContratoImpl(obrigacao, Map.of(Periodo.ANO, IGUAL),
                     Pair.of("", ""), Pair.of("",""), year, month);
-        }
-        else if(tipo.equals(Obrigacao.Tipo.DIRF)){
+        } else if(tipo.equals(Obrigacao.Tipo.DIRF)) {
+            return new ObrigacaoContratoImpl(obrigacao, Map.of(Periodo.ANO, IGUAL),
+                    Pair.of("", ""), Pair.of("",""), year, month);
+        } else if(tipo.equals(Obrigacao.Tipo.DCTF)) {
             return new ObrigacaoContratoImpl(obrigacao, Map.of(Periodo.ANO, IGUAL, Periodo.MES, IGUAL),
                     Pair.of("", ""), Pair.of("",""), year, month);
         }

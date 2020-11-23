@@ -1,23 +1,19 @@
 package com.tiagods.prolink.config;
 
+import com.tiagods.prolink.model.Obrigacao;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 @Component
 @EnableConfigurationProperties
-@ConfigurationProperties("serverfile")
+@ConfigurationProperties("obrigacaoconfig")
 @Data
-public class ServerFile {
+public class ObrigacaoConfig {
     @NotNull
-    private String root;
-    @NotNull
-    private String base;
-    @NotNull
-    private String model;
-    @NotNull
-    private String shutdown;
+    Map<Obrigacao.Tipo, String> obrigacoes;
 }

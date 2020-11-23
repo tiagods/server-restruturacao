@@ -38,7 +38,7 @@ public class IOService {
     public Path mover(String cid, Cliente cli, boolean renomearSemId, Path arquivo, Path pastaCliente, Path estrutura){
         String nome = arquivo.getFileName().toString();
         //renomeando path se necessario
-        String fileName = renomearSemId && !validarSeIniciaComId(cid, arquivo, cli.getIdFormatado(), true) ?
+        String fileName = renomearSemId && !validarSeIniciaComId(cid, arquivo, cli, true) ?
                     cli.getIdFormatado() + "-" + nome : nome;
 
         log.info("Correlation: [{}]. Nome do arquivo: ({}) para ({})", cid, nome, fileName);
@@ -60,10 +60,10 @@ public class IOService {
         }
     }
 
-    public boolean validarSeIniciaComId(String cid, Path file, String idFormatado, boolean salvarErro){
+    public boolean validarSeIniciaComId(String cid, Path file, Cliente cli, boolean salvarErro){
         String valor = file.getFileName().toString();
         boolean matcher1 = valor.matches(regex.getInitById());
-        boolean matcher2 = valor.matches(regex.getInitByIdReplaceNickName().replace("nickName", idFormatado));
+        boolean matcher2 = valor.matches(regex.getInitByIdReplaceNickName().replace("nickName", cli.getIdFormatado()));
         if(matcher1 && !matcher2 && salvarErro) {//pode iniciar com o id de outro cliente
             arquivoDAOService.salvarErro(cid, file,null, ArquivoErroDTO.Status.WARN.getDescricao(), ArquivoErroDTO.Status.ERROR, null);
         }
