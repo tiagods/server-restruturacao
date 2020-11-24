@@ -33,18 +33,8 @@ public class ObrigacoesJob {
     @Autowired
     private ObrigacaoConfig obrigacaoConfig;
 
-    public static void main(String[] args) {
-        LocalDate date = LocalDate.now();
-        Set<LocalDate> list = new TreeSet<>();
-        //vai processar os 12 ultimos meses, pegando de 2 meses para tras.
-        //ex: se estamos em novembro, ira processar
-        for(int i = -2; i > -14; i--) {
-            list.add(date.plusMonths(i));
-        }
-    }
-    //todos os dias para obrigacoes mensais
-
     //@Scheduled(cron = "0 0 1,23 1 * ?")
+    //@Scheduled(cron = "0 0 3 ? * MON-FRI")
     public void executar() {
         String cid = UUID.randomUUID().toString();
         log.info("Correlation: [{}]. Iniciando processo - Movendo por agendamento", cid);
@@ -52,10 +42,9 @@ public class ObrigacoesJob {
         Set<LocalDate> list = new TreeSet<>();
         //vai processar os 12 ultimos meses, pegando de 2 meses para tras.
         //ex: se estamos em novembro, ira processar
-        for(int i = -2; i > -14; i--) {
+        for(int i = -3; i > -15; i--) {
             list.add(date.plusMonths(i));
         }
-
         obrigacaoConfig.getObrigacoes().forEach((key,value)->{
 
             Obrigacao.Tipo tipo = key;

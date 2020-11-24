@@ -25,7 +25,14 @@ public class Obrigacao {
         PROLINKDIGITAL("PROLINK DIGITAL_FISCAL", "Geral/PROLINK DIGITAL", TipoArquivo.PASTA),
         IRPF("IRPF", "Obrigacao/IRPF", TipoArquivo.ARQUIVO),
         DIRF("DIRF", "Obrigacao/DIRF", TipoArquivo.ARQUIVO),
-        DCTF("DCTF", "Obrigacao/DCTF", TipoArquivo.ARQUIVO);
+        DCTF("DCTF", "Obrigacao/DCTF", TipoArquivo.ARQUIVO),
+        GIAICMS("GIA-ICMS", "Obrigacao/GIA-ICMS", TipoArquivo.ARQUIVO),
+        REINF("REINF","Obrigacao/REINF", TipoArquivo.ARQUIVO),
+        SEDIFDESTDA("SEDIF-DESTDA", "Obrigacao/SEDIF-DESTDA", TipoArquivo.ARQUIVO),
+        SIMPLESNACIONALPGDASD("SIMPLES NACIONAL-PGDASD", "Obrigacao/SIMPLES NACIONAL-PGDASD", TipoArquivo.ARQUIVO),
+        SINTEGRA("SINTEGRA", "Obrigacao/SINTEGRA", TipoArquivo.ARQUIVO),
+        SPEDICMSIPI("SPED ICMS IPI", "Obrigacao/SPED ICMS IPI", TipoArquivo.ARQUIVO),
+        SPEDPISCOFINS("SPED PIS COFINS", "Obrigacao/SPED PIS COFINS", TipoArquivo.ARQUIVO);
 
         private String descricao;
         private String estrutura;
