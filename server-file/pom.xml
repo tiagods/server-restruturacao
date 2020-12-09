@@ -22,6 +22,7 @@
 	<name>server-file</name>
 	<description>Aplicacao para transferencia de arquivos</description>
 	<version>2.0</version>
+    <packaging>war</packaging>
 
 	<dependencies>
 		<dependency>
@@ -138,6 +139,7 @@
 	</dependencyManagement>
 
 	<build>
+		<finalName>server-file</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

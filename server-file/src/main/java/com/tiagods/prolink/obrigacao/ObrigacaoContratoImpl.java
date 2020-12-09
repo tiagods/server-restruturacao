@@ -82,7 +82,7 @@ public class ObrigacaoContratoImpl implements ObrigacaoContrato {
                 builder.append(DateUtils.anoString(year));
             }
         }
-        String s=builder.toString().replace("{ANO}", year == null? "" : DateUtils.anoString(year))
+        String s = builder.toString().replace("{ANO}", year == null? "" : DateUtils.anoString(year))
                 .replace("{MES}", month == null ? "" : DateUtils.mesString(month));
         return s;
     }
