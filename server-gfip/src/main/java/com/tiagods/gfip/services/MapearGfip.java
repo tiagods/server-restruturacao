@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
@@ -47,6 +48,8 @@ public class MapearGfip {
 
     boolean processoRodando = false;
 
+    LocalDateTime date;
+
     public boolean isProcessoRodando() {
         return (processoRodando && !toSave.isEmpty());
     }
@@ -54,34 +57,48 @@ public class MapearGfip {
     public void iniciarMapeamento() {
         processoRodando = true;
 
+        date = LocalDateTime.now();
+
         String cid = UUID.randomUUID().toString();
         log.info("Correlation: [{}]. Iniciando mapeamento de arquivos gfip", cid);
         Path path = Paths.get(serverFile.getGfip());
-
-//        List<CompletableFuture> futuresList = new ArrayList<>();
-
-//        CompletableFuture save = CompletableFuture.runAsync(()->runSave(cid),
-//                CompletableFuture.delayedExecutor(30L, TimeUnit.SECONDS));
-//        futuresList.add(future1);
 
         Path path1 = path.resolve("SEM SISTEMA");
         Path path2 = path.resolve("CONTROL");
         Path path3 = path.resolve("CONTIMATIC");
 
-        CompletableFuture.supplyAsync(()-> runSave(cid));
-        CompletableFuture<String> future1 = CompletableFuture.supplyAsync(()->processarAssincrono(path1));
-        CompletableFuture<String> future2 = CompletableFuture.supplyAsync(()->processarAssincrono(path2));
-        CompletableFuture<String> future3 = CompletableFuture.supplyAsync(()->processarAssincrono(path3));
+        //CompletableFuture<String> future1 = CompletableFuture.supplyAsync(()-> processarAssincrono(path1));
+        //CompletableFuture<String> future2 = CompletableFuture.supplyAsync(()->processarAssincrono(path2));
+        //CompletableFuture<String> future3 = CompletableFuture.supplyAsync(()->processarAssincrono(path3));
 
-        CompletableFuture completableFuture = CompletableFuture.allOf(future1, future2, future3);
+        List<Path> files = new LinkedList<>();
+        List<CompletableFuture> futureList = new ArrayList<>();
+        files.add(path1);
+        try {
+            files.addAll(Files.list(path2).collect(Collectors.toSet()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            files.addAll(Files.list(path3).collect(Collectors.toSet()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ExecutorService pool = Executors.newFixedThreadPool(20);
+        for(Path dir: files) {
+            CompletableFuture future = CompletableFuture.runAsync(()-> processarAssincrono(dir), pool);
+            futureList.add(future);
+        }
+
+        CompletableFuture completableFuture = CompletableFuture
+                .allOf(futureList.toArray(new CompletableFuture[futureList.size()]));
         if(completableFuture.isDone()) {
             log.info("Correlation: [{}]. Concluindo arquivos gfip", cid);
             processoRodando = false;
-
         }
     }
 
-    @Async
+//    @Async
     private String runSave(String cid) {
         System.out.printf("calling MyBean#runTask() thread: %s%n",
                 Thread.currentThread().getName());
@@ -103,7 +120,6 @@ public class MapearGfip {
         return "ToSave";
     }
 
-    @Async
     public String processarAssincrono(Path diretorio){
         if(Files.exists(diretorio) && Files.isDirectory(diretorio)) {
             processarPastas(diretorio);
@@ -116,18 +132,33 @@ public class MapearGfip {
                 .diretorio(diretorio.toString())
                 .data(new Date())
                 .build();
+
+        Optional<Arquivo> result = arquivoDAO.findById(diretorio.toString());
+        if(result.isPresent()){
+            arquivo = result.get();
+            arquivo.setData(new Date());
+        }
+
         try {
             List<Path> files = Files.list(diretorio).collect(Collectors.toList());
             List<Chave> chaves = new ArrayList<>();
+
+            //files.stream().map(c->c.toFile().lastModified()).filter(f->f.longValue())
             for (Path file : files) {
                 if(Files.isDirectory(file)) {
                     processarPastas(file);
-                } else if(file.getFileName().toString().toUpperCase().endsWith(".PDF")){
+                } else if(file.getFileName().toString().toLowerCase().endsWith(".pdf")){
                     chaves.addAll(processarPdf(file));
                 }
             }
-            coletarData(chaves).ifPresent(result -> arquivo.setPeriodo(result));
-            toSave.put(arquivo, chaves);
+            Optional<LocalDate> data = coletarData(chaves);
+            if(data.isPresent()){
+                arquivo.setPeriodo(data.get());
+            }
+            //toSave.put(arquivo, chaves);
+            log.info("Salvando local: {}", diretorio.toString());
+            arquivoDAO.salvar(arquivo);
+            chaveDAO.salvar(chaves);
         } catch (IOException e) {
             log.error("Falha ao processar pasta: ({}), ex: ({})", diretorio, e.getMessage());
         }
@@ -135,14 +166,10 @@ public class MapearGfip {
 
     Optional<LocalDate> coletarData(List<Chave> chaves) {
         if(chaves.isEmpty()) return Optional.empty();
-
         Map<LocalDate, Long> collect = chaves.stream().filter(c -> c.getPeriodo() != null)
                 .collect(Collectors.groupingBy(Chave::getPeriodo, Collectors.counting()));
         Long count = collect.values().stream().max(Long::compareTo).orElse(0L);
-
-        log.info("Lista de datas: ({})", collect);
-        log.info("Total de datas encontradas: {}", collect.size());
-
+        log.info("Datas: ({}). Total de datas encontradas: {}",  collect, collect.size());
         Optional<LocalDate> max = collect
                 .entrySet()
                 .stream().filter(p -> p.getValue().longValue() == count)
@@ -162,9 +189,7 @@ public class MapearGfip {
                 stripper.setEndPage(i);
                 String texto = stripper.getText(document);
                 if (i == 1 && isProtocolo(texto, pdf)) break;
-
                 final int page = i;
-
                 if (!texto.isEmpty()) {
                     Chave result = buscarCnpjNaPagina(pdf, i, texto);
                     chaves.stream()
@@ -181,14 +206,14 @@ public class MapearGfip {
                             }, ()-> chaves.add(result));
                 }
             }
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             log.error(ex.getMessage());
         } finally {
             try {
                 if (document != null) {
                     document.close();
                 }
-            } catch (IOException ex) {
+            } catch (Exception ex) {
             }
         }
         return chaves;

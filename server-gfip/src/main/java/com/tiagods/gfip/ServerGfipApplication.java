@@ -27,6 +27,6 @@ public class ServerGfipApplication extends SpringBootServletInitializer implemen
 
 	@Override
 	public void run(String... args) throws Exception {
-		//mapearGfip.iniciarMapeamento();
+		mapearGfip.iniciarMapeamento();
 	}
 }

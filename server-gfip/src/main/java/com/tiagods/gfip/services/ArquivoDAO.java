@@ -5,6 +5,8 @@ import com.tiagods.gfip.repository.ArquivoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class ArquivoDAO {
 
@@ -13,6 +15,10 @@ public class ArquivoDAO {
 
     public Arquivo salvar(Arquivo arquivo) {
         return arquivoRepository.save(arquivo);
+    }
+
+    public Optional<Arquivo> findById(String id) {
+        return arquivoRepository.findById(id);
     }
 }
 

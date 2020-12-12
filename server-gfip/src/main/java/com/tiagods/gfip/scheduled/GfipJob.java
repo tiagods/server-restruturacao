@@ -17,7 +17,7 @@ public class GfipJob {
     @Autowired
     MapearGfip gfip;
 
-    @Scheduled(cron = "${job.gfip}")
+   // @Scheduled(cron = "${job.gfip}")
     public void gfipJob() throws Exception{
         boolean result = gfip.isProcessoRodando();
         String correlation = UUID.randomUUID().toString();

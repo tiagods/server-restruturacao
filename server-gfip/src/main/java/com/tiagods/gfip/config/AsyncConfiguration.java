@@ -7,18 +7,17 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.Executor;
 
-
 @EnableAsync
 @Configuration
 public class AsyncConfiguration {
-
-    @Bean
-    public Executor getAsyncExecutor () {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    
+//    @Bean("taskExecutor")
+    public Executor taskExecutor () {
+        final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(5);
-        executor.setMaxPoolSize(10);
+        executor.setMaxPoolSize(50);
         executor.setQueueCapacity(100);
-        executor.setThreadNamePrefix("gfipthread-");
+        executor.setThreadNamePrefix("GFIP-");
         executor.initialize();
         return executor;
     }
