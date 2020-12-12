@@ -1,13 +1,14 @@
 package com.tiagods.toolgfip;
 
-import com.tiagods.toolgfip.repository.ArquivoGfipRepository;
 import com.tiagods.toolgfip.services.GfipService;
-import io.reactivex.rxjava3.core.Observable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import java.util.Arrays;
+import java.util.List;
 
 @SpringBootApplication
 @Slf4j
@@ -39,7 +40,14 @@ public class ToolGfipApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		String apelido = "2436";
-		gfipService.iniciarProcessamento(apelido, null);
+		List<Integer> apelidos = Arrays.asList(
+				707,
+				585
+		);
+
+		for(Integer i : apelidos) {
+			String apelido = String.valueOf(i);
+			gfipService.iniciarProcessamento(apelido, null);
+		}
 	}
 }

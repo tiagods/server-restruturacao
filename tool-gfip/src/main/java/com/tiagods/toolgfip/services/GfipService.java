@@ -13,12 +13,14 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -44,26 +46,27 @@ public class GfipService {
     ArquivoGfipRepository arquivoGfipRepository;
 
     public void iniciarProcessamento(String apelido, String cnpj) {
-        Observable<String> observable;
 
         if(StringUtils.hasText(apelido)) {
-            observable = Observable.just(apelido)
-                    .flatMap(c->
-                        c.matches("^[\\d]+$") ? Observable.just(Long.parseLong(apelido)):
-                                Observable.error(new Exception("Apelido invalido"))
-                    )
-                    .flatMap(c-> Observable.just(clientes.findByApelido(c)))
-                    .flatMap(c-> c.isPresent() ? Observable.just(c.get().getCnpj()) :
-                            Observable.error(new Exception("Cliente não encontrado"))
-                    );
+            if(!apelido.matches("^[\\d]+$")){
+                throw new RuntimeException("Apelido incorreto");
+            }
+            Optional<Cliente> byApelido = clientes.findByApelido(Long.parseLong(apelido));
+            if(byApelido.isPresent()) {
+                String newCnpj = byApelido.get().getCnpj();
+                if(!validarCnpj(newCnpj)){
+                    throw new RuntimeException("Cnpj invalido");
+                }
+                processar(apelido, newCnpj);
+            } else {
+                throw new RuntimeException("Cliente não encontrado");
+            }
         } else {
-            observable = Observable.just(cnpj);
+            if(!validarCnpj(cnpj)){
+                throw new RuntimeException("Cnpj invalido");
+            }
+            //processar(apelido, cnpj);
         }
-        observable
-                .flatMap(this::validarCnpj)
-                .subscribe(c->
-                        processar(apelido, c)
-                );
     }
 
     private void processar(String apelido, String cnpj) {
@@ -81,11 +84,8 @@ public class GfipService {
         });
     }
 
-    private Observable<String> validarCnpj(String cnpj) {
-        if(StringUtils.hasText(cnpj) && cnpj.matches("^\\d{2}\\.\\d{3}.\\d{3}\\/\\d{4}\\-\\d{2}$")){
-            return Observable.just(cnpj);
-        }
-        return Observable.error(new Exception("Cnpj invalido"));
+    private boolean validarCnpj(String cnpj) {
+        return (StringUtils.hasText(cnpj) && cnpj.matches("^\\d{2}\\.\\d{3}.\\d{3}\\/\\d{4}\\-\\d{2}$"));
     }
 
     private void extrairEGerarPdf(ChaveGfip chaveGfip, Path file, Path diretorio, String apelido) {
@@ -104,6 +104,9 @@ public class GfipService {
                     apelido.concat("-").concat(file.getFileName().toString());
 
             Path newFile = diretorio.resolve(newName);
+            if(!Files.exists(diretorio)){
+                Files.createDirectories(diretorio);
+            }
             documentNew.save(newFile.toFile());
             documentNew.close();
             document.close();
@@ -130,7 +133,7 @@ public class GfipService {
 
     private Path definirDiretorio(Path file, String apelido, String timestamep){
         Optional<ArquivoGfip> arquivoGfip = arquivoGfipRepository.findByDiretorio(file.getParent().toString());
-        Path diretorio = Paths.get("c:/TEMP", apelido);
+        Path diretorio = Paths.get(System.getProperty("user.home"), "backup_gfip", apelido);
         if(arquivoGfip.isPresent()) {
             LocalDate periodo = arquivoGfip.get().getPeriodo();
             if(periodo!=null) {
@@ -145,7 +148,6 @@ public class GfipService {
             } else {
                 diretorio = diretorio.resolve("undefined"+timestamep);
             }
-
         } else {
             diretorio = diretorio.resolve("undefined"+timestamep);
         }
@@ -158,7 +160,7 @@ public class GfipService {
         List<ChaveGfip> registrosGfip = chaveGfipRepository.findAllByParent(parent.toString());
         //pega todos os arquivos do diretorio que estao com cnpj
         Map<String, Long> longMap = registrosGfip.stream()
-                .filter(filter -> !StringUtils.isEmpty(filter.getCnpj()))
+                .filter(filter -> StringUtils.hasText(filter.getCnpj()))
                 .collect(groupingBy(ChaveGfip::getPath, counting()));
 
         try {
@@ -191,8 +193,10 @@ public class GfipService {
 
     private void copiar(Path origem, Path destino) {
         try {
-            Files.copy(origem, destino);
-        }catch (IOException e){
+            if(Files.exists(destino.getParent()))
+                Files.createDirectories(destino.getParent());
+            Files.copy(origem, destino, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e){
             e.printStackTrace();
         }
     }
