@@ -5,6 +5,17 @@ serverfile:
   base: C:\Temp\clientes
   model: C:\Temp\clientes\_base
   shutdown: C:\Temp\clientes\_desligados_extintas
+obrigacaoconfig:
+  obrigacoes:
+    PROLINKDIGITAL: C:\Temp\Fiscal\PROLINK DIGITAL_FISCAL
+    DCTF: C:\Temp\Fiscal\OBRIGAÇÕES FISCAIS\DCTF
+    GIAICMS:	C:\Temp\Fiscal\OBRIGAÇÕES FISCAIS\GIA-ICMS
+    REINF:	C:\Temp\Fiscal\OBRIGAÇÕES FISCAIS\REINF
+    SEDIFDESTDA:	C:\Temp\Fiscal\OBRIGAÇÕES FISCAIS\SEDIF-DESTDA
+    SIMPLESNACIONALPGDASD:	C:\Temp\Fiscal\OBRIGAÇÕES FISCAIS\SIMPLES NACIONAL-PGDASD
+    SINTEGRA:	C:\Temp\Fiscal\OBRIGAÇÕES FISCAIS\SINTEGRA
+    SPEDICMSIPI:	C:\Temp\Fiscal\OBRIGAÇÕES FISCAIS\SPED ICMS IPI
+    SPEDPISCOFINS:	C:\Temp\Fiscal\OBRIGAÇÕES FISCAIS\SPED PIS COFINS
 server:
   port: 8082
 sqsurl:

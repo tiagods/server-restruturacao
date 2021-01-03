@@ -13,11 +13,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.Month;
 import java.time.Year;
 import java.util.*;
@@ -29,6 +31,43 @@ public class ObrigacaoPreparedService {
 
     @Autowired private ClienteService clienteService;
     @Autowired private ProcessarService operacaoService;
+
+    public void iniciarMovimentacaoPorObrigacaoGeral(String cid, Obrigacao.Tipo tipo, String dir, Set<LocalDate> periodos) {
+        cid = (cid != null) ? cid : UUID.randomUUID().toString();
+        log.info("Correlation: [{}]. Movendo por obrigacao = {}, pasta=({}), periodos=({})", cid, tipo, dir, periodos);
+
+        Path diretorio = Paths.get(dir);
+        boolean existe = Files.exists(diretorio);
+        boolean contemArquivos = false;
+
+        try {
+            contemArquivos = Files.isDirectory(diretorio)
+                    && StringUtils.hasText(dir)
+                    && Files.list(diretorio).count() > 0;
+        } catch(IOException ex) {
+            log.error("Correlation: [{}]. Nao foi possivel listar a pasta {}", cid, dir);
+        }
+
+        if(tipo != null && existe && contemArquivos) {
+            for (LocalDate localDate : periodos) {
+                Obrigacao obrigacao = new Obrigacao();
+                obrigacao.setMes(localDate.getMonth());
+                obrigacao.setAno(Year.of(localDate.getYear()));
+                obrigacao.setTipo(tipo);
+                obrigacao.setDirForJob(dir);
+                ObrigacaoContrato contrato = ObrigacaoFactory.get(obrigacao);
+                if(contrato.contains(Periodo.MES)) {
+                    try {
+                        iniciarMovimentacaoPorObrigacao(cid, contrato, obrigacao);
+                    } catch (ParametroNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (PathInvalidException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
 
     @Async
     public void iniciarMovimentacaoPorPasta(String cid, PathJob pathJob, String nickName) {
