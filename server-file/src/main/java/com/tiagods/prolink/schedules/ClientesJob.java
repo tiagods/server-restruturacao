@@ -19,7 +19,7 @@ public class ClientesJob {
     public void organizarCliente(){
         String cid = UUID.randomUUID().toString();
         log.info("Correlation: [{}]. Iniciando processo - organizacao de pastas de clientes", cid);
-        clienteService.inicializarPathClientes(cid, null,true, false);
+        clienteService.inicializarPathClientes(cid, null, true, false);
         log.info("Correlation: [{}]. Processo de organizacao de pastas de cliente concluido.", cid);
     }
 }

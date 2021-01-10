@@ -69,26 +69,26 @@ public class ArquivoController {
 
         if(apelido.length()==4) {
             moverpastas.iniciarMovimentacaoPorPasta(cid, pathJob, apelido);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.noContent().header("cid", cid).build();
         }
         throw new InvalidNickException("O apelido informado é invalido, tamanho minimo de 4 caracteres");
     }
 
 
     @Async
-    @PostMapping("/moverpastas/obrigacao/all")
+    @PostMapping("/moverpastas/obrigacao/{tipo}/all")
     public ResponseEntity<?> moverTudoObrigacao(@RequestHeader MultiValueMap<String, String> headers,
-                                                @RequestBody @NotNull Obrigacao.Tipo tipo) throws Exception {
+                                                @PathVariable @NotNull String tipo) throws Exception {
         String cid = ContextHeaders.getCid(headers);
 
-        Map<String, Object> parametros = new HashMap<>(){{
-            put("tipo", tipo);
-        }};
-
-        log.info("Correlation: [{}] GET api/files/moverpastas/obrigacao .Parametros: ({})", cid, parametros);
+        log.info("Correlation: [{}] GET api/files/moverpastas/obrigacao/{}/all)", cid, tipo);
 
         Set<LocalDate> datas = DateUtils.gerarPeriodosProcessamento(null);
-        Optional<Map.Entry<Obrigacao.Tipo, String>> result = obrigacaoConfig.getObrigacoes().entrySet().stream().filter(entry -> entry.getKey().equals(tipo)).findFirst();
+        Optional<Map.Entry<Obrigacao.Tipo, String>> result = obrigacaoConfig.getObrigacoes()
+                .entrySet()
+                .stream()
+                .filter(entry -> entry.getKey().name().equals(tipo))
+                .findFirst();
 
         if (result.isPresent()) {
             Map.Entry<Obrigacao.Tipo, String> entry = result.get();
@@ -96,7 +96,7 @@ public class ArquivoController {
         } else {
             return ResponseEntity.badRequest().body("{\"message\":\"Obrigação invalida\"}");
         }
-        return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"Solicitação em andamento\"}");
+        return ResponseEntity.status(HttpStatus.OK).header("cid", cid).body("{\"message\": \"Solicitação em andamento\"}");
     }
 
     @Async
@@ -122,5 +122,10 @@ public class ArquivoController {
             return ResponseEntity.badRequest().body("{\"message\":\"Obrigação invalida\"}");
         }
         return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"Solicitação em andamento\"}");
+    }
+
+    @GetMapping("/obrigacoes/pastas/clear")
+    public void clear() {
+        System.gc();
     }
 }

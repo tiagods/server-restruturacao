@@ -21,7 +21,7 @@ public class ObrigacoesJob {
     @Autowired
     private ObrigacaoConfig obrigacaoConfig;
 
-    @Scheduled(cron = "0 0 1,23 1 * ?")
+    @Scheduled(cron = "0 0 3 1-5 * ?")
     //@Scheduled(cron = "0 0 3 ? * MON-FRI")
     public void executar() {
         String cid = UUID.randomUUID().toString();
@@ -32,5 +32,6 @@ public class ObrigacoesJob {
         obrigacaoConfig.getObrigacoes().forEach((key, value)->{
             obrigacaoPreparedService.iniciarMovimentacaoPorObrigacaoGeral(cid, key, value, datas);
         });
+        System.gc();
     }
 }
