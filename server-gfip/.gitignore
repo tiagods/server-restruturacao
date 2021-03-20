@@ -2,9 +2,6 @@ HELP.md
 target/
 */out/
 */.mvn/
-application.properties
-application.yml
-application-dev.yml
 application-prod.yml
 
 ### STS ###
