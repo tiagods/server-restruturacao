@@ -5,7 +5,7 @@
     <property name="LOG_HOME" value="C:/LOGS"/>
     <property resource="application-prod.yml" />
     <springProperty name="logs.url" source="logs.url" />
-    <springProperty name="logs.user" source="logs.user" />
+    <springProperty name="logs.username" source="logs.username" />
     <springProperty name="logs.password" source="logs.password" />
 
     <!--  Console output -->
@@ -48,7 +48,7 @@ s        <!--Log asynchronous to the database -->s
             <dataSource class="org.apache.commons.dbcp.BasicDataSource">
                 <driverClassName>org.postgresql.Driver</driverClassName>
                 <url>${logs.url}</url>
-                <username>${logs.user}</username>
+                <username>${logs.username}</username>
                 <password>${logs.password}</password>
             </dataSource>
         </connectionSource>

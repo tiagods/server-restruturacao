@@ -1,5 +1,12 @@
 spring:
   profiles: dev
+  data:
+    mongodb:
+      username: ${MONGO_USER:mongo}
+      password: ${MONGO_PASSWORD:mongo}
+      host: ${MONGO_HOST:127.0.0.1}
+      port: 27017
+      database: ${MONGO_DB:admin}
 serverfile:
   root: C:\Temp\plkserver
   base: C:\Temp\clientes
@@ -20,6 +27,8 @@ server:
   port: 8082
 sqsurl:
   arquivo: ${SQS_ARQUIVO:https://sqs:us-east-1:amazonaws:com/707372836079/Arquivo-dev}
+logging:
+  config: classpath:logback-dev.xml
 jwt:
   secret: ${FILE_SECRET:mytoken}
 cloud:
