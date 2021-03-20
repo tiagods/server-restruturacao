@@ -19,5 +19,4 @@ public class Health {
         repository.count();
         return ResponseEntity.ok().body("{\"message\":\"Application is running\"}");
     }
-
 }
