@@ -1,6 +1,6 @@
 package com.tiagods.clientes.dao;
 
-import com.tiagods.clientes.DataResult;
+import com.tiagods.clientes.model.DataResult;
 import com.tiagods.clientes.factory.Factory;
 import java.sql.*;
 import java.util.ArrayList;
@@ -70,6 +70,8 @@ public class ClientesDAO {
                     }
                     clientes.add(row);
                 }
+
+                System.out.println(String.format("Total de colunas %d, total de clientes %d", colunas.size(), clientes.size()));
             } catch (SQLException sqlException) {
                 sqlException.printStackTrace();
             } finally {

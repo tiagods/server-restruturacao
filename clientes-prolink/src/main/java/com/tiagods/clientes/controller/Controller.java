@@ -1,4 +1,4 @@
-package com.tiagods.clientes;
+package com.tiagods.clientes.controller;
 
 import com.tiagods.clientes.dao.ClientesDAO;
 import javafx.application.Platform;
@@ -17,6 +17,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+import com.tiagods.clientes.model.*;
+import com.tiagods.clientes.*;
 
 public class Controller implements Initializable {
     @FXML
@@ -46,9 +48,11 @@ public class Controller implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         tableStatus();
-        loadCache();
-        filtrar();
-        table();
+        //loadCache();
+        Platform.runLater(()->{
+            filtrar();
+            table();
+        });
     }
 
     List<String> getTbColumns(ObservableList<TableColumn> tbColumns) {
@@ -191,6 +195,7 @@ public class Controller implements Initializable {
         puxarFiltro(txText2, cbComboBox2);
         puxarFiltro(txText3, cbComboBox3);
         refreshTabelaStatus();
+
         tbTable.getItems().setAll(dataPesquisa.getData());
     }
 
@@ -253,7 +258,7 @@ public class Controller implements Initializable {
             linhasPesquisa.addAll(dataPesquisa.getData());
         }
 
-        dataPesquisa = new DataResult(colunasOrdem, linhasPesquisa);
+        dataPesquisa = new DataResult(dataPesquisa.getColumns(), linhasPesquisa);
     }
 
     @FXML
@@ -312,7 +317,6 @@ public class Controller implements Initializable {
                 column.setVisible(false);
             }
             tbTable.getColumns().add(column);
-
         }
 
         int finalIndexColor = indexColor;
@@ -331,7 +335,10 @@ public class Controller implements Initializable {
                 }
             }
         });
+
+        System.out.println(String.format("Total de colunas da tabela %d", tbTable.getColumns().size()));
         tbTable.setTableMenuButtonVisible(true);
+        System.out.println(String.format("Total de linhas da tabela %d", tbTable.getItems().size()));
         TableUtils.installCopyPasteHandler(tbTable);
     }
 }

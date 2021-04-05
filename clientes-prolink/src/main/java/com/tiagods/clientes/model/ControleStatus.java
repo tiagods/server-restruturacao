@@ -1,4 +1,4 @@
-package com.tiagods.clientes;
+package com.tiagods.clientes.model;
 
 public class ControleStatus {
     private String nome;
@@ -6,8 +6,6 @@ public class ControleStatus {
     private Long totalFiltro = 0L;
     private String style = "-fx-fill : white; -fx-background-color: yellow";
 
-    //setStyle("-fx-fill : white; -fx-background-color: yellow");
-    //setStyle("-fx-fill : black;");
     public ControleStatus(String nome, Long total) {
         this.nome = nome;
         this.total = total;

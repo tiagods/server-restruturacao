@@ -1,4 +1,4 @@
-package com.tiagods.clientes;
+package com.tiagods.clientes.model;
 
 import java.util.List;
 
