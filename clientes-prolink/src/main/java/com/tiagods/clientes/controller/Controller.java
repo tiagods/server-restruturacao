@@ -8,7 +8,11 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+
+import java.awt.*;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -16,6 +20,7 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 import com.tiagods.clientes.model.*;
 import com.tiagods.clientes.*;
@@ -108,9 +113,15 @@ public class Controller implements Initializable {
                 fileWriter.flush();
                 fileWriter.close();
 
-                Runtime.getRuntime().load(fileName);
+                Desktop.getDesktop().open(new File(fileName));
             } catch (IOException exception) {
                 exception.printStackTrace();
+
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Erro");
+                alert.setHeaderText("Não foi possivel iniciar o programa");
+                alert.setContentText("Falha ao abrir o aplicativo\n" + exception);
+                alert.showAndWait();
             }
         }
     }
