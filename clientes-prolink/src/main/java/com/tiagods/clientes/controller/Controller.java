@@ -259,7 +259,7 @@ public class Controller implements Initializable {
                         .stream()
                         .filter(obj-> {
                             String value = obj.get(index).toString();
-                            return value.toLowerCase().contains(tx);
+                            return value.toLowerCase().contains(tx.toLowerCase());
                         })
                         .collect(Collectors.toList());
             } else {
