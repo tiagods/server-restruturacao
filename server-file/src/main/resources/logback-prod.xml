@@ -30,7 +30,7 @@
         </encoder>
         <!--The maximum size of the log file-->
         <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <MaxFileSize>100MB</MaxFileSize>
+            <MaxFileSize>10MB</MaxFileSize>
         </triggeringPolicy>
     </appender>
 

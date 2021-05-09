@@ -50,9 +50,11 @@ public class ServerFileApplication extends SpringBootServletInitializer implemen
     public void run(String... args) throws Exception {
         log.info("Listando variaveis de obrigacoes");
         obrigacaoConfig.getObrigacoes().forEach((key, value)->{
-            log.info("Variavel=({}), Path=({})", key, value);
+            //log.info("Variavel=({}), Path=({})", key, value);
         });
         //job.executar();
+
+        job.executar();
     }
 
     void recuva() {

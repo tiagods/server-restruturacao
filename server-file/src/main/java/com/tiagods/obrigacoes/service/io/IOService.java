@@ -41,11 +41,11 @@ public class IOService {
         String fileName = renomearSemId && !validarSeIniciaComId(cid, arquivo, cli, true) ?
                     cli.getIdFormatado() + "-" + nome : nome;
 
-        log.info("Correlation: [{}]. Nome do arquivo: ({}) para ({})", cid, nome, fileName);
+        log.debug("Correlation: [{}]. Nome do arquivo: ({}) para ({})", cid, nome, fileName);
         Path newStructureFile = estrutura.resolve(fileName);
         log.info("Correlation: [{}]. Nova estrutura de arquivo: ({})", cid, newStructureFile.toString());
         Path finalFile = pastaCliente.resolve(newStructureFile);
-        log.info("Correlation: [{}]. Nova caminho de arquivo: ({})", cid, finalFile.toString());
+
         try {
             IOUtils.criarDiretorios(finalFile.getParent());
             log.info("Correlation: [{}]. Movendo ({}) para ({})",
@@ -54,8 +54,8 @@ public class IOService {
             arquivoDAOService.convertAndSave(cid, arquivo,finalFile, cli);
             return finalFile;
         }catch (IOException e){
-            arquivoDAOService.salvarErro(cid, arquivo,finalFile,e.getMessage(), ArquivoErroDTO.Status.ERROR, cli);
-            log.error("Correlation: [{}]. Falha ao mover arquivo: ({}), ex:{}", cid, arquivo.toString(), e.getMessage());
+            arquivoDAOService.salvarErro(cid, arquivo,finalFile, e.getMessage(), ArquivoErroDTO.Status.ERROR, cli);
+            log.error("Correlation: [{}]. Falha ao mover arquivo: ({}), ex:{}", cid, arquivo.toString(), e);
             return null;
         }
     }

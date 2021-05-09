@@ -13,6 +13,7 @@ import com.tiagods.obrigacoes.dto.ClienteDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -78,8 +79,8 @@ public class ClienteService {
             );
         });
         log.info("Correlation: [{}]. Inicializando mapeamento de clientes. Parametros : {}", cid, parametros);
-
         log.info("Correlation: [{}]. Iniciando mapeamento de clientes", cid);
+
         Set<Path> set = listarPastasNaBase(cid);
 
         synchronized (cliMap) {
@@ -113,14 +114,13 @@ public class ClienteService {
     //mapeamento de pastas
     private void mapearClientePastas(String cid, Cliente c, Set<Path> files, boolean organizar, boolean forcarCreate) {
         Optional<Path> file = IOUtils.buscarPastaPorId(c, files);
-
-        log.info("Correlation: [{}]. Buscando pasta para o cliente: {}, pasta encontrada=({})",
-                cid, c.getIdFormatado(), file.isPresent()? file.get().toString() : null);
-
         Optional<ClienteDTO> opt = clientDTOList.stream().filter(f-> f.getApelido().equals(c.getId())).findFirst();
         //verificar se ja foi criado
         boolean isCriado = opt.map(ClienteDTO::isFolderCreate).orElse(true);
-        log.info("Correlation: [{}]. Pasta do cliente: {} ja foi criada? {}", cid, c.getIdFormatado(), isCriado);
+
+        log.info("Correlation: [{}].Cliente=({}), pasta existe=({}), ja foi criada? {} ", cid, c.getIdFormatado(),
+                (file.isPresent() ? file.get().toString() : null), isCriado
+        );
 
         Pair<Cliente, Path> pair;
         Path destinoDesligada = shutdown.resolve(c.toString());
@@ -245,7 +245,10 @@ public class ClienteService {
                 .stream()
                 .filter(c -> c.getId().equals(id))
                 .findFirst();
-        log.info("Correlation: [{}]. Encontrado cliente com o apelido {} ? {}", cid, id, result.isPresent());
+
+        if(!result.isPresent()) {
+            log.warn("Correlation: [{}]. Nao Encontrado cliente com o apelido ({})", cid, id);
+        }
         return result;
     }
 
@@ -257,7 +260,9 @@ public class ClienteService {
                 .stream()
                 .filter(c -> c.getCnpjFormatado().equals(cnpj))
                 .findFirst();
-        log.info("Correlation: [{}]. Encontrado cliente com o cnpj {} ? {}", cid, cnpj, result.isPresent());
+        if(!result.isPresent()) {
+            log.warn("Correlation: [{}]. Encontrado cliente com o cnpj {} ? {}", cid, cnpj, result.isPresent());
+        }
         return result;
     }
 
@@ -268,23 +273,27 @@ public class ClienteService {
     }
 
     public void verificarDiretoriosBaseECriar(String cid) {
-        log.info("Correlation: [{}]. Iniciando verificação de diretorios base", cid);
+        if(base == null || shutdown==null || model == null) {
+            log.info("Correlation: [{}]. Iniciando verificação de diretorios base", cid);
 
-        base = Paths.get(serverFile.getBase());
-        shutdown = Paths.get(serverFile.getShutdown());
-        model = Paths.get(serverFile.getModel());
-        try {
-            if (!IOUtils.verificarSeExiste(base)) {
-                log.error("Correlation: [{}]. Pasta {} não existe", cid, base.toString());
-                throw new EstruturaNotFoundException("Base de arquivos não existe");
+            base = Paths.get(serverFile.getBase());
+            shutdown = Paths.get(serverFile.getShutdown());
+            model = Paths.get(serverFile.getModel());
+            try {
+                if (!IOUtils.verificarSeExiste(base)) {
+                    log.error("Correlation: [{}]. Pasta {} não existe", cid, base.toString());
+                    throw new EstruturaNotFoundException("Base de arquivos não existe");
+                }
+                IOUtils.criarDiretorio(shutdown);
+                IOUtils.criarDiretorio(model);
+                log.info("Correlation: [{}]. Concluindo verificação de pastas base", cid);
+            } catch (IOException e) {
+                log.error("Correlation: [{}]. Falha ao criar pastas ex=({})", cid, e.getMessage());
+                throw new EstruturaNotFoundException("Pastas importantes não foram encontradas: "
+                        + e.getMessage(), e.getCause());
             }
-            IOUtils.criarDiretorio(shutdown);
-            IOUtils.criarDiretorio(model);
-            log.info("Correlation: [{}]. Concluindo verificação de pastas base", cid);
-        } catch (IOException e) {
-            log.error("Correlation: [{}]. Falha ao criar pastas ex=({})", cid, e.getMessage());
-            throw new EstruturaNotFoundException("Pastas importantes não foram encontradas: "
-                    + e.getMessage(), e.getCause());
+        } else {
+            log.info("Correlation: [{}]. Diretorios base ja mapeados base=({}), shutdown=({}), model=({})", cid, base, shutdown, model);
         }
     }
 
