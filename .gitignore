@@ -2,6 +2,7 @@ HELP.md
 target/
 */out/
 */.mvn/
+*/.gradle/
 application.properties
 application.yml
 application-dev.yml
