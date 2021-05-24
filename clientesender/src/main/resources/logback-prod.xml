@@ -46,7 +46,7 @@
             <!--connection pool  -->
             <dataSource class="org.apache.commons.dbcp.BasicDataSource">
                 <driverClassName>org.postgresql.Driver</driverClassName>
-                <url>${logs.url}</url>
+                <url>${spring.datasource.url}</url>
                 <username>${spring.datasource.username}</username>
                 <password>${spring.datasource.password}</password>
             </dataSource>

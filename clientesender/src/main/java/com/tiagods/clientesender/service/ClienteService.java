@@ -40,7 +40,7 @@ public class ClienteService {
     @Autowired EmailConfig emailConfig;
     @Autowired ClienteRepository clienteRepository;
 
-    int totalEnvios = 0;
+    long totalEnvios = 0;
 
     public List<Cliente> listarClientes() {
         return Arrays.asList(
@@ -51,13 +51,12 @@ public class ClienteService {
         );
     }
 
-
-    public List<Cliente> listarTodosCliente() {
+    public List<Cliente> listarTodosClientes() {
         return clienteRepository.findAll();
     }
 
     public Optional<Cliente> buscarClientePorId(String apelido) {
-        return listarClientes()
+        return listarTodosClientes()
                 .stream()
                 .filter(f -> f.getApelido().equals(apelido))
                 .findFirst();
@@ -177,15 +176,14 @@ public class ClienteService {
 
         EmailDto email = montarEmailDto(cid, cliResource, cliResource.getControle(), pe2);
         cliResource.setEmailDto(email);
-        int total = totalEnvios + email.getPara().length + email.getCc().length + email.getBcc().length;
-        cliResource.setTotalContatos(total);
+        cliResource.setTotalContatos(totalEnvios, email);
 
         var controle = cliResource.getControle();
         var dataParaEnvio = recuperarDataEnvio(cid, pe2, controle);
         var dataValida = validarDataParaEnvio(cid, LocalDate.now(), dataParaEnvio, pe2, controle);
 
-        if(total > 99) {
-            log.error("Tracking: [{}]. Limite de envios ultrapassa o tamanho permitido, atual=({}), proximo=({})", cid, totalEnvios, total);
+        if(cliResource.getTotalContatos() > 99l) {
+            log.error("Tracking: [{}]. Limite de envios ultrapassa o tamanho permitido, atual=({}), proximo=({})", cid, totalEnvios, cliResource.getTotalContatos());
             throw new RuntimeException("Limites de envios ultrapassado");
         }
 
@@ -195,7 +193,7 @@ public class ClienteService {
             var emailDto = emailService.sendHtmlEmail(cid, cliResource.getEmailDto());
 
             if(emailDto != null) {
-                totalEnvios += cliResource.getTotalContatos();
+                totalEnvios = cliResource.getTotalContatos();
                 controle = notificacaoControleService.salvar(controle);
                 var notificacao = new NotificacaoEvento(controle.getId(), cliResource.getCliente(), cliResource.getProcesso(), cliResource.getEmailDto());
                 notificacaoEventoService.salvar(notificacao);

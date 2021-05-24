@@ -54,11 +54,11 @@ public class ClientesenderApplication implements CommandLineRunner {
 
 		//emailService.sendHtmlEmail(UUID.randomUUID().toString(), emailDto);
 
-		var clientes = clienteService.listarTodosCliente();
+		var clientes = clienteService.listarTodosClientes();
 
 		var cli = clientes.stream().filter(f -> f.getIdCliente() ==17l).findFirst().get();
 		log.info("Analizando consulta: clientes=({}), cliente({})", clientes.size(), cli);
 
-		//clienteService.inicarPorProcesso(null, ProcessoEnum.BALANCETE);
+		clienteService.inicarPorProcesso(null, ProcessoEnum.BALANCETE);
 	}
 }

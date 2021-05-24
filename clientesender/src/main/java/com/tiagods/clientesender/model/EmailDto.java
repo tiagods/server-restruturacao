@@ -86,7 +86,6 @@ public class EmailDto {
     // getters and setters not mentioned for brevity
     private String[] splitByComma(String toMultiple) {
 
-
         String[] split = toMultiple.split(",");
 
         Set<String> toSplit = new TreeSet<>();
