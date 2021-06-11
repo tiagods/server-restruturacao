@@ -10,12 +10,14 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.util.StringUtils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @SpringBootApplication
@@ -59,6 +61,6 @@ public class ClientesenderApplication implements CommandLineRunner {
 		var cli = clientes.stream().filter(f -> f.getIdCliente() ==17l).findFirst().get();
 		log.info("Analizando consulta: clientes=({}), cliente({})", clientes.size(), cli);
 
-		clienteService.inicarPorProcesso(null, ProcessoEnum.BALANCETE);
+		clienteService.inicarPorProcesso(UUID.randomUUID().toString(), ProcessoEnum.BALANCETE);
 	}
 }

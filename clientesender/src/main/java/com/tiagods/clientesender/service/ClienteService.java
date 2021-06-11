@@ -308,20 +308,20 @@ public class ClienteService {
         var pathDestino = Paths.get(stringDestino);
         var cid = clienteResource.getCid();
 
+        /*
         try {
             if (Files.notExists(pathDestino)) {
                 Files.createDirectory(pathDestino);
             }
             for (Path arquivo : clienteResource.getArquivos()) {
                 var destino = pathDestino.resolve(arquivo.getFileName());
-
                 log.info("Tracking: [{}]. Iniciando movimentacao de arquivos do cliente=({}), de=({}), para=({}))", cid, clienteResource.getCliente().getIdCliente(), arquivo.toString(), destino.toString());
-
-                //Files.move(arquivo, destino, StandardCopyOption.REPLACE_EXISTING);
+                Files.move(arquivo, destino, StandardCopyOption.REPLACE_EXISTING);
             }
 
         } catch (IOException err) {
             log.error("Tracking: [{}]. Erro ao mover arquivos do cliente=({}), erro=({})", cid, clienteResource.getCliente().getIdCliente(), err);
         }
+         */
     }
 }
