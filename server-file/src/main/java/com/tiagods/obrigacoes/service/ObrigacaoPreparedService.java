@@ -60,9 +60,9 @@ public class ObrigacaoPreparedService {
                     try {
                         iniciarMovimentacaoPorObrigacao(cid, contrato, obrigacao);
                     } catch (ParametroNotFoundException e) {
-                        e.printStackTrace();
+                        log.error(e.getMessage());
                     } catch (PathInvalidException e) {
-                        e.printStackTrace();
+                        log.error(e.getMessage());
                     }
                 }
             }
@@ -99,20 +99,21 @@ public class ObrigacaoPreparedService {
                         //pegar o nome do diretorio e remover qualquer outro adicional do nome para pegar o periodo mes ou ano
                         try {
                             String ano = contrato.getMesOuAno(Periodo.ANO, nomePasta);
-                            log.info("Ano da pasta=[" + ano + "]");
+                            log.info("Correlation: [{}]. Ano da pasta=[" + ano + "]", cid);
                             Path estrutura = Paths.get(tipo.getEstrutura(), ano);
-                            log.info("Nome da estrutura=[" + estrutura + "]");
+
+                            if(!contrato.contains(Periodo.MES))
+                                log.info("Correlation: [{}]. ano: ({}), estrutura:({})", cid, ano, estrutura.toString());
 
                             if (contrato.contains(Periodo.MES)) {
                                 capturarPastasPeriodo(cid, folderAno, Periodo.MES, pastaMesObrigatoria)
                                         .forEach(folderMes -> {
                                             String mes = folderMes.getFileName().toString();
                                             try {
+
                                                 mes = contrato.getMesOuAno(Periodo.MES, mes);
-                                                log.info("Nome da pasta mes: " + mes + "\t" + folderMes.toString());
-                                                log.info("Mes da pasta=[" + mes + "]");
                                                 Path novaEstrutura = estrutura.resolve(mes);
-                                                log.info("Estrutura pasta mes=[" + novaEstrutura + "]");
+                                                log.info("Correlation: [{}]. Ano: ({}), Mes: ({}), Estrutura:({})", cid, ano, mes, novaEstrutura);
                                                 operacaoService.moverPastaOuArquivo(cid, folderMes, novaEstrutura, clienteApelido, true, tipo.getTipoArquivo());
                                             } catch (ParametroNotFoundException e) {
                                                 log.error(e.getMessage());

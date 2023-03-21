@@ -24,7 +24,8 @@ public class IOService {
     //tentar mover, se nao conseguir usar o diretorio de origem
     public Pair<Cliente, Path> mover(String cid, Cliente cliente, Path origin, Path destination){
         try{
-            log.info("Correlation: [{}]. Movendo [{}] para [{}]", cid, origin, destination);
+            String id = cliente != null ? cliente.getIdFormatado() : "";
+            log.info("Correlation: [{}]. Cliente: {} Movendo [{}] para [{}]", cid, id, origin, destination);
             Files.move(origin, destination, StandardCopyOption.REPLACE_EXISTING);
             arquivoDAOService.convertAndSave(cid, origin, destination, cliente);
             return new Pair<>(cliente, destination);

@@ -38,7 +38,6 @@ public class ProcessarService {
     }
 
     public void moverArquivo(String cid, String apelido, Path pastaBaseScannear, Path estrutura, boolean travarEstrutura) {
-        log.info("Correlation: [{}]. Iniciando movimentação de arquivos: [{}]", cid, pastaBaseScannear);
         try {
             clienteService.verificarEstruturaNoModelo(estrutura);
             processarArquivos(cid, null, false, null, apelido, pastaBaseScannear,
@@ -50,7 +49,6 @@ public class ProcessarService {
 
     public void moverPasta(String cid, String apelido, Path pastaBaseScannear, Path estrutura, boolean travarEstrutura) {
         try {
-            log.info("Correlation: [{}]. Iniciando movimentação de arquivos: [{}]", cid, pastaBaseScannear);
             clienteService.verificarEstruturaNoModelo(estrutura);
             Optional<String> optionalS = Optional.ofNullable(apelido);
             String newRegex = "";
@@ -78,7 +76,7 @@ public class ProcessarService {
                 } else {
                     Cliente cli = mapPath.get(p);
                     clienteService.addFolderToJob(p);
-                    log.info("Correlation: [{}]. Estrutura: ({}). Processando item=[{} de {}] do cliente: {}",
+                    log.info("Correlation: [{}]. Estrutura: ({}). Processando item=({}) de ({}) do cliente: ({})",
                             cid, estrutura.toString(), i, total, cli.getIdFormatado());
                     Path pastaDoCliente = clienteService.buscarPastaDoClienteECriarSeNaoExistir(cid, cli);
                     if (pastaDoCliente != null) {

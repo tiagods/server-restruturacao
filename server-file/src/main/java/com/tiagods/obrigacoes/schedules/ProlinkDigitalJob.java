@@ -22,7 +22,7 @@ public class ProlinkDigitalJob {
     ServerFile serverFile;
 
     //rodar as 1:00, 2 e 3 do dia 1
-    // @Scheduled(cron = "0 0 1,23 1 * ?")
+    // @Scheduled(cron = "0 0 1,23 1-5 * ?")
     public void agendarProlinkDigital() {
         String cid = UUID.randomUUID().toString();
         log.info("Correlation: [{}]. Iniciando processo - Movendo por agendamento", cid);

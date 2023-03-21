@@ -64,22 +64,18 @@ public class ClienteService {
             put("forcarCriacao", forcarCriacao);
         }};
 
-        log.info("Correlation: [{}] Inicializando mapeamento de clientes. Parametros : {}", cid, parametros);
-
         //carregar e converter lista de clientes
         if(cliente!=null) {
             clientDTOList.add(cliente);
         } else {
             clientDTOList = clienteDAOService.list();
         }
-        log.info("Correlation: [{}]. Carregando lista de clientes: ({})", cid, clientDTOList.size());
         clientDTOList.forEach(c -> {
             clientSet.add(
                     new Cliente(c.getApelido(), c.getNome(), c.getStatus(), c.getCnpj())
             );
         });
-        log.info("Correlation: [{}]. Inicializando mapeamento de clientes. Parametros : {}", cid, parametros);
-        log.info("Correlation: [{}]. Iniciando mapeamento de clientes", cid);
+        log.info("Correlation: [{}]. Inicializando mapeamento de clientes. Total clientes:{}, parametros : {}", cid, clientDTOList.size(), parametros);
 
         Set<Path> set = listarPastasNaBase(cid);
 
@@ -88,7 +84,7 @@ public class ClienteService {
                 mapearClientePastas(cid, c, set, organizar, forcarCriacao);
             });
         }
-        log.info("Correlation: [{}[. Concluido mapeamento: de pastas de clientes", cid);
+        log.info("Correlation: [{}]. Concluido mapeamento: de pastas de clientes", cid);
     }
 
     //listar todos os clientes ativos, inativos e suas pastas
@@ -117,11 +113,6 @@ public class ClienteService {
         Optional<ClienteDTO> opt = clientDTOList.stream().filter(f-> f.getApelido().equals(c.getId())).findFirst();
         //verificar se ja foi criado
         boolean isCriado = opt.map(ClienteDTO::isFolderCreate).orElse(true);
-
-        log.info("Correlation: [{}].Cliente=({}), pasta existe=({}), ja foi criada? {} ", cid, c.getIdFormatado(),
-                (file.isPresent() ? file.get().toString() : null), isCriado
-        );
-
         Pair<Cliente, Path> pair;
         Path destinoDesligada = shutdown.resolve(c.toString());
         Path destinoAtiva = base.resolve(c.toString());
@@ -138,8 +129,8 @@ public class ClienteService {
                     pair = moverPastaCliente(cid, c, file.get(), shutdown, nomeCorreto, destinoDesligada);
                 else pair = moverPastaCliente(cid, c, file.get(), base, nomeCorreto, destinoAtiva);
 
-                log.info("Correlation: [{}]. Pasta do cliente: {} foi renomeada de ({}) para ({})",
-                        cid, c.getIdFormatado(), file.get().toString(), pair.getPath().toString());
+                log.info("Correlation: [{}]. Pasta do cliente: ({}), status: ({}) foi renomeada de ({}) para ({})",
+                        cid, c.getIdFormatado(), c.getStatus(),file.get().toString(), pair.getPath().toString());
             }
             else pair = new Pair<>(c,file.get());
         }
@@ -152,8 +143,6 @@ public class ClienteService {
             } else {
                 pair = montarEstruturaNoCliente(cid, c, destinoAtiva);
             }
-            log.info("Correlation: [{}]. Pasta do cliente: {}. Pasta criada {}",
-                    cid, c.getIdFormatado(), pair.getPath().toString());
 
             Optional<ClienteDTO> dtoOptional = clienteDAOService.findOne(c.getId());
             if(dtoOptional.isPresent()){
@@ -169,8 +158,8 @@ public class ClienteService {
     //criar estrutura no cliente com base nos parametros passados
     private Pair<Cliente, Path> montarEstruturaNoCliente(String cid, Cliente c, Path path){
         Pair<Cliente, Path> pair = IOUtils.criarDiretorioCliente(c, path);
-        log.info("Correlation: [{}]. Cliente:{}. Criado pasta: {}", cid, c.getIdFormatado(), path.toString());
         if(Files.exists(path)) {
+            log.info("Correlation: [{}]. Cliente:{}. Criado pasta: {}", cid, c.getIdFormatado(), path.toString());
             // usado para criar uma estrutura basica
             // de um novo cliente com pastas basicas como GERAL, FISCAL, CONTABIL
             List<ClientDefaultPathDTO> paths = clienteDAOService.listarPastasPadroes();
@@ -191,8 +180,6 @@ public class ClienteService {
                                                   boolean nomeCorreto, Path destino){
         boolean localCorreto = file.getParent().equals(base);
         if (!localCorreto || !nomeCorreto) {
-            log.info("Correlation: [{}]. Movendo cliente:{}. Criado pasta: {} de ({}) para ({})",
-                    cid, c.getIdFormatado(), file.toString(), destino.toString());
             return ioService.mover(cid, c, file, destino);
         } else return new Pair<>(c, destino);
     }
@@ -221,7 +208,6 @@ public class ClienteService {
     }
 
     public Path buscarPastaBaseClientePorId(String cid, Long id) {
-        log.info("Correlation: [{}]. Buscando pasta base do apelido {}", cid, id);
         Optional<Path> optional = buscarClienteEmMapPorId(cid, id)
                 .map(c-> buscarPastaBaseCliente(cid, c));
 
@@ -261,7 +247,7 @@ public class ClienteService {
                 .filter(c -> c.getCnpjFormatado().equals(cnpj))
                 .findFirst();
         if(!result.isPresent()) {
-            log.warn("Correlation: [{}]. Encontrado cliente com o cnpj {} ? {}", cid, cnpj, result.isPresent());
+            log.warn("Correlation: [{}]. Não foi encontrado cliente com o cnpj ({}) ? Found: ({})", cid, cnpj, result.isPresent());
         }
         return result;
     }
@@ -274,8 +260,6 @@ public class ClienteService {
 
     public void verificarDiretoriosBaseECriar(String cid) {
         if(base == null || shutdown==null || model == null) {
-            log.info("Correlation: [{}]. Iniciando verificação de diretorios base", cid);
-
             base = Paths.get(serverFile.getBase());
             shutdown = Paths.get(serverFile.getShutdown());
             model = Paths.get(serverFile.getModel());
